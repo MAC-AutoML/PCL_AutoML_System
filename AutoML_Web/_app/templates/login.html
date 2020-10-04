@@ -9,6 +9,9 @@
     <div style="margin: 15% 40%;">
         <h1>欢迎登录！</h1>
        <form action="/login/" method="post">
+        {% if message %}
+                    <div class="alert alert-warning">{{ message }}</div>
+        {% endif %}
         {% csrf_token %}
             <p>
                 <label for="id_username">用户名：</label>

@@ -23,3 +23,8 @@ class User(models.Model):
         ordering = ["-c_time"]
         verbose_name = "用户"
         verbose_name_plural = "用户"
+
+
+class Dataset(models.Model):
+    name = models.CharField(max_length=128, unique=True)
+    task = models.CharField(max_length=128)
