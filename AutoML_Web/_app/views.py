@@ -38,12 +38,12 @@ def register(request):
         password = request.POST.get('password','') 
         repeat_password = request.POST.get('repeat_password', '') 
         email=request.POST.get('email', '')   
-        if( models.User.objects.filter(username=username) or username == '0'):
+        if( models.User.objects.filter(username=username) or username == '0'or len(username)<2 ):
             content={
-                'username' :username
+                'username' :username,
             }
             return render(request,'register.html',content)
-        elif(password == repeat_password):
+        elif(password == repeat_password and len(password)>6 ):
             new_user=models.User.objects.create_user(username=username,
             password=password,email=email)
             new_user.save()
