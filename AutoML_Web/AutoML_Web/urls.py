@@ -20,8 +20,10 @@ from _app import views
 urlpatterns = [
     path('', views.login),
     path('admin/', admin.site.urls),
-    path('index/', views.index),
-    path('login/', views.login),
-    path('register/', views.register),
-    path('logout/', views.logout),
+    path('index/', views.index,name='index'),
+    path('login/', views.login,name='login'),
+    path('register/', views.register,name='register'),
+    path('logout/', views.logout,name='logout'),
+    path('userinfo/',views.userinfo,name='userinfo'),
+    path('set_password/',views.set_password,name='set_password'),
 ]
