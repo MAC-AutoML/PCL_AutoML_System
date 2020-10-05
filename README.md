@@ -1,8 +1,7 @@
 # PCL_AutoML_System
+This project is based on Django (Backend), Bootstrap/Vue.js (Frontend)
 
- This project is based on Django (Backend), Bootstrap/Vue.js (Frontend)
+## Environment:
 
-## Environment
-
-Python 3.8
-Django 2.2
+- Python 3.8
+- Django 2.2
