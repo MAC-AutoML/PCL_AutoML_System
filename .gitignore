@@ -11,6 +11,7 @@ tmp/
 *hyper.md
 *debug.py
 benchmark/
+# Specific file
 test.py
 test.ipynb
 server.js
