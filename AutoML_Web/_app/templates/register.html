@@ -5,12 +5,12 @@
     <title>注册</title>
 </head>
 <body>
-<h1>注册页面</h1>
 <div style="margin: 15% 40%;">
     <h1>欢迎注册！</h1>
+    <a href="{% url 'login' %}"> 登录 </a>
    <form method="post">
     {% if content %}
-                <div type = "text">{{ content }}</div>
+        <div class="alert alert-warning"> {{ content.username }} HAVE Been REGISTED</div>
     {% endif %}
     {% csrf_token %}
         <p>
