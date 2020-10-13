@@ -14,20 +14,26 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
+
+from django.conf.urls import url,include
+
 from django.urls import path,re_path
 from django.views.generic.base import TemplateView
 from _app import views
+# import django_adminlte
+# import django_adminlte_theme
 
 urlpatterns = [
-    path('', views.login),
+    path('', views.redirecter),
     path('test/',TemplateView.as_view(template_name="test.html")),
     path('admin/', admin.site.urls),
+    # url(r'index/',include("django_adminlte_theme.urls"),name='index'),
+    # AutoML_Web/django_adminlte_theme/templates/admin/index.html
     path('index/', views.index,name='index'),
-    # path('login/', TemplateView.as_view(template_name="login.html")),
     path('login/', views.login,name='login'),
     path('register/', views.register,name='register'),
     path('logout/', views.logout,name='logout'),
     path('userinfo/',views.userinfo,name='userinfo'),
     path('set_password/',views.set_password,name='set_password'),
-    re_path(r'^.*$', views.login),
+    re_path(r'^.*$', views.redirecter),
 ]

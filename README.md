@@ -8,7 +8,3 @@ Frontend is also based on project
 
 - Python 3.8
 - Django 2.2
-- django-adminlte2
-    - `
-    pip install django-adminlte2
-    `
