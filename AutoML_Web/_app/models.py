@@ -8,7 +8,8 @@ class User(AbstractUser):
     _path = models.CharField(max_length=256, default='')
 
     def __str__(self):
-        return self.first_name + self.last_name
+        # return self.first_name + self.last_name
+        return self.username
 
     class Meta(AbstractUser.Meta):
         swappable = 'AUTH_USER_MODEL'

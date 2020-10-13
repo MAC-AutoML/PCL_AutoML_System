@@ -1,18 +1,6 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>首页</title>
-</head>
-<body>
-    <div> <h1> 这里是主页，等待前端美化中.... </h1> </div>
-    <div><a href="{% url 'index' %}">主页</a></div>
-    
-    {% if request.user.username %}
-        <div><a href="{% url 'userinfo' %}">用户中心</a></div>
-        <div><a href="{% url 'logout' %}">退出</a></div>
-    {% else %}
-        <div><a href="{% url 'login' %}">登录</a></div>
-    {% endif %}
-</body>
-</html>
+{% extends 'adminlte/base.html' %}
+
+{% block content %}
+    {{ request.user }}
+    啥玩意儿
+{% endblock %}

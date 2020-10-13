@@ -31,6 +31,7 @@ ALLOWED_HOSTS = ["*"]
 # Application definition
 
 INSTALLED_APPS = [
+    '_app',
     'django_adminlte',
     'django_adminlte_theme',
     'django.contrib.admin',
@@ -39,7 +40,6 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    '_app',
 ]
 
 MIDDLEWARE = [
@@ -111,7 +111,7 @@ AUTH_PASSWORD_VALIDATORS = [
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
-
+LOGIN_URL='/login/'
 
 # Internationalization
 # https://docs.djangoproject.com/en/3.1/topics/i18n/
