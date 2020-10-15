@@ -91,3 +91,18 @@ def logout(request):
 def userinfo(request):
     return render(request, "userinfo.html")
 
+def list_public(request,typer):
+    assert(type(typer)==str)
+    print(typer)
+    content={}
+    content["type"]=typer
+    lister=None
+    if(typer=="algorithm"):
+        lister=models.Algorithm.objects.all()
+    elif(typer == "dataset"):
+        lister=models.Dataset.objects.all()
+    else:
+        pass
+    print(lister)
+    content["list"]=lister
+    return render(request,"pub_list.html",content)
