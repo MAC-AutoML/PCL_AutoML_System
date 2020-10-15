@@ -22,7 +22,7 @@ class Dataset(models.Model):
     task = models.CharField(max_length=128)
     _path = models.CharField(max_length=256, default='')
     is_check = models.BooleanField(default=False)
-
+    objects=models.Manager()
     def __str__(self):
         return self.name
 
@@ -37,6 +37,7 @@ class Algorithm(models.Model):
     # code path
     _path = models.CharField(max_length=256, default='')
     is_check = models.BooleanField(default=False)
+    objects=models.Manager()
 
     def __str__(self):
         return self.name
@@ -51,6 +52,7 @@ class User_algorithm(models.Model):
     algorithm = models.ForeignKey(Algorithm, models.SET_NULL, null=True, blank=True)
     task = models.CharField(max_length=128, default='')
     _path = models.CharField(max_length=256, default='')
+    objects=models.Manager()
 
     def __str__(self):
         return self.name
@@ -65,6 +67,7 @@ class User_Job(models.Model):
     algorithm = models.ForeignKey(User_algorithm, models.CASCADE)
     dataset = models.ForeignKey(Dataset, models.SET_NULL, null=True)
     _path = models.CharField(max_length=256, default='')
+    objects=models.Manager()
 
     def __str__(self):
         return self.name
