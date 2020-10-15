@@ -6,9 +6,13 @@ from django.contrib import auth
 from django.contrib.auth.decorators import login_required
 # Create your views here.
 
+def redirecter(request,dst:str="/index/"):
+    return redirect(dst)
 
 def index(request):
-    pass
+    if(request.user):
+        if(request.user.is_staff):
+            return redirecter(request,"/admin/")
     return render(request, 'index.html')
 
 
@@ -25,7 +29,7 @@ def login(request):
             username=username, password=password)  # 验证是否存在用户
         if(user):
             auth.login(request, user)
-            return redirect('/userinfo/')
+            return redirect('/index/')
         else:
             message = "用户名或密码错误！"
             return render(request, 'login.html', {'message': message})
@@ -83,7 +87,7 @@ def logout(request):
     auth.logout(request)
     return redirect("/login/")
 
-
+@login_required
 def userinfo(request):
-
     return render(request, "userinfo.html")
+

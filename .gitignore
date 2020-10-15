@@ -11,14 +11,13 @@ tmp/
 *hyper.md
 *debug.py
 benchmark/
-# Specific file
+# Specific file / Backupfiles
 test.py
 test.ipynb
 server.js
-
+*.backup
 # C extensions
 *.so
-
 # Distribution / packaging
 .Python
 build/
