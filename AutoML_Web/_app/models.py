@@ -15,7 +15,6 @@ class User(AbstractUser):
         swappable = 'AUTH_USER_MODEL'
         ordering = ["-id"]
 
-
 # public dataset class
 class Dataset(models.Model):
     name = models.CharField(max_length=128, unique=True)
@@ -28,7 +27,8 @@ class Dataset(models.Model):
 
     class Meta:
         ordering = ["-id"]
-
+    def get_fields(self):
+        return [(field.name, field.value_to_string(self)) for field in self._meta.fields]
 
 # public algorithm class
 class Algorithm(models.Model):
@@ -44,7 +44,8 @@ class Algorithm(models.Model):
 
     class Meta:
         ordering = ["-id"]
-
+    def get_fields(self):
+        return [(field.name, field.value_to_string(self)) for field in self._meta.fields]
 
 class User_algorithm(models.Model):
     name = models.CharField(max_length=128)
@@ -59,7 +60,8 @@ class User_algorithm(models.Model):
 
     class Meta:
         ordering = ["-id"]
-
+    def get_fields(self):
+        return [(field.name, field.value_to_string(self)) for field in self._meta.fields]
 
 class User_Job(models.Model):
     name = models.CharField(max_length=128)
@@ -74,3 +76,5 @@ class User_Job(models.Model):
 
     class Meta:
         ordering = ["-id"]
+    def get_fields(self):
+        return [(field.name, field.value_to_string(self)) for field in self._meta.fields]

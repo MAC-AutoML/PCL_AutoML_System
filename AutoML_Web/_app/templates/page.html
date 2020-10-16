@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+{% block content %}
+    {% if item %}
+            <div class="box">
+            <div class="box-header with-border">
+                <h3 class="box-title">{{item.name}}</h3>
+                <div class="box-tools pull-right">
+                    <!-- Buttons, labels, and many other things can be placed here! -->
+                    <!-- Here is a label for example -->
+                    <span class="label label-primary">{{item.task}}</span>
+                </div><!-- /.box-tools -->
+            </div><!-- /.box-header -->
+            <div class="box-body">
+                {% for name,value in item.get_fields %}
+                    <p>
+                        {{name}} &nbsp  => &nbsp {{value}}
+                    </p>
+                {% endfor %}
+            </div><!-- /.box-body -->
+            <div class="box-footer">
+            <b>TASK IS : </b> {{item.task}}.
+            </div><!-- box-footer -->
+        </div><!-- /.box -->
+    {% endif %}
+{% endblock content %}

@@ -2,12 +2,12 @@
 
 {% block nav_links %}
     <li>
-        <a href="/">
+        <a href="{% url 'manage' 'algorithm' %}">
             <i class="fa fa-dashboard"></i> <span>My Algorithm</span>
         </a>
     </li>
     <li>
-        <a href="/">
+        <a href="{% url 'manage' 'job' %}">
             <i class="fa fa-dashboard"></i> <span>My Job</span>
         </a>
     </li>
