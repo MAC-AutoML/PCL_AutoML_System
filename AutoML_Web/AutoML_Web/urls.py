@@ -25,8 +25,9 @@ from _app import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    url(r'^(algorithm|dataset)/?',views.list_public,name="public"),
-    # url(r'^own/',include("_app.urls")),
+    url(r'^(algorithm|dataset)/?$',views.list_public,name="public"),
+    url(r'^(algorithm|dataset)/([0-9]+)/?$',views.detail_public,name="detail_public"),
+    url(r'^own/',include("_app.urls")),
     # url(r'index/',include("django_adminlte_theme.urls"),name='index'),
     # AutoML_Web/django_adminlte_theme/templates/admin/index.html
     path('index/', views.index,name='index'),

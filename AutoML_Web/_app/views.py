@@ -5,7 +5,14 @@ from . import models
 from django.contrib import auth
 from django.contrib.auth.decorators import login_required
 # Create your views here.
-
+PUBLIC_DICT={
+    "algorithm":models.Algorithm.objects,
+    "dataset":models.Dataset.objects,
+}
+PRIVATE_DICT={
+    "algorithm":models.User_algorithm.objects,
+    "job":models.User_Job.objects,
+}
 def redirecter(request,dst:str="/index/"):
     return redirect(dst)
 
@@ -87,22 +94,55 @@ def logout(request):
     auth.logout(request)
     return redirect("/login/")
 
-@login_required
+@login_required # Waited
 def userinfo(request):
     return render(request, "userinfo.html")
 
-def list_public(request,typer):
-    assert(type(typer)==str)
-    print(typer)
+def list_getter(typer,dicts):
     content={}
     content["type"]=typer
     lister=None
-    if(typer=="algorithm"):
-        lister=models.Algorithm.objects.all()
-    elif(typer == "dataset"):
-        lister=models.Dataset.objects.all()
-    else:
-        pass
-    print(lister)
+
+    if(dicts.__contains__(typer)):
+        lister=dicts[typer].all()
     content["list"]=lister
+    return content
+
+def list_public(request,typer):
+    content=list_getter(typer,PUBLIC_DICT)
+    content["is_public"]=True
+
     return render(request,"pub_list.html",content)
+
+@login_required
+def list_private(request,typer):
+    user=request.user
+    content=list_getter(typer,PRIVATE_DICT)
+    content["list"]=content["list"].filter(user=user)
+    return render(request,"pub_list.html",content)
+
+
+
+def detail_public(request,typer,pk):
+    content={}
+    item=None
+    if(PUBLIC_DICT.__contains__(typer)):
+        item=PUBLIC_DICT[typer].filter(id=pk)[0]    
+    content["item"]=item
+    content["path"]=item._path
+    return render(request,"page.html",content)
+
+@login_required
+def detail_private(request,typer,pk):
+    user=request.user
+    content={}
+    item=None
+    if(PRIVATE_DICT.__contains__(typer)):
+        item=PRIVATE_DICT[typer].filter(user=user).filter(id=pk)[0]
+    content["item"]=item
+    if(request.method == "GET"):
+        return render(request,"page.html",content)
+    if(request.method == 'POST'): # Ready for Form POST methods
+        pass
+        return render(request,"page.html",content)
+        # return render(request,"manage.html",content)
