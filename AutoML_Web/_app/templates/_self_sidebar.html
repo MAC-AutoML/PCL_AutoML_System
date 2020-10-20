@@ -2,18 +2,18 @@
 
 {% block nav_links %}
     <li>
-        <a href="{% url 'manage' 'algorithm' %}">
-            <i class="fa fa-dashboard"></i> <span>My Algorithm</span>
+        <a href="{% url 'private' 'algorithm' %}">
+            <i class="fa fa-circle"></i> <span>My Algorithm</span>
         </a>
     </li>
     <li>
-        <a href="{% url 'manage' 'job' %}">
-            <i class="fa fa-dashboard"></i> <span>My Job</span>
+        <a href="{% url 'private' 'job' %}">
+            <i class="fa fa-circle"></i> <span>My Job</span>
         </a>
     </li>
     <li class="treeview">
         <a href="#">
-            <i class="fa fa-group"></i> <span>Public Resource</span>
+            <i class="fa fa-dashboard"></i> <span>Public Resource</span>
             <span class="pull-right-container">
                 <i class="fa fa-angle-left pull-right"></i>
             </span>
@@ -21,10 +21,10 @@
         <ul class="treeview-menu">
             <li>
                 <a href="{% url 'public' 'algorithm' %}">
-                    <i class="fa fa-dashboard"></i> <span>Public Algorithm</span>
+                    <i class="fa fa-circle"></i> <span>Public Algorithm</span>
                 </a>
                 <a href="{% url 'public' 'dataset' %}">
-                    <i class="fa fa-dashboard"></i> <span>Public Dataset</span>
+                    <i class="fa fa-circle"></i> <span>Public Dataset</span>
                 </a>
             </li>
         </ul>
