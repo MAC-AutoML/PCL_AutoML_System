@@ -1,7 +1,10 @@
 {% extends 'base.html' %}
 {% block content %}
+    {% if request.user.is_authenticated %}
+        <button >
+    {% endif %}
     {% if item %}
-            <div class="box">
+        <div class="box">
             <div class="box-header with-border">
                 <h3 class="box-title">{{item.name}}</h3>
                 {% comment %} <div class="box-tools pull-right">

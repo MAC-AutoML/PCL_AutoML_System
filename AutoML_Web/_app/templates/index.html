@@ -45,7 +45,7 @@
             {% if request.user.is_authenticated %}
             <div class="col">
             {% for name in private %}
-                            <div class="card card-default">
+                <div class="card card-default">
                     <div class="card-header with-border">
                     <h3 class="card-title"> {{name}}</h3>
                         <div class="card-tools pull-right">
@@ -72,7 +72,7 @@
                         {% endfor %}
                         </tbody>
                     </table>
-                </div><!-- /.card-body -->
+                    </div><!-- /.card-body -->
                 </div><!-- /.card -->           
             {% endfor %}
                  {% comment %} <div class="card">
@@ -91,9 +91,7 @@
                     The footer of the card
                     </div><!-- card-footer -->
                 </div><!-- /.card --> {% endcomment %}
-
             </div>
-            {% else %}
             </div>
         </div>
     {% endif %}

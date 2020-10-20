@@ -55,7 +55,6 @@ def index(request):
             pass
     return render(request, 'index.html',content)
 
-
 def login(request):
     if(request.method == "GET"):
         return render(request, "login.html")
