@@ -6,17 +6,19 @@
     <!-- Header Navbar: style can be found in header.less -->
     {% block nav_bar %}
     <!-- Left navbar links -->
-    <ul class="navbar-nav">
-        <li class="nav-item">
-            <a class="nav-link" data-widget="pushmenu" href="#"><i class="fas fa-bars"></i></a>
-        </li>
-        <li class="nav-item d-none d-sm-inline-block">
-            <a href="/" class="nav-link">Home</a>
-        </li>
-        <li class="nav-item d-none d-sm-inline-block">
-            <a href="/admin" class="nav-link">Admin</a>
-        </li>
-    </ul>
+    {% block nav_bar_left %}
+        <ul class="navbar-nav">
+            <li class="nav-item">
+                <a class="nav-link" data-widget="pushmenu" href="#"><i class="fas fa-bars"></i></a>
+            </li>
+            <li class="nav-item d-none d-sm-inline-block">
+                <a href="/" class="nav-link">Home</a>
+            </li>
+            <li class="nav-item d-none d-sm-inline-block">
+                <a href="/admin/" class="nav-link">Admin</a>
+            </li>
+        </ul>
+    {% endblock nav_bar_left %}
 
     {% block nav_bar_center %}
     <!-- SEARCH FORM -->
@@ -30,7 +32,7 @@
             </div>
         </div>
     </form>
-    {% endblock %}
+    {% endblock nav_bar_center %}
 
     {% block nav_custom_menu %}
     <!-- Right navbar links -->
@@ -160,5 +162,5 @@
     </ul>
         {% endblock nav_custom_menu %}
 
-{% endblock %}
+{% endblock nav_bar %}
 </nav>

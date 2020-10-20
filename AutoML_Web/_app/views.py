@@ -3,9 +3,12 @@ from django.shortcuts import redirect
 from django.urls import reverse
 from . import models
 
+from django.core.paginator import Paginator
+
 from django.contrib import auth
 from django.contrib.auth.decorators import login_required
 # Create your views here.
+TOP=5
 PUBLIC_DICT={
     "algorithm":models.Algorithm.objects,
     "dataset":models.Dataset.objects,
@@ -14,14 +17,43 @@ PRIVATE_DICT={
     "algorithm":models.User_algorithm.objects,
     "job":models.User_Job.objects,
 }
+KEYS={
+    "public":["algorithm","dataset"],
+    "private":["algorithm","job"],
+}
+def list_getter(typer,dicts):
+    content={}
+    content["type"]=typer
+    lister=None
+
+    if(dicts.__contains__(typer)):
+        lister=dicts[typer]
+    content["list"]=lister
+    return content
+
 def redirecter(request,dst:str="/index/"):
     return redirect(dst)
 
 def index(request):
+    content={}
+    content["public"]={}
+    content["private"]={}
+    for name in KEYS["public"]:
+        pub=PUBLIC_DICT[name].all().order_by('id')
+        pub=pub[:TOP if TOP<pub.count() else pub.count()]
+        pub_name=[ [item.name,item.id] for item in pub]
+        content["public"][name]=pub_name
     if(request.user):
         if(request.user.is_staff):
             return redirecter(request,"/admin/")
-    return render(request, 'index.html')
+        if(request.user.is_authenticated):
+            for name in KEYS["private"]:
+                pub=PRIVATE_DICT[name].all()
+                pub=pub[:TOP if TOP<pub.count() else pub.count()]
+                pub_name=[ [item.name,item.id] for item in pub]
+                content["private"][name]=pub_name
+            pass
+    return render(request, 'index.html',content)
 
 
 def login(request):
@@ -97,16 +129,6 @@ def logout(request):
 @login_required # Waited
 def userinfo(request):
     return render(request, "userinfo.html")
-
-def list_getter(typer,dicts):
-    content={}
-    content["type"]=typer
-    lister=None
-
-    if(dicts.__contains__(typer)):
-        lister=dicts[typer]
-    content["list"]=lister
-    return content
 
 def list_public(request,typer):
     content=list_getter(typer,PUBLIC_DICT)

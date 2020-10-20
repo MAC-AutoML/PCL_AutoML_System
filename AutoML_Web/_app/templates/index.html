@@ -1,79 +1,101 @@
 {% extends 'base.html' %}
-
+{% load dicts %}<!-- 加载自定义的dict_get过滤器所在的文件 -->
 {% block content %}
-    {% if request.user.is_authenticated %}
         {% comment %} <div class="card">
             <div class="card-header">头部</div>
             <div class="card-body">内容</div> 
             <div class="card-footer">底部</div>
         </div> {% endcomment %}
-        {% comment %} <div class="container-fluid">
+        <div class="container-fluid">
             <div class="row">
-            <div class="col-lg-6 col-sm-3">
-                <div class="box box-default">
-                    <div class="box-header with-border">
-                    <h3 class="box-title">Labels</h3>
-                        <div class="box-tools pull-right">
-                            <span class="label label-default">8 New Messages</span>
-                        </div><!-- /.box-tools -->
-                    </div><!-- /.box-header -->
-                    <div class="box-body">
-                    The body of the box
-                    </div><!-- /.box-body -->
-                </div><!-- /.box -->
-                <div class="card">
-                <div class="card-body">
-                <h5 class="card-title">Public Algorithm</h5>
-                
-                <p class="card-text">
-                  Some quick example text to build on the card title and make up the bulk of the card's
-                  content.
-                </p>
+            <div class="col">
+            {% for name in public %}
+                <div class="card card-default">
+                    <div class="card-header with-border">
+                    <h3 class="card-title"> {{name}}</h3>
+                        <div class="card-tools pull-right">
+                            <span class="badge badge-primary">Public</span>
+                        </div><!-- /.card-tools -->
+                    </div><!-- /.card-header -->
+                    <div class="card-body table-responsive p-1">
+                    <table class="table table-striped table-valign-middle">
+                        <thead>
+                        <tr>
+                            <th>Index</th>
+                            <th>Name </th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for k in public|dict_get:name %}
+                            <tr "list-group-item">
+                            <td>
+                            {{ forloop.counter }}
+                            </td>
+                            <td class="card-text">
+                                <a href="{%url "detail_public" name k.1 %}" class="card-link" >{{k.0}}</a>
+                            </td></tr>  
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div><!-- /.card-body -->
+                </div><!-- /.card -->            
+            {% endfor %}
+            </div>
 
-                <a href="#" class="card-link">Card link</a>
-                <a href="#" class="card-link">Another link</a>
-              </div>
+            {% if request.user.is_authenticated %}
+            <div class="col">
+            {% for name in private %}
+                            <div class="card card-default">
+                    <div class="card-header with-border">
+                    <h3 class="card-title"> {{name}}</h3>
+                        <div class="card-tools pull-right">
+                            <span class="badge badge-primary">Private</span>
+                        </div><!-- /.card-tools -->
+                    </div><!-- /.card-header -->
+                    <div class="card-body table-responsive p-1">
+                    <table class="table table-striped table-valign-middle">
+                        <thead>
+                        <tr>
+                            <th>Index</th>
+                            <th>Name </th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for k in private|dict_get:name %}
+                            <tr "list-group-item">
+                            <td>
+                            {{ forloop.counter }}
+                            </td>
+                            <td >
+                                <a href="{%url "detail_private" name k.1 %}" class="card-link" >{{k.0}}</a>
+                            </td></tr>  
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div><!-- /.card-body -->
+                </div><!-- /.card -->           
+            {% endfor %}
+                 {% comment %} <div class="card">
+                    <div class="card-header with-border">
+                        <h3 class="card-title">Today‘s Knowedge</h3>
+                        <div class="card-tools pull-right">
+                            <!-- Buttons, labels, and many other things can be placed here! -->
+                            <!-- Here is a label for example -->
+                            <span class="badge badge-primary">Label</span>
+                        </div><!-- /.card-tools -->
+                    </div><!-- /.card-header -->
+                    <div class="card-body">
+                    The body of the card
+                    </div><!-- /.card-body -->
+                    <div class="card-footer">
+                    The footer of the card
+                    </div><!-- card-footer -->
+                </div><!-- /.card --> {% endcomment %}
+
             </div>
+            {% else %}
             </div>
-        </div> {% endcomment %}
-            <div class="box">
-                <div class="box-header with-border">
-                    <h3 class="box-title">Today‘s Knowedge</h3>
-                    <div class="box-tools pull-right">
-                        <!-- Buttons, labels, and many other things can be placed here! -->
-                        <!-- Here is a label for example -->
-                        <span class="label label-primary">Label</span>
-                        <button class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
-                    </div><!-- /.box-tools -->
-                </div><!-- /.box-header -->
-                <div class="box-body">
-                The body of the box
-                </div><!-- /.box-body -->
-                <div class="box-footer">
-                The footer of the box
-                </div><!-- box-footer -->
-            </div><!-- /.box -->
-            <div class="box">
-                <div class="box-header with-border">
-                    <h3 class="box-title">Today‘s Knowedge</h3>
-                    <div class="box-tools pull-right">
-                        <!-- Buttons, labels, and many other things can be placed here! -->
-                        <!-- Here is a label for example -->
-                        <span class="label label-primary">Label</span>
-                        <button class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
-                    </div><!-- /.box-tools -->
-                </div><!-- /.box-header -->
-                <div class="box-body">
-                The body of the box
-                </div><!-- /.box-body -->
-                <div class="box-footer">
-                The footer of the box
-                </div><!-- box-footer -->
-            </div><!-- /.box -->
-    {% else %}
-        <h1>
-            Please LOGGIN
-        </h1>
+        </div>
     {% endif %}
 
 {% endblock %}
