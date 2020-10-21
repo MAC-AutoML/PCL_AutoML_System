@@ -15,20 +15,20 @@ class User(AbstractUser):
         swappable = 'AUTH_USER_MODEL'
         ordering = ["-id"]
 
-
 # public dataset class
 class Dataset(models.Model):
     name = models.CharField(max_length=128, unique=True)
     task = models.CharField(max_length=128)
     _path = models.CharField(max_length=256, default='')
     is_check = models.BooleanField(default=False)
-
+    objects=models.Manager()
     def __str__(self):
         return self.name
 
     class Meta:
         ordering = ["-id"]
-
+    def get_fields(self):
+        return [(field.name, field.value_to_string(self)) for field in self._meta.fields]
 
 # public algorithm class
 class Algorithm(models.Model):
@@ -37,13 +37,15 @@ class Algorithm(models.Model):
     # code path
     _path = models.CharField(max_length=256, default='')
     is_check = models.BooleanField(default=False)
+    objects=models.Manager()
 
     def __str__(self):
         return self.name
 
     class Meta:
         ordering = ["-id"]
-
+    def get_fields(self):
+        return [(field.name, field.value_to_string(self)) for field in self._meta.fields]
 
 class User_algorithm(models.Model):
     name = models.CharField(max_length=128)
@@ -51,13 +53,15 @@ class User_algorithm(models.Model):
     algorithm = models.ForeignKey(Algorithm, models.SET_NULL, null=True, blank=True)
     task = models.CharField(max_length=128, default='')
     _path = models.CharField(max_length=256, default='')
+    objects=models.Manager()
 
     def __str__(self):
         return self.name
 
     class Meta:
         ordering = ["-id"]
-
+    def get_fields(self):
+        return [(field.name, field.value_to_string(self)) for field in self._meta.fields]
 
 class User_Job(models.Model):
     name = models.CharField(max_length=128)
@@ -65,9 +69,12 @@ class User_Job(models.Model):
     algorithm = models.ForeignKey(User_algorithm, models.CASCADE)
     dataset = models.ForeignKey(Dataset, models.SET_NULL, null=True)
     _path = models.CharField(max_length=256, default='')
+    objects=models.Manager()
 
     def __str__(self):
         return self.name
 
     class Meta:
         ordering = ["-id"]
+    def get_fields(self):
+        return [(field.name, field.value_to_string(self)) for field in self._meta.fields]

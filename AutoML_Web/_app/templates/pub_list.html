@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    {% if list %}
+        {% for item in list %}
+        {% comment %} <ul class="list-group">
+            <li class="list-group-item">免费域名注册</li>
+            <li class="list-group-item">免费 Window 空间托管</li>
+            <li class="list-group-item">图像的数量</li>
+            <li class="list-group-item">24*7 支持</li>
+            <li class="list-group-item">每年更新成本</li>
+        </ul> {% endcomment %} <!-- 这是Bootstrap的列表代码块 -->
+        <div class="box">
+            <div class="box-header with-border">
+                <h3 class="box-title">
+                {% if is_public %}
+                    <a href= "{% url 'detail_public' type item.id %}">{{item.name}}</a>
+                {% else %}
+                    <a href= "{% url 'detail_private' type item.id %}">{{item.name}}</a>
+                {% endif %}
+                </h3>
+                <div class="box-tools pull-right">
+                    <!-- Buttons, labels, and many other things can be placed here! -->
+                    <!-- Here is a label for example -->
+                    <span class="label label-primary">{{item.task}}</span>
+                    {% comment %} <button class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button> {% endcomment %}
+                </div><!-- /.box-tools -->
+            </div><!-- /.box-header -->
+        </div><!-- /.box -->
+        {% endfor %}
+    {% else %}
+        <h1>
+            Not correct key word.
+        </h1>
+    {% endif %}
+{% endblock %}
