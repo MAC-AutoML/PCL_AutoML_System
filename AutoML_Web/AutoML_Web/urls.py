@@ -20,8 +20,6 @@ from django.conf.urls import url,include
 from django.urls import path,re_path
 from django.views.generic.base import TemplateView
 from _app import views
-# import django_adminlte
-# import django_adminlte_theme
 
 urlpatterns = [
     path('admin/', admin.site.urls),

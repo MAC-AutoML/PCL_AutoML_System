@@ -1,30 +1,47 @@
 {% extends 'adminlte/lib/_main_sidebar.html' %}
 
+{% block logo %}
+    <a href="/" class="brand-link">
+        {% comment %} <img src="{%static 'admin-lte/dist/img/AdminLTELogo.png' %}" alt="AdminLTE Logo" class="brand-image img-circle elevation-3" style="opacity: .8"> {% endcomment %}
+        {% block logo_text %}<span class="brand-text font-weight-light">PCL platform </span>{% endblock %}
+    </a>
+{% endblock %}
+{% block user_panel %}
+
+{% endblock user_panel %}
+
 {% block nav_links %}
-    <li>
-        <a href="{% url 'manage' 'algorithm' %}">
-            <i class="fa fa-dashboard"></i> <span>My Algorithm</span>
+    {% comment %} <li class="nav-item">
+        <a href="#" class="nav-link">
+            <i class="nav-icon fas fa-tachometer-alt"></i> 
+            <p>Example link</p>
+        </a>
+    </li> {% endcomment %}
+    <li class="nav-item">
+        <a href="{% url 'private' 'algorithm' %}" class="nav-link">
+            <i class="fa fa-circle"></i> <span>My Algorithm</span>
         </a>
     </li>
-    <li>
-        <a href="{% url 'manage' 'job' %}">
-            <i class="fa fa-dashboard"></i> <span>My Job</span>
+    <li class="nav-item">
+        <a href="{% url 'private' 'job' %}" class="nav-link">
+            <i class="fa fa-circle"></i> <span>My Job</span>
         </a>
     </li>
-    <li class="treeview">
-        <a href="#">
-            <i class="fa fa-group"></i> <span>Public Resource</span>
-            <span class="pull-right-container">
-                <i class="fa fa-angle-left pull-right"></i>
-            </span>
+    <li class="nav-item has-tree-view ">
+        <a href="#" class="nav-link">
+            <i class="nav-icon fas fa-object-group"></i> <p>Sub menu</p>
+            <p><i class="right fas fa-angle-left"></i>
+            </p>
         </a>
-        <ul class="treeview-menu">
-            <li>
-                <a href="{% url 'public' 'algorithm' %}">
-                    <i class="fa fa-dashboard"></i> <span>Public Algorithm</span>
+        <ul class="nav nav-treeview menu-open">
+            <li class="nav-item">
+                <a href="{% url 'public' 'algorithm' %}" class="nav-link ">
+                    <i class="nav-icon fas fa-circle"></i>Public Resource
                 </a>
-                <a href="{% url 'public' 'dataset' %}">
-                    <i class="fa fa-dashboard"></i> <span>Public Dataset</span>
+            </li>
+            <li class="nav-item">
+                <a href="{% url 'public' 'dataset' %}" class="nav-link ">
+                    <i class="nav-icon fas fa-circle"></i>Public Dataset
                 </a>
             </li>
         </ul>
