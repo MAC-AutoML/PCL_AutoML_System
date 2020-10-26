@@ -18,6 +18,11 @@
         </a>
     </li> {% endcomment %}
     <li class="nav-item">
+        <a href="{% url 'mission_center' %}" class="nav-link">
+            <i class="fa fa-circle"></i> <span>Mission Center</span>
+        </a>
+    </li>
+    <li class="nav-item">
         <a href="{% url 'private' 'algorithm' %}" class="nav-link">
             <i class="fa fa-circle"></i> <span>My Algorithm</span>
         </a>
@@ -29,14 +34,14 @@
     </li>
     <li class="nav-item has-tree-view ">
         <a href="#" class="nav-link">
-            <i class="nav-icon fas fa-object-group"></i> <p>Sub menu</p>
+            <i class="nav-icon fas fa-object-group"></i> <p>Public Resource</p>
             <p><i class="right fas fa-angle-left"></i>
             </p>
         </a>
         <ul class="nav nav-treeview menu-open">
             <li class="nav-item">
                 <a href="{% url 'public' 'algorithm' %}" class="nav-link ">
-                    <i class="nav-icon fas fa-circle"></i>Public Resource
+                    <i class="nav-icon fas fa-circle"></i>Public Algorithm
                 </a>
             </li>
             <li class="nav-item">

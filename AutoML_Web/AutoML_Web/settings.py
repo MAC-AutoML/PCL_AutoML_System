@@ -25,7 +25,7 @@ SECRET_KEY = '3894=onuuoa5&r#f(4-##4yy$n4uriq_l&vk@sg$e%qg#fuu8g'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["*"]
+ALLOWED_HOSTS = ["*", '192.168.207.73']
 
 
 # Application definition
@@ -114,6 +114,8 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 LOGIN_URL='/login/'
 
+MEDIA_ROOT=os.path.join(str(BASE_DIR),"media")
+MEDIA_URL="/media/"
 # Internationalization
 # https://docs.djangoproject.com/en/3.1/topics/i18n/
 

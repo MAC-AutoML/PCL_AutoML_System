@@ -48,7 +48,7 @@ def index(request):
             return redirecter(request,"/admin/")
         if(request.user.is_authenticated):
             for name in KEYS["private"]:
-                pub=PRIVATE_DICT[name].all()
+                pub=PRIVATE_DICT[name].all().filter(user=request.user)
                 pub=pub[:TOP if TOP<pub.count() else pub.count()]
                 pub_name=[ [item.name,item.id] for item in pub]
                 content["private"][name]=pub_name
@@ -172,8 +172,15 @@ def detail_private(request,typer,pk):
         return redirect(reverse("private",args=(typer,)))
 
 @login_required
-def item_edit(request,typer,operation):
+def item_edit(request,typer,pk):
     user=request.user
     content={}
     pass
     return render(request,"manage.html",content)
+
+@login_required
+def mission_center(request):
+    user=request.user
+    content={}
+    pass
+    return render(request,"mission_center.html",content)
