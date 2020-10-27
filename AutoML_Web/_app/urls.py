@@ -11,6 +11,6 @@ urlpatterns = [
     url(r'^job/0/(?P<task>[a-zA-Z_]+)/?$',views.edit_job,name="manage_job"),
     url(r'^algorithm/0/(?P<task>[a-zA-Z_]+)/?$',views.edit_algorithm,name="manage_algorithm"),
 
-    url(r'^(algorithm|job)/([0-9]+)/?$',views.detail_private,name="detail_private"),
+    url(r'^(algorithm|job)/([0-9a-zA-Z]+)/?$',views.detail_private,name="detail_private"),
     url(r'.*$',views.redirecter),
 ]

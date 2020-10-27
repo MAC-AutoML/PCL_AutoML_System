@@ -11,6 +11,9 @@ from django.core.paginator import Paginator
 
 from django.contrib import auth
 from django.contrib.auth.decorators import login_required
+import tools.API_tools as API_tools
+import time
+
 # Create your views here.
 TOP=5
 PUBLIC_DICT={
@@ -159,21 +162,19 @@ def detail_public(request,typer,pk):
 @login_required
 def detail_private(request,typer,pk):
     # 自增的id从1开始，因此假设id(pk)为0时是要增加算法/作业
-    user=request.user
-    content={}
-    if(int(pk)==0):
-        # return redirecter(request)
-        return render(request,"manage.html",content)
-    item=None
-    if(PRIVATE_DICT.__contains__(typer)):
-        item=PRIVATE_DICT[typer].filter(user=user).filter(id=pk)[0]
-    content["item"]=item
-    if(request.method == "GET"):
-        return render(request,"page.html",content)
-    if(request.method == 'POST'): # Ready for Form POST methods
-        item=None
+    user = request.user
+    content = {}
+    print(pk, request.method)
+    joblist = API_tools.get_jobinfo(pk)
+    content["item"] = joblist
+    for key in content["item"]:
+        print(key, content["item"][key])
+    if (request.method == "GET"):
+        return render(request, "page.html", content)
+    if (request.method == 'POST'):  # Ready for Form POST methods
+        item = None
         # return redirect(reverse("detail_private",args=(typer,item.id)))
-        return redirect(reverse("private",args=(typer,)))
+        return redirect(reverse("private", args=(typer,)))
 
 @login_required
 def edit_job(request,task):
@@ -216,5 +217,11 @@ def item_edit(request,typer,pk,task):
 def mission_center(request):
     user=request.user
     content={}
-    pass
+    joblist = API_tools.get_joblist("wudch",size=10)
+    content["job"] = joblist["jobs"]
+    for item in joblist["jobs"]:
+        timeStamp = item["createdTime"]
+        timeArray = time.localtime(int(int(timeStamp)/1000))
+        otherStyleTime = time.strftime("%Y-%m-%d %H:%M:%S", timeArray)
+        item["createdTime"] = otherStyleTime
     return render(request,"mission_center.html",content)

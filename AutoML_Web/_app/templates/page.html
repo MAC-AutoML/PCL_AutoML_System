@@ -10,7 +10,7 @@
                 {% comment %} <div class="box-tools pull-right">
                     <!-- Buttons, labels, and many other things can be placed here! -->
                     <!-- Here is a label for example -->
-                    <span class="label label-primary">{{item.task}}</span>
+                    <span class="label label-primary">{{item.task}}sssssss</span>
                 </div><!-- /.box-tools --> {% endcomment %}
             </div><!-- /.box-header -->
             <div class="box-body">
@@ -20,18 +20,27 @@
                 <tr>
                     <th>TASK IS {{item.task}}</th>
                 </tr>
-            </thead>            
+            </thead>
             {% endif %}
-
-            <tbody>               
+            {% if item.get_fields %}
+            <tbody>
                 {% for name,value in item.get_fields %}
                 <tr><td>
                 {{name}} &nbsp  => &nbsp {{value}}
-                </td></tr> 
-                {% endfor %}               
+                </td></tr>
+                {% endfor %}
+            </tbody>
+            {% else %}
+            <tbody>
+                {% for key,value in item.items  %}
+                <tr><td>
+                {{key}} &nbsp  => &nbsp {{value}}
+                </td></tr>
+                {% endfor %}
+            {% endif %}
             </tbody>
             </table>
-            </div><!-- /.box-body -->
+            </div><!-- /.box-body -->z
             <div class="box-footer">
             </div><!-- box-footer -->
         </div><!-- /.box -->
