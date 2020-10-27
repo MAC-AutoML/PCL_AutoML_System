@@ -18,10 +18,15 @@ from django.contrib import admin
 from django.conf.urls import url,include
 
 from django.urls import path,re_path
+from django.views.static import serve
+
 from django.views.generic.base import TemplateView
+
+from .settings import MEDIA_ROOT
+
 from _app import views
-# import django_adminlte
-# import django_adminlte_theme
+
+
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -36,5 +41,7 @@ urlpatterns = [
     path('logout/', views.logout,name='logout'),
     path('userinfo/',views.userinfo,name='userinfo'),
     path('set_password/',views.set_password,name='set_password'),
+    path('mission_center/',views.mission_center,name='mission_center'),
+    url(r'^media/(?P<path>.+)$', serve, {'document_root':MEDIA_ROOT}),
     re_path(r'^.*$', views.redirecter),
 ]

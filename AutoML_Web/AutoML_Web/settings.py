@@ -9,7 +9,7 @@ https://docs.djangoproject.com/en/3.1/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.1/ref/settings/
 """
-
+import os
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -25,15 +25,15 @@ SECRET_KEY = '3894=onuuoa5&r#f(4-##4yy$n4uriq_l&vk@sg$e%qg#fuu8g'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["*"]
+ALLOWED_HOSTS = ["*", '192.168.207.73']
 
 
 # Application definition
 
 INSTALLED_APPS = [
     '_app',
-    'django_adminlte',
-    'django_adminlte_theme',
+    'adminlte3',
+    'adminlte3_theme',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -114,6 +114,8 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 LOGIN_URL='/login/'
 
+MEDIA_ROOT=os.path.join(str(BASE_DIR),"media")
+MEDIA_URL="/media/"
 # Internationalization
 # https://docs.djangoproject.com/en/3.1/topics/i18n/
 
@@ -130,5 +132,5 @@ USE_TZ = False
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.1/howto/static-files/
-
+STATIC_ROOT = os.path.join(str(BASE_DIR), "static")
 STATIC_URL = '/static/'

@@ -1,0 +1,106 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container-fluid">
+
+    <div class="card">
+        <img class="card-img-top" src="holder.js/100x180/" alt="">
+        <div class="card-body">
+            <form id="job_create" mothod="post">
+                {% csrf_token %}
+                <!-- Model name -->
+                <div class="form-group row">
+                    <label for="model_name" class="col-sm-1-12 col-form-legend">Model name: </label>
+                    <div class="col-sm-1-6">
+                        <input type="text" class="form-control" name="model_name" id="model_name" placeholder="Object">
+                    </div>
+                </div>
+                <!-- Dataset selection 下拉菜单 -->
+                <div class="form-group row form-inline">
+                    <label for="data_select"> Dataset: </label>
+                    {% if dataset %}
+                    <select name="data_select" id="data_select" class="form-control">
+                    {% for item in dataset %}
+                        <option>
+                            {{item.name|truncatewords:"5"}}
+                        </option>
+                    {% endfor %}        
+                    </select>            
+                    {% endif %}
+                </div>
+                <!-- Algorithm selection 下拉菜单 -->
+                <div class="form-group row form-inline">
+                    <label for="algo_select"> Algorithm: </label>
+                    {% if algorithm %}
+                    <select name="algo_select" id="algo_select" class="form-control">
+                    {% for item in algorithm %}
+                        <option>
+                            {{item.name|truncatewords:"5"}}
+                        </option>
+                    {% endfor %}        
+                    </select>            
+                    {% endif %}
+                </div>
+                <!-- Model settings -->
+                <div class="form-group col">
+                    <legend class="col-form-label col-sm-1-6"><b>Model settings:</b></legend>
+                    <!-- Model cost 浮点数-待添加前端格式检查-->
+                    <div class="form-inline col-sm-1-12">
+                        <label for="compute_cost">Model Cost </label>
+                        <input type="number" name="compute_cost" id="cost_upper" class="form-control" value=1000 aria-describedby="helpId">
+                        <p class="form-control-static col-form-label "> > MFLOPS > </p>
+                        <input type="number" name="compute_cost" id="cost_bound" class="form-control" value=200 aria-describedby="helpId">
+                    </div>
+                    <small id="helpId" class="text-muted">You should enter some numbers</small>                        
+                    <!-- Hyper parameters 待添加前端格式检查-->
+                    <div class="form-inline col-sm-1-12">
+                        <table class="table">
+                            <thead class="thead-inverse">
+                                <tr>
+                                    <th>
+                                        <label for="epoch" >epoch </label>
+                                    </th>
+                                    <th>
+                                        <label for="lr">LR </label>
+                                    </th>
+                                    <th>
+                                        <label for="scheduler">scheduler </label>
+                                    </th>
+                                    <th>
+                                        <label for="optimizer">optimizer </label>
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>
+                                        <input type="number" name="epoch" id="epoch" class="form-control" value=100 aria-describedby="helpId">
+                                    </td>
+                                    <td>                                        
+                                        <input type="text" name="lr" id="lr" class="form-control" value="0.1" aria-describedby="helpId">
+                                    </td>
+                                    <td>                                        
+                                        <input type="text" name="scheduler" id="scheduler" class="form-control" value="cosine" aria-describedby="helpId">
+                                    </td>
+                                    <td>                                        
+                                        <input type="text" name="optimizer" id="optimizer" class="form-control" value="adam" aria-describedby="helpId">
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="form-group row">
+                    <div class="offset-sm-2 col-sm-10">
+                        <button name="btn_submit" formmethod="post" id="btn_submit" type="submit" class="btn btn-primary btn-flat">Submit</button>
+                        {% comment %} <input type="submit" class=""> Submit </button> {% endcomment %}
+                    </div>
+                </div>
+
+            </form>
+        </div>
+    </div>
+</div>
+
+
+{% endblock content %}
