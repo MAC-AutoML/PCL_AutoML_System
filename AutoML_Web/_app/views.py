@@ -1,6 +1,10 @@
 from django.shortcuts import render
 from django.shortcuts import redirect
 from django.urls import reverse
+
+from django.http import HttpResponse
+
+
 from . import models
 
 from django.core.paginator import Paginator
@@ -48,7 +52,7 @@ def index(request):
             return redirecter(request,"/admin/")
         if(request.user.is_authenticated):
             for name in KEYS["private"]:
-                pub=PRIVATE_DICT[name].all()
+                pub=PRIVATE_DICT[name].all().filter(user=request.user)
                 pub=pub[:TOP if TOP<pub.count() else pub.count()]
                 pub_name=[ [item.name,item.id] for item in pub]
                 content["private"][name]=pub_name
@@ -172,8 +176,45 @@ def detail_private(request,typer,pk):
         return redirect(reverse("private",args=(typer,)))
 
 @login_required
-def item_edit(request,typer,operation):
+def edit_job(request,task):
+    # 需要添加对task的格式检查功能？
+    user=request.user
+    content={}
+    task=str(task)
+    task=task.strip(" ").replace("_"," ")# 现有的分类任务名为 "Image Classification"
+    content['task']=str(task)
+    # 使用task类型来限定下拉列表数据集种类和下拉私有算法种类
+    if(request.method == "GET"):
+        #查询数据库
+        content['dataset']=models.Dataset.objects.filter(task=task).order_by("id")
+        content['algorithm']=models.User_algorithm.objects.filter(user=user).filter(task=task).order_by("id")
+
+        if(len(content['dataset']) ==0 or len(content['algorithm'])==0):
+        # 说明没有对应的任务或数据集
+            return redirect(reverse("mission_center"))        
+    #表单回传,用关键字填充发给云脑的命令
+    elif(request.method == "POST"):
+        print(request.POST)
+        return redirect(reverse("mission_center")) 
+    return render(request,"manage_job.html",content)
+@login_required
+def edit_algorithm(request,task):
     user=request.user
     content={}
     pass
-    return render(request,"manage.html",content)
+    return redirecter(request,dst="/mission_center/")
+    # return render(request,"manage.html",content)    
+@login_required    
+def item_edit(request,typer,pk,task):
+    user=request.user
+    content={}
+    pass
+    return redirecter(request,dst="/mission_center/")
+    # return render(request,"manage.html",content)
+
+@login_required
+def mission_center(request):
+    user=request.user
+    content={}
+    pass
+    return render(request,"mission_center.html",content)
