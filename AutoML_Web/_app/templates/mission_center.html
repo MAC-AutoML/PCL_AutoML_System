@@ -1,49 +1,59 @@
 {% extends 'base.html' %}
 {% block content %}
     <div class="container-fluid">
+        <!-- 新的行 选择模板任务 -->
         <div class="row">
-        <!-- 使用模板 -->
-        <div class="col">
+        <!-- 图像分类 -->
+        <div class="col col-sm-3 col-md-3 col-lg-3 col-xl-3" style="float: left">
             <div class="card card-primary">
                 <div class="card-header with-border">
-                    <h3 class="card-title"> New Job - Using Template </h3>
+                    <h3 class="card-title"> Image Classification </h3>
                 </div>
                 <div class="card-body table-responsive">
-                    <table class="table table-bordered">
-                    <tr>
-                        <td>
-                            <a href="{% url 'mission_center' %}" >
-                                <img src="/media/Classify.png" width="100px">
-                                <p>
-                                Image Classification
-                                </p>
-                            </a>
-                        </td>
-                        <td>
-                            <a href="{% url 'mission_center' %}" >
-                                <img src="/media/Identify.png" width="100px">
-                                <p>
-                                Object Detection
-                                </p>
-                            </a>
-                        </td>
-                        <td>
-                            <a href="{% url 'mission_center' %}" >
-                                <img src="/media/Blackbox.png" width="100px">
-                                <p>
-                                Black Box
-                                </p>
-                            </a>
-                        </td>
-
-                    </tr>
-                    </table>
-
+                <!--  -->
+                    <a href="{% url 'manage_job' "Image_Classification" %}" >
+                        <img src="/media/Classify.png" width="100px">
+                        <p>
+                        Image Classification
+                        </p>
+                    </a>
                 </div>
-
+            </div>
+        </div>
+        <!-- 图像检测 -->
+        <div class="col col-sm-3 col-md-3 col-lg-3 col-xl-3" style="float: left">
+            <div class="card card-primary">
+                <div class="card-header with-border">
+                    <h3 class="card-title"> Image Detection </h3>
+                </div>
+                <div class="card-body table-responsive">
+                    <a href="{% url 'mission_center' %}" >
+                        <img src="/media/Identify.png" width="100px">
+                        <p>
+                        Image Detection
+                        </p>
+                    </a>
+                </div>
+            </div>
+        </div>
+        <!-- 黑盒优化 -->
+        <div class="col col-sm-3 col-md-3 col-lg-3 col-xl-3" style="float: left">
+            <div class="card card-primary">
+                <div class="card-header with-border">
+                    <h3 class="card-title"> BlackBox Opt </h3>
+                </div>
+                <div class="card-body table-responsive">
+                    <a href="{% url 'mission_center' %}" >
+                        <img src="/media/Blackbox.png" width="100px">
+                        <p>
+                        BlackBox Opt 
+                        </p>
+                    </a>
+                </div>
             </div>
         </div>
         </div>
+        <!-- 新的行 -->
         <div class="row">
         <div class="col">
             <div class="card">
