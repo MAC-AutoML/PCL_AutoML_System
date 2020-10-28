@@ -177,13 +177,14 @@ def detail_private(request,typer,pk):
         return redirect(reverse("private", args=(typer,)))
 
 @login_required
-def edit_job(request,task):
+def edit_classifyjob(request,task):
     # 需要添加对task的格式检查功能？
     user=request.user
     content={}
     task=str(task)
     task=task.strip(" ").replace("_"," ")# 现有的分类任务名为 "Image Classification"
     content['task']=str(task)
+    print(request.method)
     # 使用task类型来限定下拉列表数据集种类和下拉私有算法种类
     if(request.method == "GET"):
         #查询数据库
@@ -195,7 +196,21 @@ def edit_job(request,task):
             return redirect(reverse("mission_center"))        
     #表单回传,用关键字填充发给云脑的命令
     elif(request.method == "POST"):
-        print(request.POST)
+        print("$$",request.POST)
+        command = "cd ../userhome/PCL_AutoML/jobspace;mkdir classification;cd classification;"
+        outputdir = str(request.POST['job_name'])+"_"+str(request.POST["data_select"])+"_"+str(request.POST["algo_select"])+"_exp_"+str(time.time())
+        command = command+"mkdir "+outputdir+";"
+        command = command+"cd ..;cd ../algorithms/classification/pytorch_image_classification;"
+        if "cifar" in str(request.POST["data_select"]):
+            command = command+"PYTHONPATH=./ python train.py --config configs/cifar/"+str(request.POST["algo_select"])+".yaml"
+        command = command+" train.output_dir " + outputdir
+        if request.POST["lr"]:
+            command = command+" train.base_lr " + str(request.POST["lr"])
+        if request.POST["epoch"]:
+            command = command+" scheduler.epochs "+ str(request.POST["epoch"])
+        print(command)
+        API_tools.creat_mission(str(request.POST['job_name']),command)
+        #if request.POST["data_select"] ==
         return redirect(reverse("mission_center")) 
     return render(request,"manage_job.html",content)
 @login_required

@@ -7,16 +7,23 @@
         <div class="card-body">
             <form id="job_create" mothod="post">
                 {% csrf_token %}
+                <ul>
+                 <h1>
+                 创建任务
+                 </h1>
+                </ul>
+                <br>
                 <!-- Model name -->
                 <div class="form-group row">
-                    <label for="model_name" class="col-sm-1-12 col-form-legend">任务名: </label>
+                    <label for="job_name" class="col-sm-1-12 col-form-legend">任务名:&nbsp&nbsp&nbsp</label>
+
                     <div class="col-sm-1-6">
-                        <input type="text" class="form-control" name="model_name" id="model_name" placeholder="Object">
+                        <input type="text" class="form-control" name="job_name" id="job_name" placeholder="Object">
                     </div>
                 </div>
                 <!-- Dataset selection 下拉菜单 -->
                 <div class="form-group row form-inline">
-                    <label for="data_select"> Dataset: </label>
+                    <label for="data_select"> 数据集:&nbsp&nbsp&nbsp</label>
                     {% if dataset %}
                     <select name="data_select" id="data_select" class="form-control">
                     {% for item in dataset %}
@@ -29,7 +36,7 @@
                 </div>
                 <!-- Algorithm selection 下拉菜单 -->
                 <div class="form-group row form-inline">
-                    <label for="algo_select"> Algorithm: </label>
+                    <label for="algo_select"> 算法: &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp</label>
                     {% if algorithm %}
                     <select name="algo_select" id="algo_select" class="form-control">
                     {% for item in algorithm %}
@@ -42,12 +49,12 @@
                 </div>
                 <!-- Model settings -->
                 <div class="form-group col">
-                    <legend class="col-form-label col-sm-1-6"><b>Model settings:</b></legend>
+                    <legend class="col-form-label col-sm-1-6"><b>模型设置:&nbsp&nbsp&nbsp</b></legend>
                     <!-- Model cost 浮点数-待添加前端格式检查-->
                     <div class="form-inline col-sm-1-12">
-                        <label for="compute_cost">Model Cost </label>
+                        <label for="compute_cost">模型大小：&nbsp&nbsp&nbsp </label>
                         <input type="number" name="compute_cost" id="cost_upper" class="form-control" value=1000 aria-describedby="helpId">
-                        <p class="form-control-static col-form-label "> > MFLOPS > </p>
+                        <p class="form-control-static col-form-label ">&nbsp&nbsp>&nbsp&nbspMFLOPS&nbsp&nbsp>&nbsp&nbsp</p>
                         <input type="number" name="compute_cost" id="cost_bound" class="form-control" value=200 aria-describedby="helpId">
                     </div>
                     <small id="helpId" class="text-muted">You should enter some numbers</small>                        
@@ -63,7 +70,7 @@
                                         <label for="lr">LR </label>
                                     </th>
                                     <th>
-                                        <label for="scheduler">scheduler </label>
+                                        <label for="scheduler">scheduler</label>
                                     </th>
                                     <th>
                                         <label for="optimizer">optimizer </label>
@@ -93,7 +100,7 @@
                 <div class="form-group row">
                     <div class="offset-sm-2 col-sm-10">
                         <button name="btn_submit" formmethod="post" id="btn_submit" type="submit" class="btn btn-primary btn-flat">Submit</button>
-                        {% comment %} <input type="submit" class=""> Submit </button> {% endcomment %}
+                        {% comment %} <input type="submit" class=""> 提交任务 </button> {% endcomment %}
                     </div>
                 </div>
 
