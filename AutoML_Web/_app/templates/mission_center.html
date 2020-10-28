@@ -7,11 +7,11 @@
         <div class="col col-sm-3 col-md-3 col-lg-3 col-xl-3" style="float: left">
             <div class="card card-primary">
                 <div class="card-header with-border">
-                    <h3 class="card-title"> Image Classification </h3>
+                    <h3 class="card-title"> 图片分类 </h3>
                 </div>
                 <div class="card-body table-responsive">
                 <!--  -->
-                    <a href="{% url 'manage_job' "Image_Classification" %}" >
+                    <a href="{% url 'manage_job' "classification" %}" >
                         <img src="/media/Classify.png" width="100px">
                         <p>
                         Image Classification
@@ -24,7 +24,7 @@
         <div class="col col-sm-3 col-md-3 col-lg-3 col-xl-3" style="float: left">
             <div class="card card-primary">
                 <div class="card-header with-border">
-                    <h3 class="card-title"> Image Detection </h3>
+                    <h3 class="card-title"> 目标检测 </h3>
                 </div>
                 <div class="card-body table-responsive">
                     <a href="{% url 'mission_center' %}" >
@@ -58,7 +58,7 @@
         <div class="col">
             <div class="card">
                 <div class="card-header with-border">
-                    <h3 class="card-title"> Created Job List </h3>
+                    <h3 class="card-title"> 任务列表 </h3>
                         <div class="card-tools pull-right">
                             <span class="badge ">工具块占位符</span>
                         </div><!-- /.card-tools -->
@@ -81,56 +81,26 @@
                                     <table class="table">
                                         <thead>
                                             <tr>
-                                                <th>Job Name</th>
-                                                <th>Job Status</th>
-                                                <th>Start time</th>
+                                                <th>任务名</th>
+                                                <th>创建人</th>
+                                                <th>任务状态</th>
+                                                <th>开始时间</th>
                                             </tr>
                                         </thead>
                                         <tbody>
+                                            {% for item in job%}
                                             <tr>
-                                                <td scope="row"></td>
-                                                <td></td>
-                                                <td></td>
+                                                <td scope="row"><a href= "{% url 'detail_private'  "job" item.id %}">{{item.name}}</a></td>
+                                                <td>{{item.userId}}</td>
+                                                <td>{{item.state}}</td>
+                                                <td>{{item.createdTime}}</td>
                                             </tr>
-                                            <tr>
-                                                <td scope="row"></td>
-                                                <td></td>
-                                                <td></td>
-                                            </tr>
+                                            {% endfor %}
                                         </tbody>
                                     </table>
                                 </div>
                             </li>
-                            <li>
-                                <div data-toggle="collapse" data-target="#algorithm02" role="tab">
-                                    <h4>
-                                        Algorithm 02
-                                    </h4>
-                                </div>
-                                <div id="algorithm02">
-                                    <table class="table">
-                                        <thead>
-                                            <tr>
-                                                <th>Job Name</th>
-                                                <th>Job Status</th>
-                                                <th>Start time</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <tr>
-                                                <td scope="row"></td>
-                                                <td></td>
-                                                <td></td>
-                                            </tr>
-                                            <tr>
-                                                <td scope="row"></td>
-                                                <td></td>
-                                                <td></td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </li>
+
                         </ul>
                     </div>
                 </div>

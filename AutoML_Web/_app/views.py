@@ -11,6 +11,9 @@ from django.core.paginator import Paginator
 
 from django.contrib import auth
 from django.contrib.auth.decorators import login_required
+import tools.API_tools as API_tools
+import time
+
 # Create your views here.
 TOP=5
 PUBLIC_DICT={
@@ -159,30 +162,29 @@ def detail_public(request,typer,pk):
 @login_required
 def detail_private(request,typer,pk):
     # 自增的id从1开始，因此假设id(pk)为0时是要增加算法/作业
-    user=request.user
-    content={}
-    if(int(pk)==0):
-        # return redirecter(request)
-        return render(request,"manage.html",content)
-    item=None
-    if(PRIVATE_DICT.__contains__(typer)):
-        item=PRIVATE_DICT[typer].filter(user=user).filter(id=pk)[0]
-    content["item"]=item
-    if(request.method == "GET"):
-        return render(request,"page.html",content)
-    if(request.method == 'POST'): # Ready for Form POST methods
-        item=None
+    user = request.user
+    content = {}
+    print(pk, request.method)
+    joblist = API_tools.get_jobinfo(pk)
+    content["item"] = joblist
+    for key in content["item"]:
+        print(key, content["item"][key])
+    if (request.method == "GET"):
+        return render(request, "page.html", content)
+    if (request.method == 'POST'):  # Ready for Form POST methods
+        item = None
         # return redirect(reverse("detail_private",args=(typer,item.id)))
-        return redirect(reverse("private",args=(typer,)))
+        return redirect(reverse("private", args=(typer,)))
 
 @login_required
-def edit_job(request,task):
+def edit_classifyjob(request,task):
     # 需要添加对task的格式检查功能？
     user=request.user
     content={}
     task=str(task)
     task=task.strip(" ").replace("_"," ")# 现有的分类任务名为 "Image Classification"
     content['task']=str(task)
+    print(request.method)
     # 使用task类型来限定下拉列表数据集种类和下拉私有算法种类
     if(request.method == "GET"):
         #查询数据库
@@ -194,7 +196,21 @@ def edit_job(request,task):
             return redirect(reverse("mission_center"))        
     #表单回传,用关键字填充发给云脑的命令
     elif(request.method == "POST"):
-        print(request.POST)
+        print("$$",request.POST)
+        command = "cd ../userhome/PCL_AutoML/jobspace;mkdir classification;cd classification;"
+        outputdir = str(request.POST['job_name'])+"_"+str(request.POST["data_select"])+"_"+str(request.POST["algo_select"])+"_exp_"+str(time.time())
+        command = command+"mkdir "+outputdir+";"
+        command = command+"cd ..;cd ../algorithms/classification/pytorch_image_classification;"
+        if "cifar" in str(request.POST["data_select"]):
+            command = command+"PYTHONPATH=./ python train.py --config configs/cifar/"+str(request.POST["algo_select"])+".yaml"
+        command = command+" train.output_dir " + outputdir
+        if request.POST["lr"]:
+            command = command+" train.base_lr " + str(request.POST["lr"])
+        if request.POST["epoch"]:
+            command = command+" scheduler.epochs "+ str(request.POST["epoch"])
+        print(command)
+        API_tools.creat_mission(str(request.POST['job_name']),command)
+        #if request.POST["data_select"] ==
         return redirect(reverse("mission_center")) 
     return render(request,"manage_job.html",content)
 @login_required
@@ -216,5 +232,11 @@ def item_edit(request,typer,pk,task):
 def mission_center(request):
     user=request.user
     content={}
-    pass
+    joblist = API_tools.get_joblist("wudch",size=10)
+    content["job"] = joblist["jobs"]
+    for item in joblist["jobs"]:
+        timeStamp = item["createdTime"]
+        timeArray = time.localtime(int(int(timeStamp)/1000))
+        otherStyleTime = time.strftime("%Y-%m-%d %H:%M:%S", timeArray)
+        item["createdTime"] = otherStyleTime
     return render(request,"mission_center.html",content)
