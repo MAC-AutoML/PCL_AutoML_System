@@ -240,3 +240,10 @@ def mission_center(request):
         otherStyleTime = time.strftime("%Y-%m-%d %H:%M:%S", timeArray)
         item["createdTime"] = otherStyleTime
     return render(request,"mission_center.html",content)
+
+@login_required
+def delete_job(request,jobid):
+    user = request.user
+    content = {}
+    API_tools.delete_job(jobid)
+    return redirecter(request, dst="/mission_center/")

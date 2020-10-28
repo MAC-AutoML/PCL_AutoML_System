@@ -85,6 +85,7 @@
                                                 <th>创建人</th>
                                                 <th>任务状态</th>
                                                 <th>开始时间</th>
+                                                <th>操作</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -94,6 +95,10 @@
                                                 <td>{{item.userId}}</td>
                                                 <td>{{item.state}}</td>
                                                 <td>{{item.createdTime}}</td>
+                                                <td><form method = "delete">
+                                                    <a href="{% url 'delete_job' item.id %}" class="button">停止</a>
+                                                </form>
+                                                </td>
                                             </tr>
                                             {% endfor %}
                                         </tbody>
