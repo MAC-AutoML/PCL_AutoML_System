@@ -177,6 +177,22 @@ def detail_private(request,typer,pk):
         return redirect(reverse("private", args=(typer,)))
 
 @login_required
+def detail_job(request,typer,pk):
+    user = request.user
+    content = {}
+    print(pk, request.method)
+    joblist = API_tools.get_jobinfo(pk)
+    content["item"] = joblist["payload"]["jobStatus"]
+    for key in content["item"]:
+        print(key, content["item"][key])
+    if (request.method == "GET"):
+        return render(request, "page.html", content)
+    if (request.method == 'POST'):  # Ready for Form POST methods
+        item = None
+        # return redirect(reverse("detail_private",args=(typer,item.id)))
+        return redirect(reverse("mission_center", args=(typer,)))
+
+@login_required
 def edit_classifyjob(request,task):
     # 需要添加对task的格式检查功能？
     user=request.user

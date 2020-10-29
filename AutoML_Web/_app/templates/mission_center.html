@@ -91,7 +91,7 @@
                                         <tbody>
                                             {% for item in job%}
                                             <tr>
-                                                <td scope="row"><a href= "{% url 'detail_private'  "job" item.id %}">{{item.name}}</a></td>
+                                                <td scope="row"><a href= "{% url 'detail_job' "job" item.id %}">{{item.name}}</a></td>
                                                 <td>{{item.userId}}</td>
                                                 <td>{{item.state}}</td>
                                                 <td>{{item.createdTime}}</td>

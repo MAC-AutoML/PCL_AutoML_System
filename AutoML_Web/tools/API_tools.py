@@ -3,6 +3,7 @@ import json
 
 def bytes2dict(response):
     info = json.loads(response.content)
+    print("INFO:",info)
     return info
 
 def get_tocken():
@@ -19,7 +20,6 @@ def get_tocken():
 
 def get_joblist(username,size=20,offset=0):
     tocken = get_tocken()
-    print(type(tocken),tocken)
     headers = {
         "Content-Type": 'application/json',
         "Authorization": tocken
