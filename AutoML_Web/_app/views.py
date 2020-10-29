@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from django.shortcuts import redirect
 from django.urls import reverse
-
+from django.db import connection
 from django.http import HttpResponse
 
 
@@ -12,6 +12,7 @@ from django.core.paginator import Paginator
 from django.contrib import auth
 from django.contrib.auth.decorators import login_required
 import tools.API_tools as API_tools
+from  tools.API_tools import get_keyword
 import time
 
 # Create your views here.
@@ -181,8 +182,8 @@ def detail_job(request,typer,pk):
     user = request.user
     content = {}
     print(pk, request.method)
-    joblist = API_tools.get_jobinfo(pk)
-    content["item"] = joblist["payload"]["jobStatus"]
+    jobdt = API_tools.get_jobinfo(pk)
+    content["item"] = jobdt["payload"]["jobStatus"]
     for key in content["item"]:
         print(key, content["item"][key])
     if (request.method == "GET"):
@@ -227,7 +228,50 @@ def edit_classifyjob(request,task):
             command = command+" scheduler.epochs "+ str(request.POST["epoch"])
         print(command)
         API_tools.creat_mission(str(request.POST['job_name']),command)
-        #if request.POST["data_select"] ==
+        a = API_tools.get_joblist("wudch",size=10)
+        otherStyleTime = otherStyleTime2 = 0
+        item = a["jobs"][0]
+        timeStamp = int(item["createdTime"])
+        if timeStamp != 0:
+            timeArray = time.localtime(timeStamp / 1000)
+            otherStyleTime = time.strftime("%Y-%m-%d %H:%M:%S", timeArray)
+            item["createdTime"] = otherStyleTime
+
+        timeStamp2 = int(item["completedTime"])
+        if timeStamp2 != 0:
+            timeArray2 = time.localtime(timeStamp2 / 1000)
+            otherStyleTime2 = time.strftime("%Y-%m-%d %H:%M:%S", timeArray2)
+            item["completedTime"] = otherStyleTime2
+        print(item["createdTime"],item["completedTime"])
+
+        newjobinfo = API_tools.get_jobinfo(a["jobs"][0]["id"])
+        print("newjobinfo:",newjobinfo)
+        jobid = get_keyword(str(newjobinfo["payload"]["id"]))
+        name = get_keyword(str(newjobinfo["payload"]["name"]))
+        username = get_keyword(str(newjobinfo["payload"]["jobStatus"]["username"]))
+        user_id = get_keyword(str(newjobinfo["payload"]['userinfo']["user"]))
+        state = get_keyword(str(newjobinfo["payload"]["jobStatus"]["state"]))
+        createdTime = get_keyword(str(otherStyleTime))
+        completedTime = get_keyword(str(otherStyleTime2))
+        _path = get_keyword(str(outputdir))
+        algorithm_id = get_keyword(str(0))
+        dataset_id = get_keyword(str(0))
+        with connection.cursor() as cursor:
+            sqltext = "INSERT INTO `automl_web`.`_app_user_job`(`jobid`, `name`, `username`, `user_id`, `state`, `createdTime`, `completedTime`,`_path`, `algorithm_id`, `dataset_id`) " \
+                      "VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}','{9}');".format(
+                jobid,name,username,user_id,state,createdTime,completedTime,_path,algorithm_id,dataset_id
+            )
+            print("$$$$$$$$$$$",sqltext)
+            cursor.execute(sqltext)
+        '''
+        new_job = models.User_Job.objects.create(jobid=newjobinfo["payload"]["id"],name=newjobinfo["payload"]["name"],
+                                                  username = newjobinfo["payload"]["jobStatus"]["username"],
+                                                  user_id = newjobinfo["payload"]['userinfo']["user"],
+                                                  state = newjobinfo["payload"]["jobStatus"]["state"],
+                                                  createdTime = otherStyleTime,completedTime = otherStyleTime2,
+                                                  _path = outputdir,algorithm_id = 0,dataset_id = 0)
+        new_job.save()
+        '''
         return redirect(reverse("mission_center")) 
     return render(request,"manage_job.html",content)
 @login_required

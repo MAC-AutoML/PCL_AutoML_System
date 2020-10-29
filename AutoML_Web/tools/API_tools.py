@@ -6,6 +6,13 @@ def bytes2dict(response):
     print("INFO:",info)
     return info
 
+def get_keyword(s):
+    if "'" in s:
+        result = re.findall(".*'(.*)'.*", s)
+        return result[0]
+    else:
+        return s
+
 def get_tocken():
     url = 'http://192.168.204.24/rest-server/api/v1/token'
 
@@ -88,17 +95,33 @@ if __name__ == "__main__":
     command = "cd ../userhome/network-pruning-rfm-master/cifar/l1-norm-pruning/&&PYTHONPATH=./ python main.py --dataset cifar10 --arch vgg --depth 16 --save './log/ori_vgg16'"
     #creat_mission("rua",command)
     a = get_joblist("wudch")
-    print(a)
+    print("a",a["jobs"][0])
     import time
-    for item in a["jobs"]:
-        timeStamp = int(item["createdTime"])
-        print(timeStamp/1000)
-        timeArray = time.localtime(timeStamp/1000)
-        otherStyleTime = time.strftime("%Y-%m-%d %H:%M:%S", timeArray)
-        item["createdTime"] = otherStyleTime
-        print(item["createdTime"])
+
+    otherStyleTime = 0
+    item = a["jobs"][0]
+    timeStamp = int(item["createdTime"])
+    print(timeStamp/1000)
+    timeArray = time.localtime(timeStamp/1000)
+    otherStyleTime = time.strftime("%Y-%m-%d %H:%M:%S", timeArray)
+    item["createdTime"] = otherStyleTime
+    print(item["createdTime"])
     print(a["jobs"][0])
-    print("######")
-    b = get_jobinfo(a["jobs"][0]["id"])
-    print(b)
+    print("######",otherStyleTime)
+    newjobinfo = get_jobinfo(a["jobs"][0]["id"])
+    print(newjobinfo)
+    import re
+    str = "qweq('deafeaf'),eqwe"
+    result = re.findall(".*'(.*)'.*", str)
+    print(result[0])
+    #from _app import models
+    '''
+    new_job = models.User_Job.objects.create(jobid=newjobinfo["payload"]["id"], jobname=newjobinfo["payload"]["name"],
+                                             username=newjobinfo["payload"]["jobStatus"]["username"],
+                                             userid=newjobinfo["payload"]['userinfo']["user"],
+                                             state=newjobinfo["payload"]["jobStatus"]["state"],
+                                             createdTime=otherStyleTime, completedTime=otherStyleTime,
+                                             _path="temp", algorithm_id=0, dataset_id=0)
+    new_job.save()
+'''
     #c = delete_job(a["jobs"][0]["id"])
