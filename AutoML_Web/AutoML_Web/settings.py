@@ -81,7 +81,7 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         # 'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-        'NAME': 'automl_web',
+        'NAME': 'automl_web2',
         'USER': 'root',
         'PASSWORD': 'woodchen',
         'HOST': '127.0.0.1',

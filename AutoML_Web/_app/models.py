@@ -64,8 +64,13 @@ class User_algorithm(models.Model):
         return [(field.name, field.value_to_string(self)) for field in self._meta.fields]
 
 class User_Job(models.Model):
+    jobid = models.CharField(max_length=128,unique=True)
     name = models.CharField(max_length=128)
-    user = models.ForeignKey(User, models.CASCADE)
+    user_id = models.CharField(max_length=128)
+    username = models.CharField(max_length=128)
+    state = models.CharField(max_length=128)
+    createdTime = models.CharField(max_length=128)
+    completedTime = models.CharField(max_length=128)
     algorithm = models.ForeignKey(User_algorithm, models.CASCADE)
     dataset = models.ForeignKey(Dataset, models.SET_NULL, null=True)
     _path = models.CharField(max_length=256, default='')
