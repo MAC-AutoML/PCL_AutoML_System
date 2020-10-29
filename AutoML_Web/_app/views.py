@@ -55,7 +55,7 @@ def index(request):
             return redirecter(request,"/admin/")
         if(request.user.is_authenticated):
             for name in KEYS["private"]:
-                pub=PRIVATE_DICT[name].all().filter(user=request.user)
+                pub=PRIVATE_DICT[name].all().filter()
                 pub=pub[:TOP if TOP<pub.count() else pub.count()]
                 pub_name=[ [item.name,item.id] for item in pub]
                 content["private"][name]=pub_name
