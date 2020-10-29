@@ -43,6 +43,11 @@
                         <option>
                             {{item.name|truncatewords:"5"}}
                         </option>
+                    {% endfor %}
+                    {% for item in user_algorithm %}
+                        <option>
+                            {{item.name|truncatewords:"5"}}
+                        </option>
                     {% endfor %}        
                     </select>            
                     {% endif %}

@@ -205,9 +205,10 @@ def edit_classifyjob(request,task):
     if(request.method == "GET"):
         #查询数据库
         content['dataset']=models.Dataset.objects.filter(task=task).order_by("id")
-        content['algorithm']=models.User_algorithm.objects.filter(user=user).filter(task=task).order_by("id")
-
-        if(len(content['dataset']) ==0 or len(content['algorithm'])==0):
+        content['user_algorithm']=models.User_algorithm.objects.filter(user=user).filter(task=task).order_by("id")
+        content['algorithm'] = models.Algorithm.objects.filter().filter(task=task).order_by("id")
+        print(type(content['algorithm']), content['algorithm'])
+        if(len(content['dataset']) ==0 or len(content['algorithm'])+len(content['user_algorithm'])==0):
         # 说明没有对应的任务或数据集
             return redirect(reverse("mission_center"))        
     #表单回传,用关键字填充发给云脑的命令
