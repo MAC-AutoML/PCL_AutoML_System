@@ -206,21 +206,24 @@ def edit_classifyjob(request,task):
     if(request.method == "GET"):
         #查询数据库
         content['dataset']=models.Dataset.objects.filter(task=task).order_by("id")
-        content['user_algorithm']=models.User_algorithm.objects.filter(user=user).filter(task=task).order_by("id")
-        content['algorithm'] = models.Algorithm.objects.filter().filter(task=task).order_by("id")
-        print(type(content['algorithm']), content['algorithm'])
-        if(len(content['dataset']) ==0 or len(content['algorithm'])+len(content['user_algorithm'])==0):
+        content['user_algorithm']=models.User_algorithm.objects.filter(task=task).order_by("id")
+        print("####",content['user_algorithm'])
+        #content['algorithm'] = models.Algorithm.objects.filter().filter(task=task).order_by("id")
+        if(len(content['dataset']) ==0 or len(content['user_algorithm'])==0):
         # 说明没有对应的任务或数据集
             return redirect(reverse("mission_center"))        
     #表单回传,用关键字填充发给云脑的命令
     elif(request.method == "POST"):
         print("$$",request.POST)
+        algo_selectname = models.User_algorithm.objects.filter(id=str(request.POST["algo_select"]))[0].name
+        data_selectname = models.Dataset.objects.filter(id=str(request.POST["data_select"]))[0].name
+        #print(algo_selectname,data_selectname)
         command = "cd ../userhome/PCL_AutoML/jobspace;mkdir classification;cd classification;"
-        outputdir = str(request.POST['job_name'])+"_"+str(request.POST["data_select"])+"_"+str(request.POST["algo_select"])+"_exp_"+str(time.time())
+        outputdir = str(request.POST['job_name'])+"_"+str(data_selectname)+"_"+str(algo_selectname)+"_exp_"+str(time.time())
         command = command+"mkdir "+outputdir+";"
         command = command+"cd ..;cd ../algorithms/classification/pytorch_image_classification;"
-        if "cifar" in str(request.POST["data_select"]):
-            command = command+"PYTHONPATH=./ python train.py --config configs/cifar/"+str(request.POST["algo_select"])+".yaml"
+        if "cifar" in str(data_selectname):
+            command = command+"PYTHONPATH=./ python train.py --config configs/cifar/"+str(algo_selectname)+".yaml"
         command = command+" train.output_dir " + outputdir
         if request.POST["lr"]:
             command = command+" train.base_lr " + str(request.POST["lr"])
@@ -254,8 +257,8 @@ def edit_classifyjob(request,task):
         createdTime = get_keyword(str(otherStyleTime))
         completedTime = get_keyword(str(otherStyleTime2))
         _path = get_keyword(str(outputdir))
-        algorithm_id = get_keyword(str(0))
-        dataset_id = get_keyword(str(0))
+        algorithm_id = get_keyword(str(request.POST["algo_select"]))
+        dataset_id = get_keyword(str(request.POST["data_select"]))
         with connection.cursor() as cursor:
             sqltext = "INSERT INTO `automl_web`.`_app_user_job`(`jobid`, `name`, `username`, `user_id`, `state`, `createdTime`, `completedTime`,`_path`, `algorithm_id`, `dataset_id`) " \
                       "VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}','{9}');".format(
