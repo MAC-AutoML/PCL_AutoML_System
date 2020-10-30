@@ -22,8 +22,19 @@ def get_tocken():
     }"""
     response = requests.post(url=url, json=json.loads(data))
     info = bytes2dict(response)
-    print(info)
     return "Bearer "+info["payload"]["token"]
+
+def get_userinfo(uname):
+    tocken = get_tocken()
+    headers = {
+        "Content-Type": 'application/json',
+        "Authorization": tocken
+    }
+
+    url = "http://192.168.204.24/rest-server/api/v1/user/" + uname
+    response = requests.get(url=url, json={}, headers=headers)
+    info = bytes2dict(response)
+    return info
 
 def get_joblist(username,size=20,offset=0):
     tocken = get_tocken()
@@ -79,7 +90,8 @@ def creat_mission(job_name, command):
         "Authorization": get_tocken()
     }
     response = requests.put(url=url, json=json.loads(data), headers=headers)
-    print(response.content)
+    info = bytes2dict(response)
+    return info
 
 def delete_job(jobid):
     headers = {
@@ -100,9 +112,9 @@ if __name__ == "__main__":
 
     otherStyleTime = 0
     item = a["jobs"][0]
-    timeStamp = int(item["createdTime"])
+    timeStamp = time.time()
     print(timeStamp/1000)
-    timeArray = time.localtime(timeStamp/1000)
+    timeArray = time.localtime()
     otherStyleTime = time.strftime("%Y-%m-%d %H:%M:%S", timeArray)
     item["createdTime"] = otherStyleTime
     print(item["createdTime"])
@@ -114,4 +126,4 @@ if __name__ == "__main__":
     str = "qweq('deafeaf'),eqwe"
     result = re.findall(".*'(.*)'.*", str)
     print(result[0])
-
+    get_userinfo("wudch")

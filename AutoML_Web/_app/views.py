@@ -232,32 +232,18 @@ def edit_classifyjob(request,task):
         if request.POST["epoch"]:
             command = command+" scheduler.epochs "+ str(request.POST["epoch"])
         print(command)
-        API_tools.creat_mission(str(request.POST['job_name']),command)
-        a = API_tools.get_joblist("wudch",size=10)
-        otherStyleTime = otherStyleTime2 = 0
-        item = a["jobs"][0]
-        timeStamp = int(item["createdTime"])
-        if timeStamp != 0:
-            timeArray = time.localtime(timeStamp / 1000)
-            otherStyleTime = time.strftime("%Y-%m-%d %H:%M:%S", timeArray)
-            item["createdTime"] = otherStyleTime
+        info = API_tools.creat_mission(str(request.POST['job_name']),command)
+        timeArray = time.localtime()
+        otherStyleTime = time.strftime("%Y-%m-%d %H:%M:%S", timeArray)
 
-        timeStamp2 = int(item["completedTime"])
-        if timeStamp2 != 0:
-            timeArray2 = time.localtime(timeStamp2 / 1000)
-            otherStyleTime2 = time.strftime("%Y-%m-%d %H:%M:%S", timeArray2)
-            item["completedTime"] = otherStyleTime2
-        print(item["createdTime"],item["completedTime"])
-
-        newjobinfo = API_tools.get_jobinfo(a["jobs"][0]["id"])
-        print("newjobinfo:",newjobinfo)
-        jobid = get_keyword(str(newjobinfo["payload"]["id"]))
-        name = get_keyword(str(newjobinfo["payload"]["name"]))
-        username = get_keyword(str(newjobinfo["payload"]["jobStatus"]["username"]))
-        user_id = get_keyword(str(newjobinfo["payload"]['userinfo']["user"]))
-        state = get_keyword(str(newjobinfo["payload"]["jobStatus"]["state"]))
+        jobid = get_keyword(str(info["payload"]["jobId"]))
+        name = get_keyword(str(request.POST['job_name']))
+        username = get_keyword(str(user))
+        uinfo = API_tools.get_userinfo(str(user))
+        user_id = str(uinfo["payload"]["userInfo"]["uid"])
+        state = get_keyword("WAITTING")
         createdTime = get_keyword(str(otherStyleTime))
-        completedTime = get_keyword(str(otherStyleTime2))
+        completedTime = get_keyword(str(0))
         _path = get_keyword(str(outputdir))
         algorithm_id = get_keyword(str(request.POST["algo_select"]))
         dataset_id = get_keyword(str(request.POST["data_select"]))
@@ -268,15 +254,6 @@ def edit_classifyjob(request,task):
             )
             print("$$$$$$$$$$$",sqltext)
             cursor.execute(sqltext)
-        '''
-        new_job = models.User_Job.objects.create(jobid=newjobinfo["payload"]["id"],name=newjobinfo["payload"]["name"],
-                                                  username = newjobinfo["payload"]["jobStatus"]["username"],
-                                                  user_id = newjobinfo["payload"]['userinfo']["user"],
-                                                  state = newjobinfo["payload"]["jobStatus"]["state"],
-                                                  createdTime = otherStyleTime,completedTime = otherStyleTime2,
-                                                  _path = outputdir,algorithm_id = 0,dataset_id = 0)
-        new_job.save()
-        '''
         return redirect(reverse("mission_center")) 
     return render(request,"manage_job.html",content)
 @login_required
@@ -302,6 +279,18 @@ def updata_jobtable():
         #print()
         jd_detail = API_tools.get_jobinfo(jd.jobid)
         jd.state = jd_detail["payload"]["jobStatus"]["state"]
+        timeStamp = int(jd_detail['payload']['jobStatus']["createdTime"])
+        if timeStamp != 0:
+            timeArray = time.localtime(timeStamp / 1000)
+            otherStyleTime = time.strftime("%Y-%m-%d %H:%M:%S", timeArray)
+            jd.createdTime = otherStyleTime
+
+        timeStamp2 = int(jd_detail['payload']['jobStatus']["completedTime"])
+        if timeStamp2 != 0:
+            timeArray2 = time.localtime(timeStamp2 / 1000)
+            otherStyleTime2 = time.strftime("%Y-%m-%d %H:%M:%S", timeArray2)
+            jd.completedTime = otherStyleTime2
+
         jd.save()
 
 @login_required
@@ -309,13 +298,27 @@ def mission_center(request):
     user=request.user
     updata_jobtable()
     content={}
-    joblist = API_tools.get_joblist("wudch",size=10)
-    content["job"] = joblist["jobs"]
-    for item in joblist["jobs"]:
-        timeStamp = item["createdTime"]
-        timeArray = time.localtime(int(int(timeStamp)/1000))
-        otherStyleTime = time.strftime("%Y-%m-%d %H:%M:%S", timeArray)
-        item["createdTime"] = otherStyleTime
+    joblist = models.User_Job.objects.all().filter(username=user).order_by("algorithm_id")
+    l_algorithm_id = []
+    for jb in joblist:
+        if jb.algorithm_id not in l_algorithm_id:
+            l_algorithm_id.append(jb.algorithm_id)
+
+    algorithm_name = []
+    algorithm_joblist = []
+    for i,l in enumerate(l_algorithm_id):
+        algorithm_name.append(models.User_algorithm.objects.all().filter(id=l)[0].name)
+        tm = models.User_Job.objects.all().filter(username=user).filter(algorithm_id=l).order_by("id")
+        tt = {}
+        tt["al_name"] = algorithm_name[i]
+        tt["joblist"] = tm.values('jobid','name','username','state','createdTime','_path')
+        for tte in tt["joblist"]:
+            tte['path'] = "/userhome/PCL_AutoML/jobspace/"+tte.pop('_path')
+        algorithm_joblist.append(tt)
+    #print(algorithm_joblist)
+    content["algorithm_joblist"] = algorithm_joblist
+    for al in algorithm_joblist:
+            print("??",al)
     return render(request,"mission_center.html",content)
 
 @login_required
