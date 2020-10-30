@@ -18,7 +18,7 @@ def get_tocken():
 
     data = """{
       "username": "wudch",
-      "password": "Wdc2293582"
+      "password": "woodchen"
     }"""
     response = requests.post(url=url, json=json.loads(data))
     info = bytes2dict(response)
@@ -114,14 +114,4 @@ if __name__ == "__main__":
     str = "qweq('deafeaf'),eqwe"
     result = re.findall(".*'(.*)'.*", str)
     print(result[0])
-    #from _app import models
-    '''
-    new_job = models.User_Job.objects.create(jobid=newjobinfo["payload"]["id"], jobname=newjobinfo["payload"]["name"],
-                                             username=newjobinfo["payload"]["jobStatus"]["username"],
-                                             userid=newjobinfo["payload"]['userinfo']["user"],
-                                             state=newjobinfo["payload"]["jobStatus"]["state"],
-                                             createdTime=otherStyleTime, completedTime=otherStyleTime,
-                                             _path="temp", algorithm_id=0, dataset_id=0)
-    new_job.save()
-'''
-    #c = delete_job(a["jobs"][0]["id"])
+

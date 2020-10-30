@@ -193,6 +193,8 @@ def detail_job(request,typer,pk):
         # return redirect(reverse("detail_private",args=(typer,item.id)))
         return redirect(reverse("mission_center", args=(typer,)))
 
+
+
 @login_required
 def edit_classifyjob(request,task):
     # 需要添加对task的格式检查功能？
@@ -292,9 +294,20 @@ def item_edit(request,typer,pk,task):
     return redirecter(request,dst="/mission_center/")
     # return render(request,"manage.html",content)
 
+def updata_jobtable():
+    job = models.User_Job.objects.all().order_by("id")
+    job = job.exclude(state="STOPPED").exclude(state="FAIL").exclude(state="SUCCEEDED")
+    print("!@#$%^&",job)
+    for jd in job:
+        #print()
+        jd_detail = API_tools.get_jobinfo(jd.jobid)
+        jd.state = jd_detail["payload"]["jobStatus"]["state"]
+        jd.save()
+
 @login_required
 def mission_center(request):
     user=request.user
+    updata_jobtable()
     content={}
     joblist = API_tools.get_joblist("wudch",size=10)
     content["job"] = joblist["jobs"]
