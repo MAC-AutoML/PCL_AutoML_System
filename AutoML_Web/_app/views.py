@@ -197,8 +197,8 @@ def detail_job(request,typer,pk):
 
 @login_required
 def edit_classifyjob(request,task):
-    # 需要添加对task的格式检查功能？
-    user=request.user
+    user = request.user
+    updata_user_algorithm(user)
     content={}
     task=str(task)
     task=task.strip(" ").replace("_"," ")# 现有的分类任务名为 "Image Classification"
@@ -216,7 +216,6 @@ def edit_classifyjob(request,task):
             return redirect(reverse("mission_center"))        
     #表单回传,用关键字填充发给云脑的命令
     elif(request.method == "POST"):
-        print("$$",request.POST)
         algo_selectname = models.User_algorithm.objects.filter(id=str(request.POST["algo_select"]))[0].name
         data_selectname = models.Dataset.objects.filter(id=str(request.POST["data_select"]))[0].name
         #print(algo_selectname,data_selectname)
@@ -274,24 +273,32 @@ def item_edit(request,typer,pk,task):
 def updata_jobtable():
     job = models.User_Job.objects.all().order_by("id")
     job = job.exclude(state="STOPPED").exclude(state="FAIL").exclude(state="SUCCEEDED")
-    print("!@#$%^&",job)
     for jd in job:
-        #print()
         jd_detail = API_tools.get_jobinfo(jd.jobid)
         jd.state = jd_detail["payload"]["jobStatus"]["state"]
-        timeStamp = int(jd_detail['payload']['jobStatus']["createdTime"])
-        if timeStamp != 0:
-            timeArray = time.localtime(timeStamp / 1000)
-            otherStyleTime = time.strftime("%Y-%m-%d %H:%M:%S", timeArray)
-            jd.createdTime = otherStyleTime
-
         timeStamp2 = int(jd_detail['payload']['jobStatus']["completedTime"])
         if timeStamp2 != 0:
             timeArray2 = time.localtime(timeStamp2 / 1000)
             otherStyleTime2 = time.strftime("%Y-%m-%d %H:%M:%S", timeArray2)
             jd.completedTime = otherStyleTime2
-
         jd.save()
+
+def updata_user_algorithm(user):
+    u_alg = models.User_algorithm.objects.exclude(algorithm_id=None)
+    p_alg = models.Algorithm.objects.all()
+    uid = models.User.objects.filter(username=str(user))[0].id
+    fk = []
+    pk = []
+    for it in u_alg:
+        fk.append(it.algorithm_id)
+    for it in p_alg:
+        pk.append(it.id)
+    for it in pk:
+        print("it",it)
+        if it not in fk:
+            palobj = models.Algorithm.objects.filter(id=it)[0]
+            ujb = models.User_algorithm.objects.create(algorithm_id = it,user_id=uid,name=palobj.name,task=palobj.task,_path=palobj._path)
+            ujb.save()
 
 @login_required
 def mission_center(request):
@@ -311,14 +318,11 @@ def mission_center(request):
         tm = models.User_Job.objects.all().filter(username=user).filter(algorithm_id=l).order_by("id")
         tt = {}
         tt["al_name"] = algorithm_name[i]
-        tt["joblist"] = tm.values('jobid','name','username','state','createdTime','_path')
+        tt["joblist"] = tm.values('jobid','name','username','state','createdTime','_path').order_by("createdTime").reverse()
         for tte in tt["joblist"]:
             tte['path'] = "/userhome/PCL_AutoML/jobspace/"+tte.pop('_path')
         algorithm_joblist.append(tt)
-    #print(algorithm_joblist)
     content["algorithm_joblist"] = algorithm_joblist
-    for al in algorithm_joblist:
-            print("??",al)
     return render(request,"mission_center.html",content)
 
 @login_required
