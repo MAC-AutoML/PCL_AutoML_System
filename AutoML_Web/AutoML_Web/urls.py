@@ -35,13 +35,14 @@ urlpatterns = [
     url(r'^own/',include("_app.urls")),
     # url(r'index/',include("django_adminlte_theme.urls"),name='index'),
     # AutoML_Web/django_adminlte_theme/templates/admin/index.html
+    path('mission_center/',views.mission_center,name='mission_center'),
+    url(r'^deleting/([0-9a-zA-Z]+)/?$',views.delete_job,name='delete_job'),
+    url(r'^media/(?P<path>.+)$', serve, {'document_root':MEDIA_ROOT}),
     path('index/', views.index,name='index'),
     path('login/', views.login,name='login'),
     path('register/', views.register,name='register'),
     path('logout/', views.logout,name='logout'),
     path('userinfo/',views.userinfo,name='userinfo'),
     path('set_password/',views.set_password,name='set_password'),
-    path('mission_center/',views.mission_center,name='mission_center'),
-    url(r'^media/(?P<path>.+)$', serve, {'document_root':MEDIA_ROOT}),
     re_path(r'^.*$', views.redirecter),
 ]

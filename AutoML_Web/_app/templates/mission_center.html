@@ -69,39 +69,50 @@
                         <p> ---搜索框占位符--- </p>
                     </div>
                     <div>
-                    <!-- 正在运行的算法 按算法类分实例 -->                        
+                    <!-- 正在运行的算法 按算法类分实例 -->
+                    {% if algorithm_joblist %}
+                        {% for jobdetail in algorithm_joblist %}
                         <ul>
                             <li>
                                 <div data-toggle="collapse" data-target="#algorithm01" role="tab">
-                                <h4>
-                                    Algorithm 01
-                                </h4>
-                                </div>
-                                <div id="algorithm01">
-                                    <table class="table">
-                                        <thead>
-                                            <tr>
-                                                <th>任务名</th>
-                                                <th>创建人</th>
-                                                <th>任务状态</th>
-                                                <th>开始时间</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            {% for item in job%}
-                                            <tr>
-                                                <td scope="row"><a href= "{% url 'detail_private'  "job" item.id %}">{{item.name}}</a></td>
-                                                <td>{{item.userId}}</td>
-                                                <td>{{item.state}}</td>
-                                                <td>{{item.createdTime}}</td>
-                                            </tr>
-                                            {% endfor %}
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </li>
 
+                                    <h4>
+                                        {{ jobdetail.al_name|title }}
+                                    </h4>
+                                    </div>
+                                    <div id="algorithm01">
+                                        <table class="table">
+                                            <thead>
+                                                <tr>
+                                                    <th>任务名</th>
+                                                    <th>创建人</th>
+                                                    <th>任务状态</th>
+                                                    <th>开始时间</th>
+                                                    <th>作业路径</th>
+                                                    <th>操作</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {% for item in jobdetail.joblist%}
+                                                <tr>
+                                                    <td scope="row"><a href= "{% url 'detail_job' "job" item.jobid %}">{{item.name}}</a></td>
+                                                    <td>{{item.username}}</td>
+                                                    <td>{{item.state}}</td>
+                                                    <td>{{item.createdTime}}</td>
+                                                    <td>{{item.path}}</td>
+                                                    <td><form method = "delete">
+                                                        <a href="{% url 'delete_job' item.jobid %}" class="button">停止</a>
+                                                    </form>
+                                                    </td>
+                                                </tr>
+                                                {% endfor %}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                            </li>
                         </ul>
+                        {% endfor %}
+                        {% endif %}
                     </div>
                 </div>
             </div>
