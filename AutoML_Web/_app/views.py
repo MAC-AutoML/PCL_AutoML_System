@@ -148,7 +148,7 @@ def list_public(request,typer):
 def list_private(request,typer):
     user=request.user
     content=list_getter(typer,PRIVATE_DICT)
-    content["list"]=content["list"].filter(user=user)
+    content["list"]=content["list"].filter(username=user)
     return render(request,"pub_list.html",content)
 
 def detail_public(request,typer,pk):
@@ -220,13 +220,17 @@ def edit_classifyjob(request,task):
         algo_selectname = models.User_algorithm.objects.filter(id=str(request.POST["algo_select"]))[0].name
         data_selectname = models.Dataset.objects.filter(id=str(request.POST["data_select"]))[0].name
         #print(algo_selectname,data_selectname)
-        command = "cd ../userhome/PCL_AutoML/jobspace;mkdir classification;cd classification;"
+        command = "cd ../userhome/PCL_AutoML/jobspace;mkdir classification;"
         outputdir = str(request.POST['job_name'])+"_"+str(data_selectname)+"_"+str(algo_selectname)+"_exp_"+str(time.time())
-        command = command+"mkdir "+outputdir+";"
-        command = command+"cd ..;cd ../algorithms/classification/pytorch_image_classification;"
+        #command = command+"mkdir "+outputdir+";"
+        command = command+"cd ../algorithms/classification/pytorch_image_classification;"
         if "cifar" in str(data_selectname):
             command = command+"PYTHONPATH=./ python train.py --config configs/cifar/"+str(algo_selectname)+".yaml"
-        command = command+" train.output_dir " + outputdir
+        if "imagenet" in str(data_selectname):
+            command = command+"PYTHONPATH=./ python train.py --config configs/imagenet/"+str(algo_selectname)+".yaml"
+
+        command = command+" train.output_dir /userhome/PCL_AutoML/jobspace/classification/" + outputdir
+        command = command+" dataset.name " + str(data_selectname).upper()
         if request.POST["lr"]:
             command = command+" train.base_lr " + str(request.POST["lr"])
         if request.POST["epoch"]:
