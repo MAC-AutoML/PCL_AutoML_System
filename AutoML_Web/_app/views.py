@@ -210,6 +210,7 @@ def edit_classifyjob(request,task):
         content['dataset']=models.Dataset.objects.filter(task=task).order_by("id")
         content['user_algorithm']=models.User_algorithm.objects.filter(task=task).order_by("id")
         print("####",content['user_algorithm'])
+        print(len(content['dataset']) ==0 or len(content['user_algorithm'])==0)
         #content['algorithm'] = models.Algorithm.objects.filter().filter(task=task).order_by("id")
         if(len(content['dataset']) ==0 or len(content['user_algorithm'])==0):
         # 说明没有对应的任务或数据集
@@ -253,7 +254,8 @@ def edit_classifyjob(request,task):
             )
             print("$$$$$$$$$$$",sqltext)
             cursor.execute(sqltext)
-        return redirect(reverse("mission_center")) 
+        return redirect(reverse("mission_center"))
+    print(content)
     return render(request,"manage_job.html",content)
 @login_required
 def edit_algorithm(request,task):
