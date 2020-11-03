@@ -49,7 +49,7 @@ class Algorithm(models.Model):
 
 class User_algorithm(models.Model):
     name = models.CharField(max_length=128)
-    user = models.ForeignKey(User, models.CASCADE)
+    user_id = models.IntegerField()
     algorithm = models.ForeignKey(Algorithm, models.SET_NULL, null=True, blank=True)
     task = models.CharField(max_length=128, default='')
     _path = models.CharField(max_length=256, default='')

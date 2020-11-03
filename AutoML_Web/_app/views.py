@@ -43,6 +43,10 @@ def redirecter(request,dst:str="/index/"):
     return redirect(dst)
 
 def index(request):
+    username = request.session.get("username")
+    print(username)
+    if not username:
+        return render(request, "login.html")
     content={}
     content["public"]={}
     content["private"]={}
@@ -72,14 +76,15 @@ def login(request):
         # valid_num = request.POST.get("valid_num")
         # keep_str = request.session.get("keep_str")
         message = '请检查填写的内容！'
-        user = auth.authenticate(
-            username=username, password=password)  # 验证是否存在用户
-        if(user):
-            auth.login(request, user)
-            return redirect('/index/')
-        else:
+        uinfo = API_tools.get_userinfo(username,password)  # 验证是否存在用户
+        if "错误" in uinfo:
             message = "用户名或密码错误！"
             return render(request, 'login.html', {'message': message})
+        else:
+            request.session["username"] = username
+            request.session["password"] = password
+            request.session["uid"] = uinfo["payload"]["userInfo"]["userId"]
+            return redirect('/index/')
     return render(request, 'login.html')
 
 
@@ -130,7 +135,9 @@ def set_password(request):
         return render(request, 'set_password.html', content)
 
 def logout(request):
-    auth.logout(request)
+    del request.session["username"]
+    del request.session["password"]
+    del request.session["uid"]
     return redirect("/login/")
 
 @login_required # Waited
@@ -138,6 +145,9 @@ def userinfo(request):
     return render(request, "userinfo.html")
 
 def list_public(request,typer):
+    username = request.session.get("username")
+    if not username:
+        return render(request, "login.html")
     content=list_getter(typer,PUBLIC_DICT)
     content["list"]=content["list"].all()
     content["is_public"]=True
@@ -146,9 +156,17 @@ def list_public(request,typer):
 
 @login_required
 def list_private(request,typer):
-    user=request.user
-    content=list_getter(typer,PRIVATE_DICT)
-    content["list"]=content["list"].filter(username=user)
+    username = request.session.get("username")
+    if not username:
+        return render(request, "login.html")
+    content = {}
+    content["type"] = typer
+    if typer == "algorithm":
+        print(request.session["uid"])
+        content["list"]=models.User_algorithm.objects.filter(user_id=request.session["uid"])
+        print(content["list"])
+    elif typer == "job":
+        content["list"] = models.User_Job.objects.filter(username=request.session["username"])
     return render(request,"pub_list.html",content)
 
 def detail_public(request,typer,pk):
@@ -163,13 +181,14 @@ def detail_public(request,typer,pk):
 @login_required
 def detail_private(request,typer,pk):
     # 自增的id从1开始，因此假设id(pk)为0时是要增加算法/作业
-    user = request.user
+    username = request.session.get("username")
+    if not username:
+        return render(request, "login.html")
     content = {}
-    print(pk, request.method)
-    joblist = API_tools.get_jobinfo(pk)
-    content["item"] = joblist
-    for key in content["item"]:
-        print(key, content["item"][key])
+    item = None
+    if (PUBLIC_DICT.__contains__(typer)):
+        item = PRIVATE_DICT[typer].filter(id=pk)[0]
+    content["item"] = item
     if (request.method == "GET"):
         return render(request, "page.html", content)
     if (request.method == 'POST'):  # Ready for Form POST methods
@@ -179,10 +198,12 @@ def detail_private(request,typer,pk):
 
 @login_required
 def detail_job(request,typer,pk):
-    user = request.user
+    username = request.session.get("username")
+    if not username:
+        return render(request, "login.html")
     content = {}
     print(pk, request.method)
-    jobdt = API_tools.get_jobinfo(pk)
+    jobdt = API_tools.get_jobinfo(pk,request.session["username"],request.session["password"])
     content["item"] = jobdt["payload"]["jobStatus"]
     for key in content["item"]:
         print(key, content["item"][key])
@@ -197,8 +218,10 @@ def detail_job(request,typer,pk):
 
 @login_required
 def edit_classifyjob(request,task):
-    user = request.user
-    updata_user_algorithm(user)
+    username = request.session.get("username")
+    if not username:
+        return render(request, "login.html")
+    updata_user_algorithm(request.session["username"],request.session["uid"])
     content={}
     task=str(task)
     task=task.strip(" ").replace("_"," ")# 现有的分类任务名为 "Image Classification"
@@ -231,20 +254,22 @@ def edit_classifyjob(request,task):
 
         command = command+" train.output_dir /userhome/PCL_AutoML/jobspace/classification/" + outputdir
         command = command+" dataset.name " + str(data_selectname).upper()
+        '''
         if request.POST["lr"]:
             command = command+" train.base_lr " + str(request.POST["lr"])
         if request.POST["epoch"]:
-            command = command+" scheduler.epochs "+ str(request.POST["epoch"])
+            command = command+" scheduler.epochs "+ str(request.POST["epoch"])'''
         print(command)
-        info = API_tools.creat_mission(str(request.POST['job_name']),command)
+        info = API_tools.creat_mission(str(request.POST['job_name']),command,request.session["username"],request.session["password"])
         timeArray = time.localtime()
         otherStyleTime = time.strftime("%Y-%m-%d %H:%M:%S", timeArray)
-
+        if not info["payload"]:
+            print("error~!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+            return redirect(reverse("mission_center"))
         jobid = get_keyword(str(info["payload"]["jobId"]))
         name = get_keyword(str(request.POST['job_name']))
-        username = get_keyword(str(user))
-        uinfo = API_tools.get_userinfo(str(user))
-        user_id = str(uinfo["payload"]["userInfo"]["uid"])
+        username = get_keyword(str(request.session["username"]))
+        user_id = str(request.session["uid"])
         state = get_keyword("WAITTING")
         createdTime = get_keyword(str(otherStyleTime))
         completedTime = get_keyword(str(0))
@@ -276,11 +301,11 @@ def item_edit(request,typer,pk,task):
     return redirecter(request,dst="/mission_center/")
     # return render(request,"manage.html",content)
 
-def updata_jobtable():
+def updata_jobtable(username,password):
     job = models.User_Job.objects.all().order_by("id")
     job = job.exclude(state="STOPPED").exclude(state="FAIL").exclude(state="SUCCEEDED")
     for jd in job:
-        jd_detail = API_tools.get_jobinfo(jd.jobid)
+        jd_detail = API_tools.get_jobinfo(jd.jobid,username,password)
         jd.state = jd_detail["payload"]["jobStatus"]["state"]
         timeStamp2 = int(jd_detail['payload']['jobStatus']["completedTime"])
         if timeStamp2 != 0:
@@ -289,10 +314,10 @@ def updata_jobtable():
             jd.completedTime = otherStyleTime2
         jd.save()
 
-def updata_user_algorithm(user):
-    u_alg = models.User_algorithm.objects.exclude(algorithm_id=None)
+def updata_user_algorithm(user,id):
+    u_alg = models.User_algorithm.objects.exclude(algorithm_id=None).filter(user_id=id)
     p_alg = models.Algorithm.objects.all()
-    uid = models.User.objects.filter(username=str(user))[0].id
+    uid = id
     fk = []
     pk = []
     for it in u_alg:
@@ -309,7 +334,8 @@ def updata_user_algorithm(user):
 @login_required
 def mission_center(request):
     user=request.user
-    updata_jobtable()
+    print(request.session['name'],request.session['password'])
+    updata_jobtable(request.session["username"],request.session["password"])
     content={}
     joblist = models.User_Job.objects.all().filter(username=user).order_by("algorithm_id")
     l_algorithm_id = []
@@ -335,5 +361,5 @@ def mission_center(request):
 def delete_job(request,jobid):
     user = request.user
     content = {}
-    API_tools.delete_job(jobid)
+    API_tools.delete_job(jobid,request.session["username"],request.session["password"])
     return redirecter(request, dst="/mission_center/")
