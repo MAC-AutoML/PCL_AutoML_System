@@ -31,15 +31,15 @@ ALLOWED_HOSTS = ["*", '192.168.207.73']
 # Application definition
 
 INSTALLED_APPS = [
+    '_app',
+    'adminlte3',
+    'adminlte3_theme',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'adminlte3',
-    'adminlte3_theme',
-    '_app',
     # 'django_seed',
 ]
 
@@ -80,7 +80,6 @@ WSGI_APPLICATION = 'AutoML_Web.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        # 'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
         'NAME': 'automl_web',
         'USER': 'root',
         'PASSWORD': 'root',
