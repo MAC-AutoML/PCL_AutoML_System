@@ -1,0 +1,9 @@
+numpy
+torch>=1.4.0
+torchvision
+fvcore
+tqdm
+yacs
+git+https://github.com/NVIDIA/apex.git#egg=apex
+termcolor
+thop<0.0.31.post2004070130
