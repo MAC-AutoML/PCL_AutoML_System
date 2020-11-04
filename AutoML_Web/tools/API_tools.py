@@ -14,11 +14,11 @@ def get_keyword(s):
     else:
         return s
 
-def get_tocken(username,password):
+def get_tocken(uname,password):
     url = 'http://192.168.204.24/rest-server/api/v1/token'
 
     data = {
-      "username": str(username),
+      "username": str(uname),
       "password": str(password),
     }
     data = str(data).replace('\'','"')
@@ -30,7 +30,7 @@ def get_tocken(username,password):
         return "用户名或密码错误"
     return "Bearer "+info["payload"]["token"]
 
-def get_userinfo(username,password):
+def check_user(username,password):
     tocken = get_tocken(username,password)
     if "错误" in tocken:
         return tocken
@@ -44,8 +44,22 @@ def get_userinfo(username,password):
     info = bytes2dict(response)
     return info
 
-def get_joblist(username,password,size=20,offset=0):
-    tocken = get_tocken(username,password)
+def get_userinfo(username,tocken):
+    tocken = tocken
+    if "错误" in tocken:
+        return tocken
+    headers = {
+        "Content-Type": 'application/json',
+        "Authorization": tocken
+    }
+
+    url = "http://192.168.204.24/rest-server/api/v1/user/" + username
+    response = requests.get(url=url, json={}, headers=headers)
+    info = bytes2dict(response)
+    return info
+
+def get_joblist(tocken,size=20,offset=0):
+    tocken = tocken
     headers = {
         "Content-Type": 'application/json',
         "Authorization": tocken
@@ -55,17 +69,17 @@ def get_joblist(username,password,size=20,offset=0):
     info = bytes2dict(response)
     return info["payload"]
 
-def get_jobinfo(jobid,username,password):
+def get_jobinfo(jobid,tocken):
     headers = {
         "Content-Type": 'application/json',
-        "Authorization": get_tocken(username,password)
+        "Authorization": tocken
     }
     url = "http://192.168.204.24/rest-server/api/v1/jobs/" + str(jobid)
     response = requests.get(url=url, json={}, headers=headers)
     info = bytes2dict(response)
     return info
 
-def creat_mission(job_name, command,username,password):
+def creat_mission(job_name, command,tocken):
     url = f'http://192.168.204.24/rest-server/api/v1/jobs/{job_name}'
 
     print(url)
@@ -95,16 +109,16 @@ def creat_mission(job_name, command,username,password):
     """
     headers = {
         "Content-Type": 'application/json',
-        "Authorization": get_tocken(username,password)
+        "Authorization": tocken
     }
     response = requests.put(url=url, json=json.loads(data), headers=headers)
     info = bytes2dict(response)
     return info
 
-def delete_job(jobid,username,password):
+def delete_job(jobid,tocken):
     headers = {
         "Content-Type": 'application/json',
-        "Authorization": get_tocken(username,password)
+        "Authorization": tocken
     }
     url = "http://192.168.204.24/rest-server/api/v1/jobs/" + str(jobid)
     response = requests.delete(url=url, json={}, headers=headers)
@@ -134,4 +148,5 @@ if __name__ == "__main__":
     str = "qweq('deafeaf'),eqwe"
     result = re.findall(".*'(.*)'.*", str)
     print(result[0])'''
-    print(get_userinfo("wudch","woodchen"))
+    UID = 1
+    print(get_userinfo("wudch", "woodchen"))
