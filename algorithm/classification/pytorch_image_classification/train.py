@@ -4,7 +4,7 @@ import argparse
 import pathlib
 import time
 
-import apex
+#import apex
 import numpy as np
 import torch
 import torch.nn as nn
@@ -44,7 +44,7 @@ global_step = 0
 
 def load_config():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--config', type=str)
+    parser.add_argument('--config', type=str, default='configs/cifar/resnet56.yaml')
     parser.add_argument('--resume', type=str, default='')
     parser.add_argument('--local_rank', type=int, default=0)
     parser.add_argument('options', default=None, nargs=argparse.REMAINDER)
