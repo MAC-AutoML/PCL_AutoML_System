@@ -276,7 +276,7 @@ def edit_classifyjob(request,task):
         if "imagenet" in str(data_selectname):
             command = command+"PYTHONPATH=./ python train.py --config configs/imagenet/"+str(algo_selectname)+".yaml"
 
-        command = command+" train.output_dir /userhome/PCL_AutoML/jobspace/classification/" + outputdir
+        command = command+" train.output_dir /userhome/jobspace/classification/" + outputdir
         command = command+" dataset.name " + str(data_selectname).upper()
 
         if request.POST["lr"]:
