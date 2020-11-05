@@ -32,7 +32,7 @@
                     </select>            
                     {% endif %}
                 </div>
-                <!-- Algorithm selection 下拉菜单 -->
+                <!-- Algorithm selection 下拉菜单
                 <div class="form-group row form-inline">
                     <label for="algo_select"> 算法: &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp</label>
                     {% if user_algorithm %}
@@ -44,7 +44,7 @@
                     {% endfor %}        
                     </select>            
                     {% endif %}
-                </div>
+                </div>-->
                 <!-- Model settings -->
                 <div class="form-group col">
                     <legend class="col-form-label col-sm-1-6"><b>模型设置:&nbsp&nbsp&nbsp</b></legend>
@@ -52,8 +52,8 @@
                     <div class="form-inline col-sm-1-12">
                         <label for="compute_cost">模型大小：&nbsp&nbsp&nbsp </label>
                         <input type="number" name="compute_cost" id="cost_upper" class="form-control" value=1000 aria-describedby="helpId">
-                        <p class="form-control-static col-form-label ">&nbsp&nbsp>&nbsp&nbspMFLOPS&nbsp&nbsp>&nbsp&nbsp</p>
-                        <input type="number" name="compute_cost" id="cost_bound" class="form-control" value=200 aria-describedby="helpId">
+                        <p class="form-control-static col-form-label ">&nbsp&nbsp>&nbsp&nbspFLOPS(K)&nbsp&nbsp>&nbsp&nbsp</p>
+                        <input type="number" name="compute_cost2" id="cost_bound" class="form-control" value=200 aria-describedby="helpId">
                     </div>
                     <small id="helpId" class="text-muted">You should enter some numbers</small>                        
                     <!-- Hyper parameters 待添加前端格式检查-->

@@ -26,7 +26,7 @@ def get_tocken(uname,password):
     response = requests.post(url=url, json=json.loads(data))
 
     info = bytes2dict(response)
-    if info["code"] == 'S100':
+    if info["code"] != 'S000':
         return "用户名或密码错误"
     return "Bearer "+info["payload"]["token"]
 
@@ -149,4 +149,4 @@ if __name__ == "__main__":
     result = re.findall(".*'(.*)'.*", str)
     print(result[0])'''
     UID = 1
-    print(get_userinfo("wudch", "woodchen"))
+    print(check_user("wudch", "woodchen"))

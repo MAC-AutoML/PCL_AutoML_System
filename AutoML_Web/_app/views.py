@@ -174,10 +174,10 @@ def list_private(request,typer):
     content["type"] = typer
     if typer == "algorithm":
         DUser = models.User.objects.filter(id=user.id)
-        content["list"]=models.User_algorithm.objects.filter(user_id=request.session["uid"])
+        content["list"]=models.User_algorithm.objects.filter(user_id=user.id)
         print(content["list"])
     elif typer == "job":
-        content["list"] = models.User_Job.objects.filter(username=request.session["username"])
+        content["list"] = models.User_Job.objects.filter(username=user.username)
     return render(request,"pub_list.html",content)
 
 def detail_public(request,typer,pk):
@@ -226,19 +226,16 @@ def detail_job(request,typer,pk):
 @login_required
 def edit_classifyjob(request,task):
     user = request.user
-    DUser = models.User.objects.filter(id=user.id)[0]
     updata_user_algorithm(user.username,user.id)
     content={}
     task=str(task)
     task=task.strip(" ").replace("_"," ")# 现有的分类任务名为 "Image Classification"
     content['task']=str(task)
-    print(request.method)
     # 使用task类型来限定下拉列表数据集种类和下拉私有算法种类
     if(request.method == "GET"):
         #查询数据库
         content['dataset']=models.Dataset.objects.filter(task=task).order_by("id")
         content['user_algorithm']=models.User_algorithm.objects.filter(task=task).order_by("id")
-        print("####",content['user_algorithm'])
         print(len(content['dataset']) ==0 or len(content['user_algorithm'])==0)
         #content['algorithm'] = models.Algorithm.objects.filter().filter(task=task).order_by("id")
         if(len(content['dataset']) ==0 or len(content['user_algorithm'])==0):
@@ -246,25 +243,46 @@ def edit_classifyjob(request,task):
             return redirect(reverse("mission_center"))        
     #表单回传,用关键字填充发给云脑的命令
     elif(request.method == "POST"):
-        algo_selectname = models.User_algorithm.objects.filter(id=str(request.POST["algo_select"]))[0].name
         data_selectname = models.Dataset.objects.filter(id=str(request.POST["data_select"]))[0].name
+        algo_select = "resnet20"#resnet20,densenet,resnet50,resnet110
+        print("data_select", request.POST["data_select"])
+        bound = [300, 800]
+        accept_index = 0
+        if "cifar" in data_selectname:
+            dict_algo_select_name = ["resnet20", "densenet", "resnet50", "resnet110"]
+            FLOPS_c = [272, 769, 855, 1730]
+            for index,i in enumerate(FLOPS_c):
+                if i < bound[1] and i > bound[0]:
+                    accept_index = index
+            algo_select = dict_algo_select_name[accept_index]
+        if "image" in data_selectname:
+            algo_select_name = ["resnet18", "densenet","resnet"]
+            FLOPS_i = [272, 769, 855, 1730]
+            for index,i in enumerate(FLOPS_i):
+                if i < bound[1] and i > bound[0]:
+                    accept_index = index
+            algo_select = algo_select_name[accept_index]
+        #print("data_select", request.POST["cost_bound"])
+        algo_selectname = algo_select
+        
         #print(algo_selectname,data_selectname)
-        command = "cd ../userhome/PCL_AutoML/jobspace;mkdir classification;"
+        command = "cd ../userhome;mkdir jobspace;cd jobspace;mkdir classification;mkdir algorithm;cd algorithm;"
+        command = command+"cp -r -f /userhome/PCL_AutoML/PCL_AutoML_System/algorithm/classification/pytorch_image_classification ./;"
         outputdir = str(request.POST['job_name'])+"_"+str(data_selectname)+"_"+str(algo_selectname)+"_exp_"+str(time.time())
         #command = command+"mkdir "+outputdir+";"
-        command = command+"cd ../algorithms/classification/pytorch_image_classification;"
+        command = command+"cd pytorch_image_classification;"
         if "cifar" in str(data_selectname):
             command = command+"PYTHONPATH=./ python train.py --config configs/cifar/"+str(algo_selectname)+".yaml"
         if "imagenet" in str(data_selectname):
             command = command+"PYTHONPATH=./ python train.py --config configs/imagenet/"+str(algo_selectname)+".yaml"
 
-        command = command+" train.output_dir /userhome/PCL_AutoML/jobspace/classification/" + outputdir
+        command = command+" train.output_dir /userhome/jobspace/classification/" + outputdir
         command = command+" dataset.name " + str(data_selectname).upper()
-        '''
+
         if request.POST["lr"]:
             command = command+" train.base_lr " + str(request.POST["lr"])
         if request.POST["epoch"]:
-            command = command+" scheduler.epochs "+ str(request.POST["epoch"])'''
+            command = command+" scheduler.epochs "+ str(request.POST["epoch"])
         print(command)
         info = API_tools.creat_mission(str(request.POST['job_name']),command,user.tocken)
         timeArray = time.localtime()
