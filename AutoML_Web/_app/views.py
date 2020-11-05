@@ -278,11 +278,11 @@ def edit_classifyjob(request,task):
 
         command = command+" train.output_dir /userhome/jobspace/classification/" + outputdir
         command = command+" dataset.name " + str(data_selectname).upper()
-
+        '''
         if request.POST["lr"]:
             command = command+" train.base_lr " + str(request.POST["lr"])
         if request.POST["epoch"]:
-            command = command+" scheduler.epochs "+ str(request.POST["epoch"])
+            command = command+" scheduler.epochs "+ str(request.POST["epoch"])'''
         print(command)
         info = API_tools.creat_mission(str(request.POST['job_name']),command,user.tocken)
         timeArray = time.localtime()
@@ -298,7 +298,8 @@ def edit_classifyjob(request,task):
         createdTime = get_keyword(str(otherStyleTime))
         completedTime = get_keyword(str(0))
         _path = get_keyword(str(outputdir))
-        algorithm_id = get_keyword(str(request.POST["algo_select"]))
+        Da = models.User_algorithm.objects.filter(name = algo_select)[0]
+        algorithm_id = get_keyword(str(Da.algorithm_id))
         dataset_id = get_keyword(str(request.POST["data_select"]))
         with connection.cursor() as cursor:
             sqltext = "INSERT INTO `automl_web`.`_app_user_job`(`jobid`, `name`, `username`, `user_id`, `state`, `createdTime`, `completedTime`,`_path`, `algorithm_id`, `dataset_id`) " \
@@ -376,7 +377,7 @@ def mission_center(request):
         tt["al_name"] = algorithm_name[i]
         tt["joblist"] = tm.values('jobid','name','username','state','createdTime','_path').order_by("createdTime").reverse()
         for tte in tt["joblist"]:
-            tte['path'] = "/userhome/PCL_AutoML/jobspace/"+tte.pop('_path')
+            tte['path'] = tte.pop('_path')
         algorithm_joblist.append(tt)
     content["algorithm_joblist"] = algorithm_joblist
     return render(request,"mission_center.html",content)
