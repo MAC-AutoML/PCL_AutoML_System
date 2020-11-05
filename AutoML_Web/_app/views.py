@@ -41,7 +41,7 @@ def list_getter(typer,dicts):
 
 def redirecter(request,dst:str="/index/"):
     return redirect(dst)
-
+@login_required
 def index(request):
     user = request.user
     content={}
