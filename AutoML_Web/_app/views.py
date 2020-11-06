@@ -265,7 +265,7 @@ def edit_classifyjob(request,task):
         
         #print(algo_selectname,data_selectname)
         command = "cd ../userhome;mkdir jobspace;cd jobspace;mkdir classification;mkdir algorithm;cd algorithm;"
-        command = command+"cp -r -f /userhome/PCL_AutoML/PCL_AutoML_System/algorithm/classification/pytorch_image_classification ./;"
+        command = command+"cp -r -f /userhome/PCL_AutoML/PCL_AutoML_System/algorithm/classification/pytorch_image_classification /;"
         outputdir = str(request.POST['job_name'])+"_"+str(data_selectname)+"_"+str(algo_selectname)+"_exp_"+str(time.time())
         #command = command+"mkdir "+outputdir+";"
         command = command+"cd pytorch_image_classification;"
@@ -295,7 +295,7 @@ def edit_classifyjob(request,task):
         state = get_keyword("WAITTING")
         createdTime = get_keyword(str(otherStyleTime))
         completedTime = get_keyword(str(0))
-        _path = get_keyword(str(outputdir))
+        _path = get_keyword(str("/userhome/jobspace/classification/"+outputdir))
         Da = models.User_algorithm.objects.filter(name = algo_select)[0]
         algorithm_id = get_keyword(str(Da.algorithm_id))
         dataset_id = get_keyword(str(request.POST["data_select"]))
@@ -330,13 +330,14 @@ def updata_jobtable(tocken):
     job = job.exclude(state="STOPPED").exclude(state="FAIL").exclude(state="SUCCEEDED")
     for jd in job:
         jd_detail = API_tools.get_jobinfo(jd.jobid,tocken)
-        jd.state = jd_detail["payload"]["jobStatus"]["state"]
-        timeStamp2 = int(jd_detail['payload']['jobStatus']["completedTime"])
-        if timeStamp2 != 0:
-            timeArray2 = time.localtime(timeStamp2 / 1000)
-            otherStyleTime2 = time.strftime("%Y-%m-%d %H:%M:%S", timeArray2)
-            jd.completedTime = otherStyleTime2
-        jd.save()
+        if jd_detail["payload"]["jobStatus"]["state"]:
+            jd.state = jd_detail["payload"]["jobStatus"]["state"]
+            timeStamp2 = int(jd_detail['payload']['jobStatus']["completedTime"])
+            if timeStamp2 != 0:
+                timeArray2 = time.localtime(timeStamp2 / 1000)
+                otherStyleTime2 = time.strftime("%Y-%m-%d %H:%M:%S", timeArray2)
+                jd.completedTime = otherStyleTime2
+            jd.save()
 
 def updata_user_algorithm(user,id):
     u_alg = models.User_algorithm.objects.exclude(algorithm_id=None).filter(user_id=id)
