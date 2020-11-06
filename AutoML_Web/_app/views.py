@@ -177,7 +177,7 @@ def list_private(request,typer):
         content["list"]=models.User_algorithm.objects.filter(user_id=user.id)
         print(content["list"])
     elif typer == "job":
-        content["list"] = models.User_Job.objects.filter(username=user.username)
+        content["list"] = models.User_Job.objects.filter(user_id=user.id)
     return render(request,"pub_list.html",content)
 
 def detail_public(request,typer,pk):
@@ -210,10 +210,8 @@ def detail_job(request,typer,pk):
     user = request.user
     content = {}
     print(pk, request.method)
-    jobdt = API_tools.get_jobinfo(pk,user.tocken)
-    content["item"] = jobdt["payload"]["jobStatus"]
-    for key in content["item"]:
-        print(key, content["item"][key])
+    item = models.User_Job.objects.filter(jobid=pk)[0]
+    content["item"] = item
     if (request.method == "GET"):
         return render(request, "page.html", content)
     if (request.method == 'POST'):  # Ready for Form POST methods
