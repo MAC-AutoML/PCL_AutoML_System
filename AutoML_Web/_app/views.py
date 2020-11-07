@@ -306,7 +306,7 @@ def edit_classifyjob(request,task):
             )
             print("$$$$$$$$$$$",sqltext)
             cursor.execute(sqltext)
-        return redirect(reverse("mission_center"))
+        return redirecter(request, dst="/mission_center/")
     print(content)
     return render(request,"manage_job.html",content)
 @login_required
@@ -329,8 +329,9 @@ def updata_jobtable(tocken):
     job = models.User_Job.objects.all().order_by("id")
     job = job.exclude(state="STOPPED").exclude(state="FAIL").exclude(state="SUCCEEDED")
     for jd in job:
+        print(jd)
         jd_detail = API_tools.get_jobinfo(jd.jobid,tocken)
-        if jd_detail["payload"]["jobStatus"]["state"]:
+        if jd_detail["code"] == "S000":
             jd.state = jd_detail["payload"]["jobStatus"]["state"]
             timeStamp2 = int(jd_detail['payload']['jobStatus']["completedTime"])
             if timeStamp2 != 0:
@@ -338,6 +339,7 @@ def updata_jobtable(tocken):
                 otherStyleTime2 = time.strftime("%Y-%m-%d %H:%M:%S", timeArray2)
                 jd.completedTime = otherStyleTime2
             jd.save()
+            print("$$$$$$$$ Update Dataset Success")
 
 def updata_user_algorithm(user,id):
     u_alg = models.User_algorithm.objects.exclude(algorithm_id=None).filter(user_id=id)
