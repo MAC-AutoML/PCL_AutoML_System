@@ -264,7 +264,7 @@ def edit_classifyjob(request,task):
         algo_selectname = algo_select
         
         #print(algo_selectname,data_selectname)
-        command = "cd ../userhome;mkdir jobspace;cd jobspace;mkdir classification;mkdir algorithm;cd algorithm;"
+        command = "cd ../userhome;mkdir jobspace;cd jobspace;mkdir classification;cd classification;mkdir algorithm;cd algorithm;"
         command = command+"cp -r -f /userhome/PCL_AutoML/PCL_AutoML_System/algorithm/classification/pytorch_image_classification ./;"
         outputdir = str(request.POST['job_name'])+"_"+str(data_selectname)+"_"+str(algo_selectname)+"_exp_"+str(time.time())
         #command = command+"mkdir "+outputdir+";"
