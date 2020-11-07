@@ -3,7 +3,10 @@
 import argparse
 import pathlib
 import time
-import apex
+try:
+    import apex
+except ImportError:
+    pass
 import numpy as np
 import torch
 import torch.nn as nn
