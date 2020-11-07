@@ -17,6 +17,8 @@
                 <h3 class="card-title">
                 {% if is_public %}
                     <a href= "{% url 'detail_public'  type item.id %}">{{item.name|truncatewords:"5"}}</a>
+                {% elif item.jobid %}
+                    <a href= "{% url 'detail_job'  type item.jobid %}">{{item.name|truncatewords:"5"}}</a>
                 {% else %}
                     <a href= "{% url 'detail_private' type item.id %}">{{item.name|truncatewords:"5"}}</a>
                 {% endif %}

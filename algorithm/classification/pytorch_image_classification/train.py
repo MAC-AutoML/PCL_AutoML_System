@@ -4,7 +4,7 @@ import argparse
 import pathlib
 import time
 
-#import apex
+import apex
 import numpy as np
 import torch
 import torch.nn as nn

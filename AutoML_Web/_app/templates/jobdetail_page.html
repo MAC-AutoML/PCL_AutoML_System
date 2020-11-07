@@ -10,6 +10,7 @@
                     <!-- Buttons, labels, and many other things can be placed here! -->
                     <!-- Here is a label for example -->
                     {% if item.get_fields %}
+
                         {% for name,value in item.get_fields %}
                         <tbody>
                         <tr><td>
@@ -17,14 +18,7 @@
                         </td></tr>
                         </tbody>
                         {% endfor %}
-                    {% else %}
-                        {% for key,value in item.items  %}
-                        <tbody>
-                        <tr><td>
-                            <li>{{name}} &nbsp  => &nbsp {{value}}</li>
-                        </td></tr>
-                        </tbody>
-                        {% endfor %}
+
                     {% endif %}
                     {% comment %} <button class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button> {% endcomment %}
                 </div><!-- /.box-tools -->
