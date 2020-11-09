@@ -233,7 +233,16 @@ def edit_classifyjob(request,task):
     if(request.method == "GET"):
         #查询数据库
         content['dataset']=models.Dataset.objects.filter(task=task).order_by("id")
-        content['user_algorithm']=models.User_algorithm.objects.filter(task=task).order_by("id")
+        #content['user_algorithm']=models.User_algorithm.objects.filter(task=task).order_by("id")
+        ds = request.GET.get('data_select')
+        content['user_algorithm'] = ['272', '769', '855', '1730']
+        print(ds)
+        if ds:
+            content['user_algorithm'] = ['272', '769', '855', '1730']
+            if "image" in ds:
+                content['user_algorithm'] = ['1730', '769', '855', '272']
+
+
         print(len(content['dataset']) ==0 or len(content['user_algorithm'])==0)
         #content['algorithm'] = models.Algorithm.objects.filter().filter(task=task).order_by("id")
         if(len(content['dataset']) ==0 or len(content['user_algorithm'])==0):
@@ -243,22 +252,23 @@ def edit_classifyjob(request,task):
     elif(request.method == "POST"):
         data_selectname = models.Dataset.objects.filter(id=str(request.POST["data_select"]))[0].name
         algo_select = "resnet20"#resnet20,densenet,resnet50,resnet110
-        print("data_select", request.POST["data_select"])
+        a_index = request.POST["algo_select"]
         bound = [300, 800]
-        accept_index = 0
         if "cifar" in data_selectname:
             dict_algo_select_name = ["resnet20", "densenet", "resnet50", "resnet110"]
-            FLOPS_c = [272, 769, 855, 1730]
-            for index,i in enumerate(FLOPS_c):
-                if i < bound[1] and i > bound[0]:
-                    accept_index = index
+            FLOPS_c = ['272', '769', '855', '1730']
+            accept_index = FLOPS_c.index(a_index)
+            #for index,i in enumerate(FLOPS_c):
+            #    if i < bound[1] and i > bound[0]:
+            #        accept_index = index
             algo_select = dict_algo_select_name[accept_index]
         if "image" in data_selectname:
             algo_select_name = ["resnet18", "densenet","resnet"]
-            FLOPS_i = [272, 769, 855, 1730]
-            for index,i in enumerate(FLOPS_i):
-                if i < bound[1] and i > bound[0]:
-                    accept_index = index
+            FLOPS_i = ['272', '769', '855', '1730']
+            accept_index = FLOPS_i.index(a_index)
+            #for index,i in enumerate(FLOPS_i):
+            #    if i < bound[1] and i > bound[0]:
+            #        accept_index = index
             algo_select = algo_select_name[accept_index]
         #print("data_select", request.POST["cost_bound"])
         algo_selectname = algo_select
