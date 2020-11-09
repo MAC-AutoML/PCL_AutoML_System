@@ -48,8 +48,6 @@
                 <script src="https://code.jquery.com/jquery-3.1.0.min.js"></script>
                 <script language="JavaScript">
                     $("#systemname").change(function() {
-
-                {#alert("welcome");#}
                       $.ajax({
                         url: 'job/0/(?P<task>[a-zA-Z_]+)/',
                           data:{"data_select":$(this).val()},
@@ -62,7 +60,6 @@
                                 });
                             $('#algo_select').html(content)
                         },
-
                       });
                     });
                 </script>
