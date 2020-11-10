@@ -56,12 +56,15 @@
         <!-- 新的行 -->
         <div class="row">
         <div class="col">
+        {% if algorithm_joblist %}
+            {% for jobdetail in algorithm_joblist %}
             <div class="card">
                 <div class="card-header with-border">
-                    <h3 class="card-title"> 任务列表 </h3>
-                        <div class="card-tools pull-right">
-                            <span class="badge ">工具块占位符</span>
-                        </div><!-- /.card-tools -->
+                    <h3 class="card-title"> {{ jobdetail.al_name|title }} </h3>
+                            <div class="card-tools">
+                              <!-- Collapse Button -->
+                              <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i></button>
+                            </div>
                 </div>
                 <div class="card-body table-responsive">
                     <!-- 搜索框 -->
@@ -70,12 +73,10 @@
                     </div>
                     <div>
                     <!-- 正在运行的算法 按算法类分实例 -->
-                    {% if algorithm_joblist %}
-                        {% for jobdetail in algorithm_joblist %}
+
                         <ul>
                             <li>
                                 <div data-toggle="collapse" data-target="#algorithm01" role="tab">
-
                                     <h4>
                                         {{ jobdetail.al_name|title }}
                                     </h4>
@@ -111,11 +112,12 @@
                                     </div>
                             </li>
                         </ul>
-                        {% endfor %}
-                        {% endif %}
+
                     </div>
                 </div>
             </div>
+            {% endfor %}
+            {% endif %}
         </div>
         </div>
     </div>

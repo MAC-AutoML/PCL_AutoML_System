@@ -41,8 +41,9 @@ def list_getter(typer,dicts):
 
 def redirecter(request,dst:str="/index/"):
     return redirect(dst)
-
+@login_required
 def index(request):
+    user = request.user
     content={}
     content["public"]={}
     content["private"]={}
@@ -72,14 +73,35 @@ def login(request):
         # valid_num = request.POST.get("valid_num")
         # keep_str = request.session.get("keep_str")
         message = '请检查填写的内容！'
-        user = auth.authenticate(
-            username=username, password=password)  # 验证是否存在用户
-        if(user):
-            auth.login(request, user)
-            return redirect('/index/')
-        else:
+        uinfo = API_tools.check_user(username,password)  # 验证是否存在用户
+        if "错误" in uinfo:
             message = "用户名或密码错误！"
             return render(request, 'login.html', {'message': message})
+        else:
+            #检查并创建数据库用户了
+            UID = uinfo["payload"]["userInfo"]["userId"]
+            DUser = models.User.objects.filter(id = UID)
+            print(UID,DUser)
+            if len(DUser) == 0:
+                new_user = models.User.objects.create_user(username=username,tocken = API_tools.get_tocken(username,password),
+                                                           password=password,id = UID)
+                new_user.save()
+            else:
+                DUser[0].username = username
+                DUser[0].set_password(password)
+                DUser[0].tocken = API_tools.get_tocken(username,password)
+                DUser[0].save()
+            user = auth.authenticate(
+                username=username, password=password)  # 验证是否存在用户
+            print(user)
+            if (user):
+                print("login!!!!!!!!!!!!!!!!!!")
+                auth.login(request, user)
+                return redirect('/index/')
+            #request.session["username"] = username
+            #request.session["password"] = password
+            #request.session["uid"] = uinfo["payload"]["userInfo"]["userId"]
+            return redirect('/index/')
     return render(request, 'login.html')
 
 
@@ -138,6 +160,7 @@ def userinfo(request):
     return render(request, "userinfo.html")
 
 def list_public(request,typer):
+    user = request.user
     content=list_getter(typer,PUBLIC_DICT)
     content["list"]=content["list"].all()
     content["is_public"]=True
@@ -146,9 +169,15 @@ def list_public(request,typer):
 
 @login_required
 def list_private(request,typer):
-    user=request.user
-    content=list_getter(typer,PRIVATE_DICT)
-    content["list"]=content["list"].filter(username=user)
+    user = request.user
+    content = {}
+    content["type"] = typer
+    if typer == "algorithm":
+        DUser = models.User.objects.filter(id=user.id)
+        content["list"]=models.User_algorithm.objects.filter(user_id=user.id)
+        print(content["list"])
+    elif typer == "job":
+        content["list"] = models.User_Job.objects.filter(user_id=user.id)
     return render(request,"pub_list.html",content)
 
 def detail_public(request,typer,pk):
@@ -165,11 +194,10 @@ def detail_private(request,typer,pk):
     # 自增的id从1开始，因此假设id(pk)为0时是要增加算法/作业
     user = request.user
     content = {}
-    print(pk, request.method)
-    joblist = API_tools.get_jobinfo(pk)
-    content["item"] = joblist
-    for key in content["item"]:
-        print(key, content["item"][key])
+    item = None
+    if (PUBLIC_DICT.__contains__(typer)):
+        item = PRIVATE_DICT[typer].filter(id=pk)[0]
+    content["item"] = item
     if (request.method == "GET"):
         return render(request, "page.html", content)
     if (request.method == 'POST'):  # Ready for Form POST methods
@@ -182,10 +210,8 @@ def detail_job(request,typer,pk):
     user = request.user
     content = {}
     print(pk, request.method)
-    jobdt = API_tools.get_jobinfo(pk)
-    content["item"] = jobdt["payload"]["jobStatus"]
-    for key in content["item"]:
-        print(key, content["item"][key])
+    item = models.User_Job.objects.filter(jobid=pk)[0]
+    content["item"] = item
     if (request.method == "GET"):
         return render(request, "page.html", content)
     if (request.method == 'POST'):  # Ready for Form POST methods
@@ -198,18 +224,25 @@ def detail_job(request,typer,pk):
 @login_required
 def edit_classifyjob(request,task):
     user = request.user
-    updata_user_algorithm(user)
+    updata_user_algorithm(user.username,user.id)
     content={}
     task=str(task)
     task=task.strip(" ").replace("_"," ")# 现有的分类任务名为 "Image Classification"
     content['task']=str(task)
-    print(request.method)
     # 使用task类型来限定下拉列表数据集种类和下拉私有算法种类
     if(request.method == "GET"):
         #查询数据库
         content['dataset']=models.Dataset.objects.filter(task=task).order_by("id")
-        content['user_algorithm']=models.User_algorithm.objects.filter(task=task).order_by("id")
-        print("####",content['user_algorithm'])
+        #content['user_algorithm']=models.User_algorithm.objects.filter(task=task).order_by("id")
+        ds = request.GET.get('data_select')
+        content['user_algorithm'] = ['272', '769', '855', '1730']
+        print(ds)
+        if ds:
+            content['user_algorithm'] = ['272', '769', '855', '1730']
+            if "image" in ds:
+                content['user_algorithm'] = ['1730', '769', '855', '272']
+
+
         print(len(content['dataset']) ==0 or len(content['user_algorithm'])==0)
         #content['algorithm'] = models.Algorithm.objects.filter().filter(task=task).order_by("id")
         if(len(content['dataset']) ==0 or len(content['user_algorithm'])==0):
@@ -217,39 +250,64 @@ def edit_classifyjob(request,task):
             return redirect(reverse("mission_center"))        
     #表单回传,用关键字填充发给云脑的命令
     elif(request.method == "POST"):
-        algo_selectname = models.User_algorithm.objects.filter(id=str(request.POST["algo_select"]))[0].name
         data_selectname = models.Dataset.objects.filter(id=str(request.POST["data_select"]))[0].name
+        algo_select = "resnet20"#resnet20,densenet,resnet50,resnet110
+        a_index = request.POST["algo_select"]
+        bound = [300, 800]
+        if "cifar" in data_selectname:
+            dict_algo_select_name = ["resnet20", "densenet", "resnet50", "resnet110"]
+            FLOPS_c = ['272', '769', '855', '1730']
+            accept_index = FLOPS_c.index(a_index)
+            #for index,i in enumerate(FLOPS_c):
+            #    if i < bound[1] and i > bound[0]:
+            #        accept_index = index
+            algo_select = dict_algo_select_name[accept_index]
+        if "image" in data_selectname:
+            algo_select_name = ["resnet18", "densenet","resnet"]
+            FLOPS_i = ['272', '769', '855', '1730']
+            accept_index = FLOPS_i.index(a_index)
+            #for index,i in enumerate(FLOPS_i):
+            #    if i < bound[1] and i > bound[0]:
+            #        accept_index = index
+            algo_select = algo_select_name[accept_index]
+        #print("data_select", request.POST["cost_bound"])
+        algo_selectname = algo_select
+        
         #print(algo_selectname,data_selectname)
-        command = "cd ../userhome/PCL_AutoML/jobspace;mkdir classification;"
+        command = "cd ../userhome;mkdir jobspace;cd jobspace;mkdir classification;cd classification;mkdir algorithm;cd algorithm;"
+        command = command+"cp -r -f /userhome/PCL_AutoML/PCL_AutoML_System/algorithm/classification/pytorch_image_classification ./;"
         outputdir = str(request.POST['job_name'])+"_"+str(data_selectname)+"_"+str(algo_selectname)+"_exp_"+str(time.time())
         #command = command+"mkdir "+outputdir+";"
-        command = command+"cd ../algorithms/classification/pytorch_image_classification;"
+        command = command+"cd pytorch_image_classification;"
         if "cifar" in str(data_selectname):
             command = command+"PYTHONPATH=./ python train.py --config configs/cifar/"+str(algo_selectname)+".yaml"
         if "imagenet" in str(data_selectname):
             command = command+"PYTHONPATH=./ python train.py --config configs/imagenet/"+str(algo_selectname)+".yaml"
 
-        command = command+" train.output_dir /userhome/PCL_AutoML/jobspace/classification/" + outputdir
+        command = command+" train.output_dir /userhome/jobspace/classification/" + outputdir
         command = command+" dataset.name " + str(data_selectname).upper()
+        '''
         if request.POST["lr"]:
             command = command+" train.base_lr " + str(request.POST["lr"])
         if request.POST["epoch"]:
-            command = command+" scheduler.epochs "+ str(request.POST["epoch"])
+            command = command+" scheduler.epochs "+ str(request.POST["epoch"])'''
         print(command)
-        info = API_tools.creat_mission(str(request.POST['job_name']),command)
+        info = API_tools.creat_mission(str(request.POST['job_name']),command,user.tocken)
         timeArray = time.localtime()
         otherStyleTime = time.strftime("%Y-%m-%d %H:%M:%S", timeArray)
-
+        if not info["payload"]:
+            print("error~!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+            return redirect(reverse("mission_center"))
         jobid = get_keyword(str(info["payload"]["jobId"]))
         name = get_keyword(str(request.POST['job_name']))
-        username = get_keyword(str(user))
-        uinfo = API_tools.get_userinfo(str(user))
-        user_id = str(uinfo["payload"]["userInfo"]["uid"])
+        username = get_keyword(str(user.username))
+        user_id = str(user.id)
         state = get_keyword("WAITTING")
         createdTime = get_keyword(str(otherStyleTime))
         completedTime = get_keyword(str(0))
-        _path = get_keyword(str(outputdir))
-        algorithm_id = get_keyword(str(request.POST["algo_select"]))
+        _path = get_keyword(str("/userhome/jobspace/classification/"+outputdir))
+        Da = models.User_algorithm.objects.filter(name = algo_select)[0]
+        algorithm_id = get_keyword(str(Da.algorithm_id))
         dataset_id = get_keyword(str(request.POST["data_select"]))
         with connection.cursor() as cursor:
             sqltext = "INSERT INTO `automl_web`.`_app_user_job`(`jobid`, `name`, `username`, `user_id`, `state`, `createdTime`, `completedTime`,`_path`, `algorithm_id`, `dataset_id`) " \
@@ -258,7 +316,7 @@ def edit_classifyjob(request,task):
             )
             print("$$$$$$$$$$$",sqltext)
             cursor.execute(sqltext)
-        return redirect(reverse("mission_center"))
+        return redirecter(request, dst="/mission_center/")
     print(content)
     return render(request,"manage_job.html",content)
 @login_required
@@ -276,23 +334,27 @@ def item_edit(request,typer,pk,task):
     return redirecter(request,dst="/mission_center/")
     # return render(request,"manage.html",content)
 
-def updata_jobtable():
+def updata_jobtable(tocken):
+    #同步云脑数据库job信息
     job = models.User_Job.objects.all().order_by("id")
     job = job.exclude(state="STOPPED").exclude(state="FAIL").exclude(state="SUCCEEDED")
     for jd in job:
-        jd_detail = API_tools.get_jobinfo(jd.jobid)
-        jd.state = jd_detail["payload"]["jobStatus"]["state"]
-        timeStamp2 = int(jd_detail['payload']['jobStatus']["completedTime"])
-        if timeStamp2 != 0:
-            timeArray2 = time.localtime(timeStamp2 / 1000)
-            otherStyleTime2 = time.strftime("%Y-%m-%d %H:%M:%S", timeArray2)
-            jd.completedTime = otherStyleTime2
-        jd.save()
+        print(jd)
+        jd_detail = API_tools.get_jobinfo(jd.jobid,tocken)
+        if jd_detail["code"] == "S000":
+            jd.state = jd_detail["payload"]["jobStatus"]["state"]
+            timeStamp2 = int(jd_detail['payload']['jobStatus']["completedTime"])
+            if timeStamp2 != 0:
+                timeArray2 = time.localtime(timeStamp2 / 1000)
+                otherStyleTime2 = time.strftime("%Y-%m-%d %H:%M:%S", timeArray2)
+                jd.completedTime = otherStyleTime2
+            jd.save()
+            print("$$$$$$$$ Update Dataset Success")
 
-def updata_user_algorithm(user):
-    u_alg = models.User_algorithm.objects.exclude(algorithm_id=None)
+def updata_user_algorithm(user,id):
+    u_alg = models.User_algorithm.objects.exclude(algorithm_id=None).filter(user_id=id)
     p_alg = models.Algorithm.objects.all()
-    uid = models.User.objects.filter(username=str(user))[0].id
+    uid = id
     fk = []
     pk = []
     for it in u_alg:
@@ -309,7 +371,7 @@ def updata_user_algorithm(user):
 @login_required
 def mission_center(request):
     user=request.user
-    updata_jobtable()
+    updata_jobtable(user.tocken)
     content={}
     joblist = models.User_Job.objects.all().filter(username=user).order_by("algorithm_id")
     l_algorithm_id = []
@@ -326,7 +388,7 @@ def mission_center(request):
         tt["al_name"] = algorithm_name[i]
         tt["joblist"] = tm.values('jobid','name','username','state','createdTime','_path').order_by("createdTime").reverse()
         for tte in tt["joblist"]:
-            tte['path'] = "/userhome/PCL_AutoML/jobspace/"+tte.pop('_path')
+            tte['path'] = tte.pop('_path')
         algorithm_joblist.append(tt)
     content["algorithm_joblist"] = algorithm_joblist
     return render(request,"mission_center.html",content)
@@ -335,5 +397,5 @@ def mission_center(request):
 def delete_job(request,jobid):
     user = request.user
     content = {}
-    API_tools.delete_job(jobid)
+    API_tools.delete_job(jobid,user.tocken)
     return redirecter(request, dst="/mission_center/")

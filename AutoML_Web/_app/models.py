@@ -6,7 +6,7 @@ from django.contrib.auth.models import AbstractUser
 
 class User(AbstractUser):
     _path = models.CharField(max_length=256, default='')
-
+    tocken = models.CharField(max_length=1000, default='')
     def __str__(self):
         # return self.first_name + self.last_name
         return self.username
@@ -49,7 +49,7 @@ class Algorithm(models.Model):
 
 class User_algorithm(models.Model):
     name = models.CharField(max_length=128)
-    user = models.ForeignKey(User, models.CASCADE)
+    user_id = models.IntegerField()
     algorithm = models.ForeignKey(Algorithm, models.SET_NULL, null=True, blank=True)
     task = models.CharField(max_length=128, default='')
     _path = models.CharField(max_length=256, default='')

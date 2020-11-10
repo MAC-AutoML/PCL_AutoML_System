@@ -32,68 +32,50 @@
                     </select>            
                     {% endif %}
                 </div>
-                <!-- Algorithm selection 下拉菜单 -->
+                <!-- Algorithm selection 下拉菜单-->
                 <div class="form-group row form-inline">
-                    <label for="algo_select"> 算法: &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp</label>
+                    <label for="algo_select"> 模型大小（MFLOPS）: &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp</label>
                     {% if user_algorithm %}
                     <select name="algo_select" id="algo_select" class="form-control">
-                    {% for item in user_algorithm %}
-                        <option value={{item.id}} name={{ item.name }}>
-                            {{item.name|truncatewords:"5"}}
+                    {% for aitem in user_algorithm %}
+                        <option value={{aitem}} >
+                            {{aitem|truncatewords:"5"}}
                         </option>
                     {% endfor %}        
                     </select>            
                     {% endif %}
                 </div>
-                <!-- Model settings -->
+                <script src="https://code.jquery.com/jquery-3.1.0.min.js"></script>
+                <script language="JavaScript">
+                    $("#systemname").change(function() {
+                      $.ajax({
+                        url: 'job/0/(?P<task>[a-zA-Z_]+)/',
+                          data:{"data_select":$(this).val()},
+                     type: 'GET',
+                        dataType: 'json',
+                        success: function (data) {
+                            var content='';
+                            $.each(data, function(i, item){
+                                  content+='<option value='+item+'>'+item+'</option>'
+                                });
+                            $('#algo_select').html(content)
+                        },
+                      });
+                    });
+                </script>
+
+                <!-- Model settings
                 <div class="form-group col">
-                    <legend class="col-form-label col-sm-1-6"><b>模型设置:&nbsp&nbsp&nbsp</b></legend>
-                    <!-- Model cost 浮点数-待添加前端格式检查-->
+                    <legend class="col-form-label col-sm-1-6"><b>模型设置:&nbsp&nbsp&nbsp</b></legend>-->
+                    <!-- Model cost 浮点数-待添加前端格式检查
                     <div class="form-inline col-sm-1-12">
                         <label for="compute_cost">模型大小：&nbsp&nbsp&nbsp </label>
                         <input type="number" name="compute_cost" id="cost_upper" class="form-control" value=1000 aria-describedby="helpId">
-                        <p class="form-control-static col-form-label ">&nbsp&nbsp>&nbsp&nbspMFLOPS&nbsp&nbsp>&nbsp&nbsp</p>
-                        <input type="number" name="compute_cost" id="cost_bound" class="form-control" value=200 aria-describedby="helpId">
+                        <p class="form-control-static col-form-label ">&nbsp&nbsp>&nbsp&nbspFLOPS(K)&nbsp&nbsp>&nbsp&nbsp</p>
+                        <input type="number" name="compute_cost2" id="cost_bound" class="form-control" value=200 aria-describedby="helpId">
                     </div>
-                    <small id="helpId" class="text-muted">You should enter some numbers</small>                        
+                    <small id="helpId" class="text-muted">You should enter some numbers</small> -->
                     <!-- Hyper parameters 待添加前端格式检查-->
-                    <div class="form-inline col-sm-1-12">
-                        <table class="table">
-                            <thead class="thead-inverse">
-                                <tr>
-                                    <th>
-                                        <label for="epoch" >epoch </label>
-                                    </th>
-                                    <th>
-                                        <label for="lr">LR </label>
-                                    </th>
-                                    <th>
-                                        <label for="scheduler">scheduler</label>
-                                    </th>
-                                    <th>
-                                        <label for="optimizer">optimizer </label>
-                                    </th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td>
-                                        <input type="number" name="epoch" id="epoch" class="form-control" value=100 aria-describedby="helpId">
-                                    </td>
-                                    <td>                                        
-                                        <input type="text" name="lr" id="lr" class="form-control" value="0.1" aria-describedby="helpId">
-                                    </td>
-                                    <td>                                        
-                                        <input type="text" name="scheduler" id="scheduler" class="form-control" value="cosine" aria-describedby="helpId">
-                                    </td>
-                                    <td>                                        
-                                        <input type="text" name="optimizer" id="optimizer" class="form-control" value="adam" aria-describedby="helpId">
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
 
                 <div class="form-group row">
                     <div class="offset-sm-2 col-sm-10">

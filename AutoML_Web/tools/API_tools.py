@@ -1,5 +1,6 @@
 import requests
 import json
+import re
 
 def bytes2dict(response):
     info = json.loads(response.content)
@@ -13,31 +14,52 @@ def get_keyword(s):
     else:
         return s
 
-def get_tocken():
+def get_tocken(uname,password):
     url = 'http://192.168.204.24/rest-server/api/v1/token'
 
-    data = """{
-      "username": "wudch",
-      "password": "woodchen"
-    }"""
+    data = {
+      "username": str(uname),
+      "password": str(password),
+    }
+    data = str(data).replace('\'','"')
+    print(type(data),data)
     response = requests.post(url=url, json=json.loads(data))
+
     info = bytes2dict(response)
+    if info["code"] != 'S000':
+        return "用户名或密码错误"
     return "Bearer "+info["payload"]["token"]
 
-def get_userinfo(uname):
-    tocken = get_tocken()
+def check_user(username,password):
+    tocken = get_tocken(username,password)
+    if "错误" in tocken:
+        return tocken
     headers = {
         "Content-Type": 'application/json',
         "Authorization": tocken
     }
 
-    url = "http://192.168.204.24/rest-server/api/v1/user/" + uname
+    url = "http://192.168.204.24/rest-server/api/v1/user/" + username
     response = requests.get(url=url, json={}, headers=headers)
     info = bytes2dict(response)
     return info
 
-def get_joblist(username,size=20,offset=0):
-    tocken = get_tocken()
+def get_userinfo(username,tocken):
+    tocken = tocken
+    if "错误" in tocken:
+        return tocken
+    headers = {
+        "Content-Type": 'application/json',
+        "Authorization": tocken
+    }
+
+    url = "http://192.168.204.24/rest-server/api/v1/user/" + username
+    response = requests.get(url=url, json={}, headers=headers)
+    info = bytes2dict(response)
+    return info
+
+def get_joblist(tocken,size=20,offset=0):
+    tocken = tocken
     headers = {
         "Content-Type": 'application/json',
         "Authorization": tocken
@@ -47,17 +69,17 @@ def get_joblist(username,size=20,offset=0):
     info = bytes2dict(response)
     return info["payload"]
 
-def get_jobinfo(jobid):
+def get_jobinfo(jobid,tocken):
     headers = {
         "Content-Type": 'application/json',
-        "Authorization": get_tocken()
+        "Authorization": tocken
     }
     url = "http://192.168.204.24/rest-server/api/v1/jobs/" + str(jobid)
     response = requests.get(url=url, json={}, headers=headers)
     info = bytes2dict(response)
     return info
 
-def creat_mission(job_name, command):
+def creat_mission(job_name, command,tocken):
     url = f'http://192.168.204.24/rest-server/api/v1/jobs/{job_name}'
 
     print(url)
@@ -87,16 +109,16 @@ def creat_mission(job_name, command):
     """
     headers = {
         "Content-Type": 'application/json',
-        "Authorization": get_tocken()
+        "Authorization": tocken
     }
     response = requests.put(url=url, json=json.loads(data), headers=headers)
     info = bytes2dict(response)
     return info
 
-def delete_job(jobid):
+def delete_job(jobid,tocken):
     headers = {
         "Content-Type": 'application/json',
-        "Authorization": get_tocken()
+        "Authorization": tocken
     }
     url = "http://192.168.204.24/rest-server/api/v1/jobs/" + str(jobid)
     response = requests.delete(url=url, json={}, headers=headers)
@@ -106,10 +128,10 @@ def delete_job(jobid):
 if __name__ == "__main__":
     command = "cd ../userhome/network-pruning-rfm-master/cifar/l1-norm-pruning/&&PYTHONPATH=./ python main.py --dataset cifar10 --arch vgg --depth 16 --save './log/ori_vgg16'"
     #creat_mission("rua",command)
-    a = get_joblist("wudch")
-    print("a",a["jobs"][0])
-    import time
-
+    #a = get_joblist("wudch")
+    #print("a",a["jobs"][0])
+    #import time
+    '''
     otherStyleTime = 0
     item = a["jobs"][0]
     timeStamp = time.time()
@@ -125,5 +147,6 @@ if __name__ == "__main__":
     import re
     str = "qweq('deafeaf'),eqwe"
     result = re.findall(".*'(.*)'.*", str)
-    print(result[0])
-    get_userinfo("wudch")
+    print(result[0])'''
+    UID = 1
+    print(check_user("wudch", "woodchen"))
