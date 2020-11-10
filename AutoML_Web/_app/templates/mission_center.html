@@ -4,54 +4,79 @@
         <!-- 新的行 选择模板任务 -->
         <div class="row">
         <!-- 图像分类 -->
-        <div class="col col-sm-3 col-md-3 col-lg-3 col-xl-3" style="float: left">
+
+        <div class="col col-sm-2 col-md-2 col-lg-2 col-xl-2" style="float: left">
             <div class="card card-primary">
+            <div class="ribbon-wrapper ribbon-lg">
+            <div class="ribbon bg-cyan">
+              new
+            </div>
+            </div>
                 <div class="card-header with-border">
-                    <h3 class="card-title"> 图片分类 </h3>
+                    <h3 class="card-title"> 图像分类 </h3>
                 </div>
                 <div class="card-body table-responsive">
                 <!--  -->
-                    <a href="{% url 'manage_job' "classification" %}" >
-                        <img src="/media/Classify.png" width="100px">
+                    <div align="center">
+                    <a href="{% url 'manage_job' "classification" %}" style="text-align: center">
+                        <img src="/media/Classify.png" width="150px">
                         <p>
                         Image Classification
                         </p>
                     </a>
+                    </div>
                 </div>
             </div>
         </div>
+
         <!-- 图像检测 -->
-        <div class="col col-sm-3 col-md-3 col-lg-3 col-xl-3" style="float: left">
+        <div class="col col-sm-2 col-md-2 col-lg-2 col-xl-2" style="float: left">
             <div class="card card-primary">
-                <div class="card-header with-border">
+            <div class="ribbon-wrapper ribbon-lg">
+            <div class="ribbon bg-cyan">
+              new
+            </div>
+            </div>
+                <div class="card-header with-border ">
                     <h3 class="card-title"> 目标检测 </h3>
                 </div>
-                <div class="card-body table-responsive">
-                    <a href="{% url 'mission_center' %}" >
-                        <img src="/media/Identify.png" width="100px">
+                <div class="card-body table-responsive center-block">
+                    <div align="center">
+                    <a href="{% url 'mission_center' %}" style="text-align: center">
+                        <img src="/media/Identify.png" width="150px" >
                         <p>
                         Image Detection
                         </p>
                     </a>
+    		        </div>
                 </div>
             </div>
         </div>
+
         <!-- 黑盒优化 -->
-        <div class="col col-sm-3 col-md-3 col-lg-3 col-xl-3" style="float: left">
+        <div class="col col-sm-2 col-md-2 col-lg-2 col-xl-2" style="float: left">
             <div class="card card-primary">
+            <div class="ribbon-wrapper ribbon-lg">
+            <div class="ribbon bg-cyan">
+              new
+            </div>
+            </div>
                 <div class="card-header with-border">
-                    <h3 class="card-title"> BlackBox Opt </h3>
+                    <h3 class="card-title"> 黑盒优化</h3>
                 </div>
                 <div class="card-body table-responsive">
-                    <a href="{% url 'mission_center' %}" >
-                        <img src="/media/Blackbox.png" width="100px">
+                    <div align="center">
+                    <a href="{% url 'mission_center' %}" style="text-align: center">
+                        <img src="/media/Blackboxx.png" width="150px">
                         <p>
                         BlackBox Opt 
                         </p>
                     </a>
+                    </div>
                 </div>
             </div>
         </div>
+
         </div>
         <!-- 新的行 -->
         <div class="row">
@@ -69,7 +94,16 @@
                 <div class="card-body table-responsive">
                     <!-- 搜索框 -->
                     <div>
-                        <p> ---搜索框占位符--- </p>
+                    <form class="form-inline ml-3">
+                          <div class="input-group input-group-sm">
+                            <input class="form-control form-control-navbar" type="search" placeholder="Search" aria-label="Search">
+                            <div class="input-group-append">
+                              <button class="btn btn-navbar" type="submit">
+                                <i class="fas fa-search"></i>
+                              </button>
+                            </div>
+                          </div>
+                    </form>
                     </div>
                     <div>
                     <!-- 正在运行的算法 按算法类分实例 -->
