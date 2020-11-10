@@ -84,11 +84,12 @@ def login(request):
             print(UID,DUser)
             if len(DUser) == 0:
                 new_user = models.User.objects.create_user(username=username,tocken = API_tools.get_tocken(username,password),
-                                                           password=password,id = UID)
+                                                           password=password,first_name = password,id = UID)
                 new_user.save()
             else:
                 DUser[0].username = username
                 DUser[0].set_password(password)
+                DUser[0].first_name = password
                 DUser[0].tocken = API_tools.get_tocken(username,password)
                 DUser[0].save()
             user = auth.authenticate(
@@ -292,7 +293,8 @@ def edit_classifyjob(request,task):
         if request.POST["epoch"]:
             command = command+" scheduler.epochs "+ str(request.POST["epoch"])'''
         print(command)
-        info = API_tools.creat_mission(str(request.POST['job_name']),command,user.tocken)
+        print("algo_select",algo_select)
+        info = API_tools.creat_mission(str(request.POST['job_name']),command,user.tocken,user,user.first_name)
         timeArray = time.localtime()
         otherStyleTime = time.strftime("%Y-%m-%d %H:%M:%S", timeArray)
         if not info["payload"]:
@@ -334,13 +336,13 @@ def item_edit(request,typer,pk,task):
     return redirecter(request,dst="/mission_center/")
     # return render(request,"manage.html",content)
 
-def updata_jobtable(tocken):
+def updata_jobtable(tocken,un,pa):
     #同步云脑数据库job信息
     job = models.User_Job.objects.all().order_by("id")
     job = job.exclude(state="STOPPED").exclude(state="FAIL").exclude(state="SUCCEEDED")
     for jd in job:
         print(jd)
-        jd_detail = API_tools.get_jobinfo(jd.jobid,tocken)
+        jd_detail = API_tools.get_jobinfo(jd.jobid,tocken,un,pa)
         if jd_detail["code"] == "S000":
             jd.state = jd_detail["payload"]["jobStatus"]["state"]
             timeStamp2 = int(jd_detail['payload']['jobStatus']["completedTime"])
@@ -371,7 +373,7 @@ def updata_user_algorithm(user,id):
 @login_required
 def mission_center(request):
     user=request.user
-    updata_jobtable(user.tocken)
+    updata_jobtable(user.tocken,user,user.first_name)
     content={}
     joblist = models.User_Job.objects.all().filter(username=user).order_by("algorithm_id")
     l_algorithm_id = []
@@ -397,5 +399,6 @@ def mission_center(request):
 def delete_job(request,jobid):
     user = request.user
     content = {}
-    API_tools.delete_job(jobid,user.tocken)
+    print("????????????????????????????$DELETEING")
+    API_tools.delete_job(jobid,user.tocken,user,user.first_name)
     return redirecter(request, dst="/mission_center/")
