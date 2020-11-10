@@ -44,8 +44,8 @@ def check_user(username,password):
     info = bytes2dict(response)
     return info
 
-def get_userinfo(username,tocken):
-    tocken = tocken
+def get_userinfo(username,tocken,password):
+    tocken = get_tocken(username,password)
     if "错误" in tocken:
         return tocken
     headers = {
@@ -58,8 +58,8 @@ def get_userinfo(username,tocken):
     info = bytes2dict(response)
     return info
 
-def get_joblist(tocken,size=20,offset=0):
-    tocken = tocken
+def get_joblist(tocken,username,password,size=20,offset=0):
+    tocken = get_tocken(username,password)
     headers = {
         "Content-Type": 'application/json',
         "Authorization": tocken
@@ -69,17 +69,17 @@ def get_joblist(tocken,size=20,offset=0):
     info = bytes2dict(response)
     return info["payload"]
 
-def get_jobinfo(jobid,tocken):
+def get_jobinfo(jobid,tocken,username,password):
     headers = {
         "Content-Type": 'application/json',
-        "Authorization": tocken
+        "Authorization": get_tocken(username,password)
     }
     url = "http://192.168.204.24/rest-server/api/v1/jobs/" + str(jobid)
     response = requests.get(url=url, json={}, headers=headers)
     info = bytes2dict(response)
     return info
 
-def creat_mission(job_name, command,tocken):
+def creat_mission(job_name, command,tocken,username,password):
     url = f'http://192.168.204.24/rest-server/api/v1/jobs/{job_name}'
 
     print(url)
@@ -109,16 +109,16 @@ def creat_mission(job_name, command,tocken):
     """
     headers = {
         "Content-Type": 'application/json',
-        "Authorization": tocken
+        "Authorization": get_tocken(username,password)
     }
     response = requests.put(url=url, json=json.loads(data), headers=headers)
     info = bytes2dict(response)
     return info
 
-def delete_job(jobid,tocken):
+def delete_job(jobid,tocken,username,password):
     headers = {
         "Content-Type": 'application/json',
-        "Authorization": tocken
+        "Authorization": get_tocken(username,password)
     }
     url = "http://192.168.204.24/rest-server/api/v1/jobs/" + str(jobid)
     response = requests.delete(url=url, json={}, headers=headers)
