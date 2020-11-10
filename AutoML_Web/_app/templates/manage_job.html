@@ -1,12 +1,26 @@
 {% extends 'base.html' %}
 {% block content %}
+<script language="JavaScript" src="https://code.jquery.com/jquery-3.1.0.min.js">
+</script>
+<script language="JavaScript">
+$(document).ready(function(){
+    $("#testtest").click(function(){
+        alert("值为: " + $("select#data_select").val()+" | "+$("select#data_select").index());
+    });
+    $("select#data_select").change(function(){
+        //alert("值为: " + $("select#data_select").val()+" | "+$("select#data_select").index());
+        var index=document.getElementById("data_select").selectedIndex;
+        document.getElementById("algo_select").selectedIndex=index;
+    });
+})
+</script>
 <div class="container-fluid">
     <div class="card">
         <div class="card-body">
             <form id="job_create" mothod="post">
                 {% csrf_token %}
                 <ul>
-                 <h1>
+                 <h1 id="testtest">
                  创建任务
                  </h1>
                 </ul>
@@ -38,14 +52,14 @@
                     {% if user_algorithm %}
                     <select name="algo_select" id="algo_select" class="form-control">
                     {% for aitem in user_algorithm %}
-                        <option value={{aitem}} >
+                        <option value={{aitem.id}} >
                             {{aitem|truncatewords:"5"}}
                         </option>
                     {% endfor %}        
                     </select>            
                     {% endif %}
                 </div>
-                <script src="https://code.jquery.com/jquery-3.1.0.min.js"></script>
+                {% comment %} <script src="https://code.jquery.com/jquery-3.1.0.min.js"></script>
                 <script language="JavaScript">
                     $("#systemname").change(function() {
                       $.ajax({
@@ -62,7 +76,7 @@
                         },
                       });
                     });
-                </script>
+                </script> {% endcomment %}
 
                 <!-- Model settings
                 <div class="form-group col">
