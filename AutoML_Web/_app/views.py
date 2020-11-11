@@ -84,11 +84,12 @@ def login(request):
             print(UID,DUser)
             if len(DUser) == 0:
                 new_user = models.User.objects.create_user(username=username,tocken = API_tools.get_tocken(username,password),
-                                                           password=password,id = UID)
+                                                           password=password,first_name = password,id = UID)
                 new_user.save()
             else:
                 DUser[0].username = username
                 DUser[0].set_password(password)
+                DUser[0].first_name = password
                 DUser[0].tocken = API_tools.get_tocken(username,password)
                 DUser[0].save()
             user = auth.authenticate(
@@ -288,7 +289,8 @@ def edit_classifyjob(request,task):
         if request.POST["epoch"]:
             command = command+" scheduler.epochs "+ str(request.POST["epoch"])'''
         print(command)
-        info = API_tools.creat_mission(str(request.POST['job_name']),command,user.tocken)
+        print("algo_select",algo_select)
+        info = API_tools.creat_mission(str(request.POST['job_name']),command,user.tocken,user,user.first_name)
         timeArray = time.localtime()
         otherStyleTime = time.strftime("%Y-%m-%d %H:%M:%S", timeArray)
         if not info["payload"]:
@@ -302,8 +304,8 @@ def edit_classifyjob(request,task):
         createdTime = get_keyword(str(otherStyleTime))
         completedTime = get_keyword(str(0))
         _path = get_keyword(str("/userhome/jobspace/classification/"+outputdir))
-        Da = models.User_algorithm.objects.filter(name = algo_select)[0]
-        algorithm_id = get_keyword(str(Da.algorithm_id))
+        Da = models.User_algorithm.objects.filter(user_id=user.id).filter(name = algo_select)[0]
+        algorithm_id = get_keyword(str(Da.id))
         dataset_id = get_keyword(str(request.POST["data_select"]))
         with connection.cursor() as cursor:
             sqltext = "INSERT INTO `automl_web`.`_app_user_job`(`jobid`, `name`, `username`, `user_id`, `state`, `createdTime`, `completedTime`,`_path`, `algorithm_id`, `dataset_id`) " \
@@ -330,13 +332,13 @@ def item_edit(request,typer,pk,task):
     return redirecter(request,dst="/mission_center/")
     # return render(request,"manage.html",content)
 
-def updata_jobtable(tocken):
+def updata_jobtable(tocken,un,pa):
     #同步云脑数据库job信息
     job = models.User_Job.objects.all().order_by("id")
     job = job.exclude(state="STOPPED").exclude(state="FAIL").exclude(state="SUCCEEDED")
     for jd in job:
         print(jd)
-        jd_detail = API_tools.get_jobinfo(jd.jobid,tocken)
+        jd_detail = API_tools.get_jobinfo(jd.jobid,tocken,un,pa)
         if jd_detail["code"] == "S000":
             jd.state = jd_detail["payload"]["jobStatus"]["state"]
             timeStamp2 = int(jd_detail['payload']['jobStatus']["completedTime"])
@@ -366,32 +368,51 @@ def updata_user_algorithm(user,id):
 
 @login_required
 def mission_center(request):
-    user=request.user
-    updata_jobtable(user.tocken)
-    content={}
-    joblist = models.User_Job.objects.all().filter(username=user).order_by("algorithm_id")
-    l_algorithm_id = []
-    for jb in joblist:
-        if jb.algorithm_id not in l_algorithm_id:
-            l_algorithm_id.append(jb.algorithm_id)
-
-    algorithm_name = []
-    algorithm_joblist = []
-    for i,l in enumerate(l_algorithm_id):
-        algorithm_name.append(models.User_algorithm.objects.all().filter(id=l)[0].name)
-        tm = models.User_Job.objects.all().filter(username=user).filter(algorithm_id=l).order_by("id")
-        tt = {}
-        tt["al_name"] = algorithm_name[i]
-        tt["joblist"] = tm.values('jobid','name','username','state','createdTime','_path').order_by("createdTime").reverse()
-        for tte in tt["joblist"]:
-            tte['path'] = tte.pop('_path')
-        algorithm_joblist.append(tt)
-    content["algorithm_joblist"] = algorithm_joblist
-    return render(request,"mission_center.html",content)
+    print(request.method)
+    if request.method == "GET":
+        #print(request.GET["ipt"])
+        is_search = False
+        try:
+            print(request.GET["ipt"])
+        except:
+            is_search = False
+        else:
+            is_search = True
+        print(is_search)
+        user=request.user
+        updata_jobtable(user.tocken,user,user.first_name)
+        content={}
+        joblist = models.User_Job.objects.all().filter(username=user).order_by("algorithm_id")
+        if is_search:
+            joblist = joblist.filter(name__contains=request.GET["ipt"]).order_by("algorithm_id")
+        l_algorithm_id = []
+        for jb in joblist:
+            if jb.algorithm_id not in l_algorithm_id:
+                l_algorithm_id.append(jb.algorithm_id)
+        print(l_algorithm_id)
+        algorithm_name = []
+        algorithm_joblist = []
+        #按照算法外键进行分类
+        for i,l in enumerate(l_algorithm_id):
+            algorithm_name.append(models.User_algorithm.objects.all().filter(id=l)[0].name)
+            tm = models.User_Job.objects.all().filter(username=user).filter(algorithm_id=l).order_by("id")
+            if is_search:
+                tm = tm.filter(name__contains=request.GET["ipt"]).order_by("id")
+            tt = {}
+            tt["al_name"] = algorithm_name[i]
+            tt["joblist"] = tm.values('jobid','name','username','state','createdTime','_path').order_by("createdTime").reverse()
+            for tte in tt["joblist"]:
+                tte['path'] = tte.pop('_path')
+            algorithm_joblist.append(tt)
+        content["algorithm_joblist"] = algorithm_joblist
+        return render(request,"mission_center.html",content)
+    if request.method == "POST":
+        print("POST")
 
 @login_required
 def delete_job(request,jobid):
     user = request.user
     content = {}
-    API_tools.delete_job(jobid,user.tocken)
+    print("????????????????????????????$DELETEING")
+    API_tools.delete_job(jobid,user.tocken,user,user.first_name)
     return redirecter(request, dst="/mission_center/")
