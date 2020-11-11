@@ -4,14 +4,24 @@
 </script>
 <script language="JavaScript">
 $(document).ready(function(){
-    $("#testtest").click(function(){
-        alert("值为: " + $("select#data_select").val()+" | "+$("select#data_select").index());
-    });
+    // jQuery对象->DOM对象 $("")[0]
+    //$("select#data_select").change(function(){
+    //    $("select#algo_select")[0].selectedIndex= $("select#data_select")[0].selectedIndex;
+    //})
     $("select#data_select").change(function(){
-        //alert("值为: " + $("select#data_select").val()+" | "+$("select#data_select").index());
-        var index=document.getElementById("data_select").selectedIndex;
-        document.getElementById("algo_select").selectedIndex=index;
-    });
+        var mid=$(this)[0].selectedIndex;
+        console.log("This is:"+mid); 
+        $.get("{% url 'manage_job_refresh_modesize' %}",{'mid':mid},
+            function(data){
+                //data.slist就是返回的模型大小数组
+                var slist=data.slist;
+                var modelsize=$("select#algo_select");
+                modelsize.empty();
+                $.each(slist,function(i,size){
+                    modelsize.append('<option value="'+i+'">'+size+'</option>');
+                })
+        },"json")
+    })
 })
 </script>
 <div class="container-fluid">
