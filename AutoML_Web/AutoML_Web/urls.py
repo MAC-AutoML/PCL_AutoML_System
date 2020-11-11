@@ -26,8 +26,6 @@ from .settings import MEDIA_ROOT
 
 from _app import views
 
-
-
 urlpatterns = [
     path('admin/', admin.site.urls),
     #path('', views.login,name='login'),

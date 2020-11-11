@@ -80,8 +80,8 @@ WSGI_APPLICATION = 'AutoML_Web.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        # 'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-        'NAME': 'automl_web',
+        # 'NAME': 'automl_web',
+        'NAME': 'wuyuhang',
         'USER': 'root',
         'PASSWORD': 'root',
         'HOST': '127.0.0.1',

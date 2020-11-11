@@ -8,6 +8,7 @@ urlpatterns = [
     # 自增的id从1开始，因此假设id为0时是要增加算法/作业
     # url(r'^(algorithm|job)/(0)/?$',views.item_edit,name="manage"),
     # url(r'^(algorithm|job)/(0)/(?P<task>[a-zA-Z_]+)/$$',views.item_edit,name="manage"),
+    url(r'^job/0/get_modelsize/?$',views.refresh_modelsize,name="manage_job_refresh_modesize"),
     url(r'^job/0/(?P<task>[a-zA-Z_]+)/?$',views.edit_classifyjob,name="manage_job"),
     url(r'^algorithm/0/(?P<task>[a-zA-Z_]+)/?$',views.edit_algorithm,name="manage_algorithm"),
     url(r'^(job)/([0-9a-zA-Z]+)/?$',views.detail_job,name="detail_job"),
