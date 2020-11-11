@@ -5,8 +5,22 @@
 <script language="JavaScript">
 $(document).ready(function(){
     // jQuery对象->DOM对象 $("")[0]
+    //$("select#data_select").change(function(){
+    //    $("select#algo_select")[0].selectedIndex= $("select#data_select")[0].selectedIndex;
+    //})
     $("select#data_select").change(function(){
-        $("select#algo_select")[0].selectedIndex= $("select#data_select")[0].selectedIndex;
+        var mid=$(this)[0].selectedIndex;
+        console.log("This is:"+mid); 
+        $.get("{% url 'manage_job_refresh_modesize' %}",{'mid':mid},
+            function(data){
+                //data.slist就是返回的模型大小数组
+                var slist=data.slist;
+                var modelsize=$("select#algo_select");
+                modelsize.empty();
+                $.each(slist,function(i,size){
+                    modelsize.append('<option value="'+i+'">'+size+'</option>');
+                })
+        },"json")
     })
 })
 </script>

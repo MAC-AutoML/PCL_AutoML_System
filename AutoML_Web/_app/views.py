@@ -3,7 +3,7 @@ from django.shortcuts import redirect
 from django.urls import reverse
 from django.db import connection
 from django.http import HttpResponse
-
+from django.http import JsonResponse
 
 from . import models
 
@@ -228,7 +228,7 @@ def edit_classifyjob(request,task):
     updata_user_algorithm(user.username,user.id)
     content={}
     # task=str(task)
-    task=str(task).strip(" ").replace("_"," ")# 现有的分类任务名为 "Image Classification"
+    task=str(task).strip(" ").replace(" ","_")# 现有的分类任务名为 "Image Classification"
     content['task']=task
     # 使用task类型来限定下拉列表数据集种类和下拉私有算法种类
     if(request.method == "GET"):
@@ -315,8 +315,20 @@ def edit_classifyjob(request,task):
             print("$$$$$$$$$$$",sqltext)
             cursor.execute(sqltext)
         return redirecter(request, dst="/mission_center/")
-    print(content)
+    print("Content is: ",content)
     return render(request,"manage_job.html",content)
+
+def refresh_modelsize(request):
+    print("Yes")
+    test_group=[
+        [100,200,300,400],
+        [101,201,301,401],
+        [102,202,302,402],
+        [103,203,303,403]
+    ]
+    model_id=request.GET.get('mid')
+    slist=test_group[int(model_id)]
+    return JsonResponse({'slist':slist})
 @login_required
 def edit_algorithm(request,task):
     user=request.user
