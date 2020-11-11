@@ -4,14 +4,10 @@
 </script>
 <script language="JavaScript">
 $(document).ready(function(){
-    $("#testtest").click(function(){
-        alert("值为: " + $("select#data_select").val()+" | "+$("select#data_select").index());
-    });
+    // jQuery对象->DOM对象 $("")[0]
     $("select#data_select").change(function(){
-        //alert("值为: " + $("select#data_select").val()+" | "+$("select#data_select").index());
-        var index=document.getElementById("data_select").selectedIndex;
-        document.getElementById("algo_select").selectedIndex=index;
-    });
+        $("select#algo_select")[0].selectedIndex= $("select#data_select")[0].selectedIndex;
+    })
 })
 </script>
 <div class="container-fluid">

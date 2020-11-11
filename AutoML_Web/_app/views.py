@@ -226,27 +226,23 @@ def edit_classifyjob(request,task):
     user = request.user
     updata_user_algorithm(user.username,user.id)
     content={}
-    task=str(task)
-    task=task.strip(" ").replace("_"," ")# 现有的分类任务名为 "Image Classification"
-    content['task']=str(task)
+    # task=str(task)
+    task=str(task).strip(" ").replace("_"," ")# 现有的分类任务名为 "Image Classification"
+    content['task']=task
     # 使用task类型来限定下拉列表数据集种类和下拉私有算法种类
     if(request.method == "GET"):
         #查询数据库
         content['dataset']=models.Dataset.objects.filter(task=task).order_by("id")
+        # # 【临时改动】
+        # content['dataset']=models.Dataset.objects.all().order_by("id")
         #content['user_algorithm']=models.User_algorithm.objects.filter(task=task).order_by("id")
-        ds = request.GET.get('data_select')
+        # ds = request.GET.get('data_select')
+        # # 【临时改动】
+        # content['user_algorithm'] = ['272', '769', '855']
+
         content['user_algorithm'] = ['272', '769', '855', '1730']
-        print(ds)
-        if ds:
-            content['user_algorithm'] = ['272', '769', '855', '1730']
-            if "image" in ds:
-                content['user_algorithm'] = ['1730', '769', '855', '272']
 
-
-        print(len(content['dataset']) ==0 or len(content['user_algorithm'])==0)
-        #content['algorithm'] = models.Algorithm.objects.filter().filter(task=task).order_by("id")
-        if(len(content['dataset']) ==0 or len(content['user_algorithm'])==0):
-        # 说明没有对应的任务或数据集
+        if(len(content['dataset']) ==0 or len(content['user_algorithm'])==0):# 说明没有对应的任务或数据集
             return redirect(reverse("mission_center"))        
     #表单回传,用关键字填充发给云脑的命令
     elif(request.method == "POST"):
