@@ -15,6 +15,7 @@ import tools.API_tools as API_tools
 from  tools.API_tools import get_keyword
 import time
 
+from .mock import USER_LIST,get_tocken
 # Create your views here.
 TOP=5
 PUBLIC_DICT={
@@ -72,25 +73,37 @@ def login(request):
         password = request.POST.get('password')
         # valid_num = request.POST.get("valid_num")
         # keep_str = request.session.get("keep_str")
+
+        ### Dev mock user   
         message = '请检查填写的内容！'
-        uinfo = API_tools.check_user(username,password)  # 验证是否存在用户
-        if "错误" in uinfo:
+        uinfo = API_tools.check_user(username,password) 
+        index=-1
+        for (i,item) in enumerate(USER_LIST):
+            name=item['username']
+            pw=item['password']
+            if(username==name and password==pw):
+                index=i
+        if(index<0):
             message = "用户名或密码错误！"
             return render(request, 'login.html', {'message': message})
         else:
             #检查并创建数据库用户了
-            UID = uinfo["payload"]["userInfo"]["userId"]
+            UID = USER_LIST[index]['id']
             DUser = models.User.objects.filter(id = UID)
             print(UID,DUser)
             if len(DUser) == 0:
-                new_user = models.User.objects.create_user(username=username,tocken = API_tools.get_tocken(username,password),
-                                                           password=password,first_name = password,id = UID)
+                new_user = models.User.objects.create_user(
+                    username=USER_LIST[index]['username'],
+                    tocken = USER_LIST[index]['tocken'],
+                    password=USER_LIST[index]['password'],
+                    first_name = USER_LIST[index]['first_name'],
+                    id = USER_LIST[index]['id'])
                 new_user.save()
             else:
                 DUser[0].username = username
                 DUser[0].set_password(password)
                 DUser[0].first_name = password
-                DUser[0].tocken = API_tools.get_tocken(username,password)
+                DUser[0].tocken = get_tocken()
                 DUser[0].save()
             user = auth.authenticate(
                 username=username, password=password)  # 验证是否存在用户
@@ -102,7 +115,43 @@ def login(request):
             #request.session["username"] = username
             #request.session["password"] = password
             #request.session["uid"] = uinfo["payload"]["userInfo"]["userId"]
-            return redirect('/index/')
+            return redirect('/index/')            
+        ### Raw user
+        # message = '请检查填写的内容！'
+        # uinfo = API_tools.check_user(username,password)  # 验证是否存在用户
+        # if "错误" in uinfo:
+        #     message = "用户名或密码错误！"
+        #     return render(request, 'login.html', {'message': message})
+        # else:
+        #     #检查并创建数据库用户了
+        #     UID = uinfo["payload"]["userInfo"]["userId"]
+        #     DUser = models.User.objects.filter(id = UID)
+        #     print(UID,DUser)
+        #     if len(DUser) == 0:
+        #         new_user = models.User.objects.create_user(
+        #             username=username,
+        #             tocken = API_tools.get_tocken(username,password),
+        #             password=password,
+        #             first_name = password,
+        #             id = UID)
+        #         new_user.save()
+        #     else:
+        #         DUser[0].username = username
+        #         DUser[0].set_password(password)
+        #         DUser[0].first_name = password
+        #         DUser[0].tocken = API_tools.get_tocken(username,password)
+        #         DUser[0].save()
+        #     user = auth.authenticate(
+        #         username=username, password=password)  # 验证是否存在用户
+        #     print(user)
+        #     if (user):
+        #         print("login!!!!!!!!!!!!!!!!!!")
+        #         auth.login(request, user)
+        #         return redirect('/index/')
+        #     #request.session["username"] = username
+        #     #request.session["password"] = password
+        #     #request.session["uid"] = uinfo["payload"]["userInfo"]["userId"]
+        #     return redirect('/index/')
     return render(request, 'login.html')
 
 
