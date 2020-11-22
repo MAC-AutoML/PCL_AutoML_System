@@ -19,34 +19,34 @@
     </li> {% endcomment %}
     <li class="nav-item">
         <a href="{% url 'mission_center' %}" class="nav-link">
-            <i class="fa fa-circle"></i> <span>Mission Center</span>
+            <i class="fa fa-circle"></i> <span>任务大厅</span>
         </a>
     </li>
     <li class="nav-item">
         <a href="{% url 'private' 'algorithm' %}" class="nav-link">
-            <i class="fa fa-circle"></i> <span>My Algorithm</span>
+            <i class="fa fa-circle"></i> <span>我的算法</span>
         </a>
     </li>
     <li class="nav-item">
         <a href="{% url 'private' 'job' %}" class="nav-link">
-            <i class="fa fa-circle"></i> <span>My Job</span>
+            <i class="fa fa-circle"></i> <span>我的任务</span>
         </a>
     </li>
     <li class="nav-item has-tree-view ">
         <a href="#" class="nav-link">
-            <i class="nav-icon fas fa-object-group"></i> <p>Public Resource</p>
+            <i class="nav-icon fas fa-object-group"></i> <p>公有资源</p>
             <p><i class="right fas fa-angle-left"></i>
             </p>
         </a>
         <ul class="nav nav-treeview menu-open">
             <li class="nav-item">
                 <a href="{% url 'public' 'algorithm' %}" class="nav-link ">
-                    <i class="nav-icon fas fa-circle"></i>Public Algorithm
+                    <i class="nav-icon fas fa-circle"></i>公有算法
                 </a>
             </li>
             <li class="nav-item">
                 <a href="{% url 'public' 'dataset' %}" class="nav-link ">
-                    <i class="nav-icon fas fa-circle"></i>Public Dataset
+                    <i class="nav-icon fas fa-circle"></i>公有数据集
                 </a>
             </li>
         </ul>

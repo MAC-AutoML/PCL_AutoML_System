@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+{% block content %}
+    <div class="card">
+            <div class="card-header with-border">
+                <h2 class="card-title">
+                    {{item.name}}
+                </h2>
+                <br>
+                <div class="card-body table-responsive">
+                    <!-- Buttons, labels, and many other things can be placed here! -->
+                    <!-- Here is a label for example -->
+                    {% if item.get_fields %}
+
+                        {% for name,value in item.get_fields %}
+                        <tbody>
+                        <tr><td>
+                            <li>{{name}} &nbsp  => &nbsp {{value}}</li>
+                        </td></tr>
+                        </tbody>
+                        {% endfor %}
+
+                    {% endif %}
+                    {% comment %} <button class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button> {% endcomment %}
+                </div><!-- /.box-tools -->
+            </div><!-- /.box-header -->
+        </div><!-- /.box -->
+{% endblock content %}
