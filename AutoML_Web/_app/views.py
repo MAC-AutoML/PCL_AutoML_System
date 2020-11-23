@@ -71,12 +71,9 @@ def login(request):
     elif request.method == "POST":
         username = request.POST.get('username')
         password = request.POST.get('password')
-        # valid_num = request.POST.get("valid_num")
-        # keep_str = request.session.get("keep_str")
 
         ### Dev mock user   
         message = '请检查填写的内容！'
-        uinfo = API_tools.check_user(username,password) 
         index=-1
         for (i,item) in enumerate(USER_LIST):
             name=item['username']
@@ -90,14 +87,15 @@ def login(request):
             #检查并创建数据库用户了
             UID = USER_LIST[index]['id']
             DUser = models.User.objects.filter(id = UID)
-            print(UID,DUser)
+            print("输出一部分信息：",UID,DUser)
             if len(DUser) == 0:
                 new_user = models.User.objects.create_user(
                     username=USER_LIST[index]['username'],
                     tocken = USER_LIST[index]['tocken'],
                     password=USER_LIST[index]['password'],
                     first_name = USER_LIST[index]['first_name'],
-                    id = USER_LIST[index]['id'])
+                    api_id = USER_LIST[index]['id'])
+                ## 不能直接把api传来的id赋值给数据库里的id，会有莫名的bug
                 new_user.save()
             else:
                 DUser[0].username = username
@@ -112,9 +110,6 @@ def login(request):
                 print("login!!!!!!!!!!!!!!!!!!")
                 auth.login(request, user)
                 return redirect('/index/')
-            #request.session["username"] = username
-            #request.session["password"] = password
-            #request.session["uid"] = uinfo["payload"]["userInfo"]["userId"]
             return redirect('/index/')            
         ### Raw user
         # message = '请检查填写的内容！'

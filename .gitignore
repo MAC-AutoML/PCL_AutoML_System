@@ -183,6 +183,7 @@ Temporary Items
 docs/_build/
 
 ### Django ###
+
 *.log
 *.pot
 *.pyc
