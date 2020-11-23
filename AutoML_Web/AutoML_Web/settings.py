@@ -32,6 +32,7 @@ ALLOWED_HOSTS = ["*", '192.168.207.73']
 
 INSTALLED_APPS = [
     '_app',
+    'backend',
     'corsheaders',
     'rest_framework',
 
@@ -55,7 +56,8 @@ MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
+    #CSRF
+    # 'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
@@ -64,10 +66,14 @@ MIDDLEWARE = [
 ROOT_URLCONF = 'AutoML_Web.urls'
 
 # Cors_headers settings
+# 允许Cookie
 CORS_ALLOW_CREDENTIALS = True
+
+## 只允许本机8000接口发送跨域请求
 CORS_ALLOWED_ORIGINS = [
-    ## 只允许本机8000接口发送跨域请求
-    "http://127.0.0.1:8000"
+    "http://localhost:8000",
+    "http://127.0.0.1:8000",
+    "http://10.24.82.13:8000"
 ]
 CORS_ALLOW_METHODS = [
     'DELETE',

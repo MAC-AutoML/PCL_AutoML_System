@@ -6,7 +6,7 @@ from rest_framework.response import Response
 
 import sys
 sys.path.append("..")
-from .._app import models
+from _app import models
 # Create your views here.
 
 # class Test(APIView):
@@ -33,10 +33,33 @@ class Login(APIView):
         """
         login get
         """
-        pass
+        print("GET: ",type(request))
+        print(request)
+        # print(i for i in request)
+        status={
+            "status":"ok",
+            "type":"account",
+            "currentAuthority":"admin",
+        }        
+        return Response(data=status)
     def post(self,request):
+        print("POST: ",type(request))
+        print(request)
+        # print(i for i in request)
+        status={
+            "status":"ok",
+            "type":"account",
+            "currentAuthority":"admin",
+        }       
+        return Response(data=status)
+class currentUser(APIView):
+    def get(self,request):
         pass
-    
+    def post(self, request):
+        """
+        post
+        """
+        pass
 class AutoML(APIView):
     def get(self, request):
         """
