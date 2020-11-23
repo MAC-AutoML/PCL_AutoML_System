@@ -32,18 +32,26 @@ ALLOWED_HOSTS = ["*", '192.168.207.73']
 
 INSTALLED_APPS = [
     '_app',
+    'corsheaders',
+    'rest_framework',
+
     'adminlte3',
     'adminlte3_theme',
+
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
     # 'django_seed',
 ]
 
 MIDDLEWARE = [
+    ## 跨域通信包
+    'corsheaders.middleware.CorsMiddleware',
+    ## Django自带middleware
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -54,6 +62,32 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = 'AutoML_Web.urls'
+
+# Cors_headers settings
+CORS_ALLOW_CREDENTIALS = True
+CORS_ALLOWED_ORIGINS = [
+    ## 只允许本机8000接口发送跨域请求
+    "http://127.0.0.1:8000"
+]
+CORS_ALLOW_METHODS = [
+    'DELETE',
+    'GET',
+    'OPTIONS',
+    'PATCH',
+    'POST',
+    'PUT',
+]
+CORS_ALLOW_HEADERS = [
+    'accept',
+    'accept-encoding',
+    'authorization',
+    'content-type',
+    'dnt',
+    'origin',
+    'user-agent',
+    'x-csrftoken',
+    'x-requested-with',
+]
 
 TEMPLATES = [
     {
