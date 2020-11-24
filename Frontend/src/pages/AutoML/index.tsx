@@ -13,15 +13,15 @@ import request from 'umi-request';
 import shower from '../../../public/banner1.jpg'
 
 const columns = [
+  // {
+  //   dataIndex: 'index',
+  //   valueType: 'indexBorder',
+  //   width: 48,
+  // },
   {
-    dataIndex: 'index',
-    valueType: 'indexBorder',
-    width: 48,
-  },
-  {
-    title: '标题',
-    dataIndex: 'title',
-    copyable: true,
+    title: '项目名称',
+    dataIndex: 'title', //回传数据的键
+    // copyable: true,
     ellipsis: true,
     tip: '标题过长会自动收缩',
     formItemProps: {
@@ -34,85 +34,82 @@ const columns = [
     },
     width: '30%',
     search: false,
+    defaultSortOrder: 'descend',
+    sorter: (a, b) => a > b, //使用何种排序
+    render: (_) => <a>{_}</a>,
   },
   {
-    title: '状态',
+    title: '项目类型',
     dataIndex: 'state',
-    initialValue: 'open',
+    initialValue: '图像分类',
     filters: true,
+    valueType:'select',
     valueEnum: {
       all: {
         text: '全部',
         status: 'Default',
       },
-      open: {
-        text: '未解决',
-        status: 'Error',
+      image_classification: {
+        text: '图像分类',
+        status: 'IC',
       },
-      closed: {
-        text: '已解决',
-        status: 'Success',
+      object_detection: {
+        text: '物体检测',
+        status: 'OD',
       },
-      processing: {
-        text: '解决中',
-        status: 'Processing',
+      predict_analysis: {
+        text: '预测分析',
+        status: 'PA',
       },
     },
   },
   {
-    title: '标签',
-    dataIndex: 'labels',
-    render: (_, row) => (
-      <Space>
-        {row.labels.map(({ name, color }) => (
-          <Tag color={color} key={name}>
-            {name}
-          </Tag>
-        ))}
-      </Space>
-    ),
+    title: '训练状态',//列表列名
+    key: 'status',//未知
+    dataIndex: 'train_status',//回传的数据键名
+    valueType: 'text',//未知 数据类型？
+  },
+  {
+    title: '部署状态',//列表列名
+    key: 'status',//未知
+    dataIndex: 'deploy_status',//回传的数据键名
+    valueType: 'text',//未知 数据类型？
+  },
+  {
+    title: '数据源',//列表列名
+    key: 'status',//未知
+    dataIndex: 'data_source',//回传的数据键名
+    valueType: 'text',//未知 数据类型？
+    defaultSortOrder: 'descend',
+    sorter: (a, b) => a.age - b.age,
   },
   {
     title: '创建时间',
     key: 'since',
     dataIndex: 'created_at',
     valueType: 'date',
+    defaultSortOrder: 'descend',
+    sorter: (a, b) => a.age - b.age,
+  },
+  {
+    title: '描述',//列表列名
+    key: 'status',//未知
+    dataIndex: 'description',//回传的数据键名
+    valueType: 'text',//未知 数据类型？
   },
   {
     title: '操作',
     valueType: 'option',
     render: (text, row, _, action) => [
       <a href={row.url} target="_blank" rel="noopener noreferrer" key="link">
-        链路
+        删除
       </a>,
       <a href={row.url} target="_blank" rel="noopener noreferrer" key="view">
         查看
       </a>,
-      <TableDropdown
-        key="actionGroup"
-        onSelect={() => action.reload()}
-        menus={[
-          {
-            key: 'copy',
-            name: '复制',
-          },
-          {
-            key: 'delete',
-            name: '删除',
-          },
-        ]}
-      />,
     ],
   },
 ];
-const menu = (
-  <Menu>
-    <Menu.Item key="1">1st item</Menu.Item>
-    <Menu.Item key="2">2nd item</Menu.Item>
-    <Menu.Item key="3">3rd item</Menu.Item>
-    <Menu.Item key="4">4th item</Menu.Item>
-  </Menu>
-);
 
 export default (): React.ReactNode => {
   const actionRef = useRef();
@@ -170,11 +167,6 @@ export default (): React.ReactNode => {
           <Button key="button" icon={<PlusOutlined />} type="primary">
             新建
           </Button>,
-          <Dropdown key="menu" overlay={menu}>
-            <Button>
-              <EllipsisOutlined />
-            </Button>
-          </Dropdown>,
         ]}
       />        
       </ProCard>

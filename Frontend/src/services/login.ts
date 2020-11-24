@@ -15,6 +15,12 @@ export async function fakeAccountLogin(params: LoginParamsType) {
   });
 }
 
+export async function accountLogin(params: LoginParamsType) {
+  return request<API.LoginStateType>('/api/login/account', {
+    method: 'POST',
+    data: params,
+  });
+}
 export async function getFakeCaptcha(mobile: string) {
   return request(`/api/login/captcha?mobile=${mobile}`);
 }
@@ -23,12 +29,9 @@ export async function outLogin() {
   return request('/api/login/outLogin');
 }
 
-export async function accountLogin(params: LoginParamsType) {
-  return request<API.LoginStateType>('/backend/login/account', {
-    method: 'POST',
-    data: params,
-  });
-}
-export async function outerlogin() {
-  return request('/backend/login/outLogin');
-}
+// export async function accountLogin(params: LoginParamsType) {
+//   return request<API.LoginStateType>('/backend/login/account', {
+//     method: 'POST',
+//     data: params,
+//   });
+// }

@@ -10,7 +10,7 @@ import React, { useState } from 'react';
 import ProForm, { ProFormCheckbox, ProFormText } from '@ant-design/pro-form';
 import { useIntl, Link, history, FormattedMessage, SelectLang } from 'umi';
 import Footer from '@/components/Footer';
-import { fakeAccountLogin, LoginParamsType,accountLogin } from '@/services/login';
+import { LoginParamsType,accountLogin } from '@/services/login';
 
 import styles from './index.less';
 

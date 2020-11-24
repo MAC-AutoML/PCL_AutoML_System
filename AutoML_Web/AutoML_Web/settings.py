@@ -55,7 +55,7 @@ MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
-    #CSRF
+    #CSRF 验证，先注释掉以快速开发
     # 'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
@@ -75,12 +75,12 @@ CORS_ALLOWED_ORIGINS = [
     "http://10.24.82.13:8000"
 ]
 CORS_ALLOW_METHODS = [
-    'DELETE',
     'GET',
-    'OPTIONS',
-    'PATCH',
     'POST',
     'PUT',
+    'DELETE',
+    'OPTIONS',
+    'PATCH',
 ]
 CORS_ALLOW_HEADERS = [
     'accept',
