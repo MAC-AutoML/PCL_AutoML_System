@@ -117,30 +117,30 @@ export default (): React.ReactNode => {
     <PageContainer>
       <ProCard style={{ marginTop: 8 }} gutter={8} layout="center" title="" bordered headerBordered>
         <ProCard colSpan="auto" layout="center" bordered>    
-          <Link to="/CreateMission?id=Image Classfiction">
+          <Link to="/AutoML/CreateMission?id=Image Classfiction">
             图像分类
           </Link>
         </ProCard>
         <ProCard colSpan="auto" layout="center" bordered>
-          <Link to="/CreateMission?id=Image Classfiction">
+          <Link to="/AutoML/CreateMission?id=Image Classfiction">
           物体检测
           </Link>
         </ProCard>
         
         <ProCard colSpan="auto" layout="center" bordered>    
-          <Link to="/CreateMission?id=Image Classfiction">
+          <Link to="/AutoML/CreateMission?id=Image Classfiction">
             预测分析
           </Link>
         </ProCard>
         
         <ProCard colSpan="auto" layout="center" bordered>
-          <Link to="/CreateMission?id=Image Classfiction">
+          <Link to="/AutoML/CreateMission?id=Image Classfiction">
             声音分类
           </Link>    
         </ProCard>
         
         <ProCard colSpan="auto" layout="center" bordered>    
-          <Link to="/CreateMission?id=Image Classfiction">
+          <Link to="/AutoML/CreateMission?id=Image Classfiction">
           文本分类
           </Link>
         </ProCard>

@@ -28,7 +28,7 @@ const t_manage = [
     render: (_) => <a>{_}</a>,
   },
   {
-    title: '状态',
+    title: '标注类型',
     dataIndex: 'labels',
     // dataIndex: 'state',
     initialValue: '全部',
@@ -74,36 +74,24 @@ const t_manage = [
     ),
   },
   {
-    title: '版本数量',//列表列名
+    title: '标注进度',//列表列名
     key: 'status',//未知
     dataIndex: 'version',//回传的数据键名
     valueType: 'text',//未知 数据类型？
     sorter: (a, b) => a > b, //使用何种排序
   },
   {
-    title: '大小',//列表列名
+    title: '待确认个数',//列表列名
     key: 'status',//未知
-    dataIndex: 'model_size',//回传的数据键名
+    dataIndex: 'version',//回传的数据键名
     valueType: 'text',//未知 数据类型？
+    sorter: (a, b) => a > b, //使用何种排序
   },
   {
     title: '描述',//列表列名
     key: 'status',//未知
     dataIndex: 'description',//回传的数据键名
     valueType: 'text',//未知 数据类型？
-  },
-  {
-    title: '创作者',//列表列名
-    key: 'status',//未知
-    dataIndex: 'creator',//回传的数据键名
-    valueType: 'text',//未知 数据类型？
-  },
-  {
-    title: '运行时长',
-    key: 'length',
-    dataIndex: 'run_time',
-    valueType: 'time',
-    sorter: (a, b) => a > b, //使用何种排序
   },
   {
     title: '创建时间',
@@ -118,59 +106,7 @@ const t_manage = [
     render: (text, row, _, action) => [
       //待添加功能：任务只有在运行状态下该按钮才可以点， button组件有属性可以设置为 disable
       <a href={row.url} target="_blank" rel="noopener noreferrer" key="link" >
-        停止
-      </a>,
-      <a href={row.url} target="_blank" rel="noopener noreferrer" key="view">
-        删除
-      </a>,
-    ],
-  },
-];
-const p_manage = [
-  {
-    title: '名称',
-    dataIndex: 'title',
-    copyable: true,
-    ellipsis: true,
-    tip: '标题过长会自动收缩',
-    formItemProps: {
-      rules: [
-        {
-          required: true,
-          message: '此项为必填项',
-        },
-      ],
-    },
-    width: '30%',
-    search: false,
-    sorter: (a, b) => a > b, //使用何种排序
-    render: (_) => <a>{_}</a>,
-  },
-  {
-    title: '引擎类型',//列表列名
-    key: 'status',//未知
-    dataIndex: 'label',//回传的数据键名
-    valueType: 'text',//未知 数据类型？
-  },
-  {
-    title: '订阅时间',
-    key: 'since',
-    dataIndex: 'created_at',
-    valueType: 'date',
-    sorter: (a, b) => a > b, //使用何种排序
-  },
-  {
-    title: '描述',//列表列名
-    key: 'status',//未知
-    dataIndex: 'description',//回传的数据键名
-    valueType: 'text',//未知 数据类型？
-  },
-  {
-    title: '操作',
-    valueType: 'option',
-    render: (text, row, _, action) => [
-      <a href={row.url} target="_blank" rel="noopener noreferrer" key="view">
-        查看
+        详情
       </a>,
       <a href={row.url} target="_blank" rel="noopener noreferrer" key="view">
         删除
@@ -183,61 +119,30 @@ export default (): React.ReactNode =>{
   const actionRef = useRef();
   return (
     <PageContainer>
-      <ProCard
-        tabs={{
-          type: 'card',
-        }}
-      >
-        <ProCard.TabPane key="my_algo" tab="tab1">
-          <ProTable
-            columns={t_manage}
-            actionRef={actionRef}
-            request={async (params = {}) =>
-              request('https://proapi.azurewebsites.net/github/issues', {
-                params,
-              })
-            }
-            rowKey="id"
-            search={{
-              labelWidth: 'auto',
-            }}
-            pagination={{
-              pageSize: 5,
-            }}
-            dateFormatter="string"
-            // headerTitle="高级表格"
-            toolBarRender={() => [
-              <Button key="button" icon={<PlusOutlined />} type="primary">
-                新建
-              </Button>,
-            ]}
-          />
-        </ProCard.TabPane>
-        <ProCard.TabPane key="assign_algo" tab="tab2">
-          <ProTable
-            columns={p_manage}
-            actionRef={actionRef}
-            request={async (params = {}) =>
-              request('https://proapi.azurewebsites.net/github/issues', {
-                params,
-              })
-            }
-            rowKey="id"
-            search={{
-              labelWidth: 'auto',
-            }}
-            pagination={{
-              pageSize: 5,
-            }}
-            dateFormatter="string"
-            // headerTitle="高级表格"
-            toolBarRender={() => [
-              <Button key="button" icon={<SearchOutlined />} type="primary">
-                查找算法
-              </Button>,
-            ]}
-          />
-        </ProCard.TabPane>
+      <ProCard>
+        <ProTable
+          columns={t_manage}
+          actionRef={actionRef}
+          request={async (params = {}) =>
+            request('https://proapi.azurewebsites.net/github/issues', {
+              params,
+            })
+          }
+          rowKey="id"
+          search={{
+            labelWidth: 'auto',
+          }}
+          pagination={{
+            pageSize: 5,
+          }}
+          dateFormatter="string"
+          // headerTitle="高级表格"
+          toolBarRender={() => [
+            <Button key="button" icon={<PlusOutlined />} type="primary">
+              新建
+            </Button>,
+          ]}
+        />
       </ProCard>
     </PageContainer>
   );

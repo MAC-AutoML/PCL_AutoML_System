@@ -13,21 +13,37 @@
     path: '/AutoML',
     name: '自动学习',
     icon: 'smile',
-    component: './AutoML',
     // hideInMenu: 'true', 
+    routes: [//子界面
+      {
+        path: '/AutoML',
+        name: '创建自动学习任务',
+        // icon: 'smile',
+        component: './AutoML/ListMission',
+        hideInMenu:'true',
+        exact:true,
+      },
+      {
+        path: '/AutoML/CreateMission',
+        name: '创建自动学习任务',
+        icon: 'smile',
+        component: './AutoML/CreateMission',
+        hideInMenu:'true',
+      },
+    ]
   },
   //level:01 id 021
-  {
-    path:'/CreateMission',
-    name:'创建任务',
-    icon:'torch',
-    component:'./CreateMission',
-    hideInMenu:'true',
-  },
+  // {
+  //   path:'/CreateMission',
+  //   name:'创建任务',
+  //   icon:'torch',
+  //   component:'./CreateMission',
+  //   hideInMenu:'true',
+  // },
   //level:01, id:03 
   {
     path: '/DataManage',
-    name: '数据管理',
+    name: '数据集管理',
     icon: 'smile',
     component: './DataManage',
     // hideInMenu: 'true', 

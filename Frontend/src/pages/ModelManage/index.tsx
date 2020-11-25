@@ -28,7 +28,20 @@ const t_manage = [
     render: (_) => <a>{_}</a>,
   },
   {
-    title: '状态',
+    title: '最新版本',//列表列名
+    key: 'status',//未知
+    dataIndex: 'model_size',//回传的数据键名
+    valueType: 'text',//未知 数据类型？
+  },
+  {
+    title: '版本数量',//列表列名
+    key: 'status',//未知
+    dataIndex: 'version',//回传的数据键名
+    valueType: 'text',//未知 数据类型？
+    sorter: (a, b) => a > b, //使用何种排序
+  },
+  {
+    title: '部署类型',
     dataIndex: 'labels',
     // dataIndex: 'state',
     initialValue: '全部',
@@ -74,36 +87,10 @@ const t_manage = [
     ),
   },
   {
-    title: '版本数量',//列表列名
-    key: 'status',//未知
-    dataIndex: 'version',//回传的数据键名
-    valueType: 'text',//未知 数据类型？
-    sorter: (a, b) => a > b, //使用何种排序
-  },
-  {
-    title: '大小',//列表列名
-    key: 'status',//未知
-    dataIndex: 'model_size',//回传的数据键名
-    valueType: 'text',//未知 数据类型？
-  },
-  {
     title: '描述',//列表列名
     key: 'status',//未知
     dataIndex: 'description',//回传的数据键名
     valueType: 'text',//未知 数据类型？
-  },
-  {
-    title: '创作者',//列表列名
-    key: 'status',//未知
-    dataIndex: 'creator',//回传的数据键名
-    valueType: 'text',//未知 数据类型？
-  },
-  {
-    title: '运行时长',
-    key: 'length',
-    dataIndex: 'run_time',
-    valueType: 'time',
-    sorter: (a, b) => a > b, //使用何种排序
   },
   {
     title: '创建时间',
@@ -188,7 +175,7 @@ export default (): React.ReactNode =>{
           type: 'card',
         }}
       >
-        <ProCard.TabPane key="my_algo" tab="tab1">
+        <ProCard.TabPane key="my_algo" tab="我的模型">
           <ProTable
             columns={t_manage}
             actionRef={actionRef}
@@ -207,13 +194,16 @@ export default (): React.ReactNode =>{
             dateFormatter="string"
             // headerTitle="高级表格"
             toolBarRender={() => [
-              <Button key="button" icon={<PlusOutlined />} type="primary">
-                新建
+              <Button key="button" icon={<PlusOutlined />} type="primary left">
+                新建模型
+              </Button>,
+              <Button key="button" icon={<SearchOutlined />} type="primary">
+                查找模型
               </Button>,
             ]}
           />
         </ProCard.TabPane>
-        <ProCard.TabPane key="assign_algo" tab="tab2">
+        <ProCard.TabPane key="assign_algo" tab="市场订阅模型">
           <ProTable
             columns={p_manage}
             actionRef={actionRef}

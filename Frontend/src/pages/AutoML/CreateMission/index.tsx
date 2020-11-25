@@ -3,13 +3,16 @@ import { Card, Typography, Alert, Button } from 'antd';
 import { PageContainer } from '@ant-design/pro-layout';
 import { message, Radio } from 'antd';
 import ProForm, {
+  LightFilter,
   ProFormText,
   ProFormDatePicker,
-  ProFormTextArea,
-  ProFormCheckbox,
+  ProFormSelect,
+  ProFormDigit,
+  ProFormSwitch,
   ProFormDateRangePicker,
-  ProFormSelect, 
-  ProFormField 
+  ProFormDateTimePicker,
+  ProFormTimePicker,
+  ProFormSlider,
   } from '@ant-design/pro-form';
 import Title from 'antd/lib/typography/Title';
 
@@ -106,6 +109,13 @@ export default (props): React.ReactNode =>{
         <ProForm.Group >
           {dataSelect}
         </ProForm.Group>
+        <ProForm.Group >
+          <ProFormDigit 
+              name="modelsize"
+              label="最大FLOPS上限"
+              rules={[{ required: true }]}
+          />
+        </ProForm.Group>        
       </ProForm>
     </Card>
   </PageContainer>
