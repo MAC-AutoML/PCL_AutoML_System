@@ -7,6 +7,7 @@ from rest_framework import serializers
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
+from rest_framework import status
 
 from rest_framework.authtoken.models import Token
 
@@ -106,11 +107,18 @@ class currentUser(APIView):
         access='guest'
         if(user.is_authenticated):
             access='user'
-        status={
-            "name" : str(user),
-            "access":access,
-        }
-        return Response(data=status)
+            return Response(data={
+                "name" : str(user),
+                "access":access,
+            })
+        return Response(data={
+            "data": {
+            "isLogin": "false",
+            },
+            "errorCode": '401',
+            "errorMessage": '请先登录！',
+            "success": "true",
+        },status=status.HTTP_401_UNAUTHORIZED)
     def post(self, request):
         """
         post
