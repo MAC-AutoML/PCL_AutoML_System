@@ -34,9 +34,8 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     url(r"^api-auth/", include("rest_framework.urls")),
     # new urls: backend
-    path('backend/login/account', back_views.Login.as_view(), name='login'),
-    re_path(r'^/backend/login/.*', back_views.Login.as_view(), name='login'),
-    path('api/currentUser/', back_views.currentUser.as_view(), name='login'),
+    url(r'api/login/account', back_views.Login.as_view(), name='login'),
+    url(r'api/currentUser', back_views.currentUser.as_view(), name='current'),
 
     # old urls: _app
     #path('', app_views.login,name='login'),

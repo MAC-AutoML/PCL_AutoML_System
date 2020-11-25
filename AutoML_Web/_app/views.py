@@ -82,6 +82,7 @@ def login(request):
                 index=i
         if(index<0):
             message = "用户名或密码错误！"
+            print(message)
             return render(request, 'login.html', {'message': message})
         else:
             #检查并创建数据库用户了

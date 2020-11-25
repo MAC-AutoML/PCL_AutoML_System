@@ -26,12 +26,7 @@ export async function getFakeCaptcha(mobile: string) {
 }
 
 export async function outLogin() {
-  return request('/api/login/outLogin');
+  return request('/api/login/account',{
+    method: 'DELETE',
+  });
 }
-
-// export async function accountLogin(params: LoginParamsType) {
-//   return request<API.LoginStateType>('/backend/login/account', {
-//     method: 'POST',
-//     data: params,
-//   });
-// }
