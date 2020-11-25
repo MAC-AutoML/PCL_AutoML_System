@@ -84,13 +84,49 @@
         path: '/JobManage/TrainJobManage',
         name: '训练作业管理',
         icon: 'smile',
-        component: './JobManage/TrainJobManage',
+        // component: './JobManage/TrainJobManage',
+        routes: [//子界面
+          {
+            path: '/JobManage/TrainJobManage',
+            // name: '',
+            icon: 'smile',
+            component: './JobManage/TrainJobManage',
+            hideInMenu: true, 
+            exact:true,
+          },
+          {
+            path: '/JobManage/TrainJobManage/CreateJob',
+            name: '创建训练任务',
+            icon: 'smile',
+            component: './JobManage/TrainJobManage/CreateJob',
+            hideInMenu: true, 
+            // exact:true,
+          },
+        ]
       },
       {
         path: '/JobManage/AutoJobManage',
         name: '自动搜索作业管理',
         icon: 'smile',
-        component: './JobManage/AutoJobManage',
+        // component: './JobManage/AutoJobManage',
+        routes: [//子界面
+          {
+            path: '/JobManage/AutoJobManage',
+            // name: '',
+            icon: 'smile',
+            component: './JobManage/AutoJobManage',
+            hideInMenu: true, 
+            exact:true,
+          },
+          {
+            path: '/JobManage/AutoJobManage/CreateJob',
+            name: '创建训练任务',
+            icon: 'smile',
+            component: './JobManage/AutoJobManage/CreateJob',
+            hideInMenu: true, 
+            // exact:true,
+          },
+        ]
       },
     ]
   },

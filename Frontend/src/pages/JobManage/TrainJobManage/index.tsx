@@ -6,6 +6,7 @@ import { PlusOutlined, SearchOutlined, EllipsisOutlined } from '@ant-design/icon
 import { Button, Tag, Space, Menu, Dropdown } from 'antd';
 import ProTable, { TableDropdown } from '@ant-design/pro-table';
 import request from 'umi-request';
+import NoFoundPage from '@/pages/404';
 
 const t_manage = [
   {

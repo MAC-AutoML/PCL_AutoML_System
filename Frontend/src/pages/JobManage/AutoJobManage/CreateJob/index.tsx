@@ -126,59 +126,6 @@ const t_manage = [
     ],
   },
 ];
-const p_manage = [
-  {
-    title: '名称',
-    dataIndex: 'title',
-    copyable: true,
-    ellipsis: true,
-    tip: '标题过长会自动收缩',
-    formItemProps: {
-      rules: [
-        {
-          required: true,
-          message: '此项为必填项',
-        },
-      ],
-    },
-    width: '30%',
-    search: false,
-    sorter: (a, b) => a > b, //使用何种排序
-    render: (_) => <a>{_}</a>,
-  },
-  {
-    title: '引擎类型',//列表列名
-    key: 'status',//未知
-    dataIndex: 'label',//回传的数据键名
-    valueType: 'text',//未知 数据类型？
-  },
-  {
-    title: '订阅时间',
-    key: 'since',
-    dataIndex: 'created_at',
-    valueType: 'date',
-    sorter: (a, b) => a > b, //使用何种排序
-  },
-  {
-    title: '描述',//列表列名
-    key: 'status',//未知
-    dataIndex: 'description',//回传的数据键名
-    valueType: 'text',//未知 数据类型？
-  },
-  {
-    title: '操作',
-    valueType: 'option',
-    render: (text, row, _, action) => [
-      <a href={row.url} target="_blank" rel="noopener noreferrer" key="view">
-        查看
-      </a>,
-      <a href={row.url} target="_blank" rel="noopener noreferrer" key="view">
-        删除
-      </a>,
-    ],
-  },
-];
-
 export default (): React.ReactNode =>{
   const actionRef = useRef();
   return (
@@ -188,7 +135,7 @@ export default (): React.ReactNode =>{
           type: 'card',
         }}
       >
-        <ProCard.TabPane key="my_algo" tab="创建自动化搜索作业">
+        <ProCard.TabPane key="my_algo" tab="训练作业">
           <ProTable
             columns={t_manage}
             actionRef={actionRef}
@@ -209,31 +156,6 @@ export default (): React.ReactNode =>{
             toolBarRender={() => [
               <Button key="button" icon={<PlusOutlined />} type="primary">
                 新建
-              </Button>,
-            ]}
-          />
-        </ProCard.TabPane>
-        <ProCard.TabPane key="assign_algo" tab="作业参数管理">
-          <ProTable
-            columns={p_manage}
-            actionRef={actionRef}
-            request={async (params = {}) =>
-              request('https://proapi.azurewebsites.net/github/issues', {
-                params,
-              })
-            }
-            rowKey="id"
-            search={{
-              labelWidth: 'auto',
-            }}
-            pagination={{
-              pageSize: 5,
-            }}
-            dateFormatter="string"
-            // headerTitle="高级表格"
-            toolBarRender={() => [
-              <Button key="button" icon={<SearchOutlined />} type="primary">
-                查找算法
               </Button>,
             ]}
           />
