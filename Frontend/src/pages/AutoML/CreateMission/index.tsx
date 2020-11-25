@@ -5,6 +5,7 @@ import { message, Radio } from 'antd';
 import ProForm, {
   LightFilter,
   ProFormText,
+  ProFormTextArea,
   ProFormDatePicker,
   ProFormSelect,
   ProFormDigit,
@@ -112,7 +113,8 @@ export default (props): React.ReactNode =>{
         <ProForm.Group >
           <ProFormDigit 
               name="modelsize"
-              label="最大FLOPS上限"
+              label="最大FLOPS上限(单位：M)"
+              tooltip="单位： M"
               rules={[{ required: true }]}
           />
         </ProForm.Group>        
