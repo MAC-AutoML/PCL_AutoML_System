@@ -105,8 +105,6 @@ coverage.xml
 *.mo
 *.pot
 
-# db.sqlite3
-
 # Flask stuff:
 instance/
 .webassets-cache
@@ -183,6 +181,7 @@ Temporary Items
 docs/_build/
 
 ### Django ###
+
 *.log
 *.pot
 *.pyc
@@ -190,7 +189,6 @@ __pycache__/
 local_settings.py
 
 .env
-db.sqlite3
 
 ### Node.js ###
 # Logs

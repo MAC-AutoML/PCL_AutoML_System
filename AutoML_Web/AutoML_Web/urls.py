@@ -24,24 +24,15 @@ from django.views.generic.base import TemplateView
 
 from .settings import MEDIA_ROOT
 
-from _app import views
+import sys
+sys.path.append("..")
+from backend import views
 
 urlpatterns = [
+    # Manage tool urls
     path('admin/', admin.site.urls),
-    #path('', views.login,name='login'),
-    url(r'^(algorithm|dataset)/?$',views.list_public,name="public"),
-    url(r'^(algorithm|dataset)/([0-9]+)/?$',views.detail_public,name="detail_public"),
-    url(r'^own/',include("_app.urls")),
-    # url(r'index/',include("django_adminlte_theme.urls"),name='index'),
-    # AutoML_Web/django_adminlte_theme/templates/admin/index.html
-    path('mission_center/',views.mission_center,name='mission_center'),
-    url(r'^deleting/([0-9a-zA-Z]+)/?$',views.delete_job,name='delete_job'),
-    url(r'^media/(?P<path>.+)$', serve, {'document_root':MEDIA_ROOT}),
-    path('login/', views.login, name='login'),
-    path('index/', views.index,name='index'),
-    path('register/', views.register,name='register'),
-    path('logout/', views.logout,name='logout'),
-    path('userinfo/',views.userinfo,name='userinfo'),
-    path('set_password/',views.set_password,name='set_password'),
-    re_path(r'^.*$', views.redirecter),
+    url(r"^api-auth/", include("rest_framework.urls")),
+    url(r'api/login/account', views.Login.as_view(), name='login'),
+    url(r'api/currentUser', views.currentUser.as_view(), name='current'),
+
 ]

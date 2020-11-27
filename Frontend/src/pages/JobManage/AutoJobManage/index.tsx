@@ -1,56 +1,245 @@
-import React from 'react';
+import React, { useRef }  from 'react';
 import { PageContainer } from '@ant-design/pro-layout';
 import { Card, Alert, Typography } from 'antd';
-import styles from './index.less';
+import ProCard from '@ant-design/pro-card';
+import { PlusOutlined, SearchOutlined, EllipsisOutlined } from '@ant-design/icons';
+import { Button, Tag, Space, Menu, Dropdown } from 'antd';
+import ProTable, { TableDropdown } from '@ant-design/pro-table';
+import request from 'umi-request';
 
-const CodePreview: React.FC<{}> = ({ children }) => (
-  <pre className={styles.pre}>
-    <code>
-      <Typography.Text copyable>{children}</Typography.Text>
-    </code>
-  </pre>
-);
+const t_manage = [
+  {
+    title: '名称',
+    dataIndex: 'title',
+    copyable: true,
+    ellipsis: true,
+    tip: '标题过长会自动收缩',
+    formItemProps: {
+      rules: [
+        {
+          required: true,
+          message: '此项为必填项',
+        },
+      ],
+    },
+    width: '30%',
+    search: false,
+    sorter: (a, b) => a > b, //使用何种排序
+    render: (_) => <a>{_}</a>,
+  },
+  {
+    title: '状态',
+    dataIndex: 'labels',
+    // dataIndex: 'state',
+    initialValue: '全部',
+    filters: true,
+    valueType:'select',
+    valueEnum: {
+      all: {
+        text: '全部',
+        status: 'Default',
+      },
+      image_classification: {
+        text: '失败',
+        color: 'error',
+        status: 'IC',
+      },
+      object_detection: {
+        text: '运行中',
+        color: 'default',
+        status: 'OD',
+      },
+      predict_analysis: {
+        text: '成功',
+        color: 'success',
+        status: 'PA',
+      },
+    },
+    //渲染函数需要修改，例如：
+    // render:(_,row) =>(
+    //   <Space>
+    //       <Tag color={row.labels.color} key={row.labels.text}>
+    //         {row.labels.text}
+    //       </Tag>
+    //   </Space>      
+    // )
+    render: (_, row) => (
+      <Space>
+        {row.labels.map(({ name, color }) => (
+          <Tag color={color} key={name}>
+            {name}
+          </Tag>
+        ))}
+      </Space>
+    ),
+  },
+  {
+    title: '版本数量',//列表列名
+    key: 'status',//未知
+    dataIndex: 'version',//回传的数据键名
+    valueType: 'text',//未知 数据类型？
+    sorter: (a, b) => a > b, //使用何种排序
+  },
+  {
+    title: '大小',//列表列名
+    key: 'status',//未知
+    dataIndex: 'model_size',//回传的数据键名
+    valueType: 'text',//未知 数据类型？
+  },
+  {
+    title: '描述',//列表列名
+    key: 'status',//未知
+    dataIndex: 'description',//回传的数据键名
+    valueType: 'text',//未知 数据类型？
+  },
+  {
+    title: '创作者',//列表列名
+    key: 'status',//未知
+    dataIndex: 'creator',//回传的数据键名
+    valueType: 'text',//未知 数据类型？
+  },
+  {
+    title: '运行时长',
+    key: 'length',
+    dataIndex: 'run_time',
+    valueType: 'time',
+    sorter: (a, b) => a > b, //使用何种排序
+  },
+  {
+    title: '创建时间',
+    key: 'since',
+    dataIndex: 'created_at',
+    valueType: 'date',
+    sorter: (a, b) => a > b, //使用何种排序
+  },
+  {
+    title: '操作',
+    valueType: 'option',
+    render: (text, row, _, action) => [
+      //待添加功能：任务只有在运行状态下该按钮才可以点， button组件有属性可以设置为 disable
+      <a href={row.url} target="_blank" rel="noopener noreferrer" key="link" >
+        停止
+      </a>,
+      <a href={row.url} target="_blank" rel="noopener noreferrer" key="view">
+        删除
+      </a>,
+    ],
+  },
+];
+const p_manage = [
+  {
+    title: '名称',
+    dataIndex: 'title',
+    copyable: true,
+    ellipsis: true,
+    tip: '标题过长会自动收缩',
+    formItemProps: {
+      rules: [
+        {
+          required: true,
+          message: '此项为必填项',
+        },
+      ],
+    },
+    width: '30%',
+    search: false,
+    sorter: (a, b) => a > b, //使用何种排序
+    render: (_) => <a>{_}</a>,
+  },
+  {
+    title: '引擎类型',//列表列名
+    key: 'status',//未知
+    dataIndex: 'label',//回传的数据键名
+    valueType: 'text',//未知 数据类型？
+  },
+  {
+    title: '订阅时间',
+    key: 'since',
+    dataIndex: 'created_at',
+    valueType: 'date',
+    sorter: (a, b) => a > b, //使用何种排序
+  },
+  {
+    title: '描述',//列表列名
+    key: 'status',//未知
+    dataIndex: 'description',//回传的数据键名
+    valueType: 'text',//未知 数据类型？
+  },
+  {
+    title: '操作',
+    valueType: 'option',
+    render: (text, row, _, action) => [
+      <a href={row.url} target="_blank" rel="noopener noreferrer" key="view">
+        查看
+      </a>,
+      <a href={row.url} target="_blank" rel="noopener noreferrer" key="view">
+        删除
+      </a>,
+    ],
+  },
+];
 
-export default (): React.ReactNode => (
-  <PageContainer>
-    <Card>
-      <Alert
-        message="占位符 占位符 占位符"
-        type="success"
-        showIcon
-        banner
-        style={{
-          margin: -12,
-          marginBottom: 24,
-        }}
-      />
-      <Typography.Text strong>
-        高级表格{' '}
-        <a
-          href="https://procomponents.ant.design/components/table"
-          rel="noopener noreferrer"
-          target="__blank"
-        >
-          欢迎使用
-        </a>
-      </Typography.Text>
-      <CodePreview>yarn add @ant-design/pro-table</CodePreview>
-      <Typography.Text
-        strong
-        style={{
-          marginBottom: 12,
+export default (): React.ReactNode =>{
+  const actionRef = useRef();
+  return (
+    <PageContainer>
+      <ProCard
+        tabs={{
+          type: 'card',
         }}
       >
-        高级布局{' '}
-        <a
-          href="https://procomponents.ant.design/components/layout"
-          rel="noopener noreferrer"
-          target="__blank"
-        >
-          欢迎使用
-        </a>
-      </Typography.Text>
-      <CodePreview>yarn add @ant-design/pro-layout</CodePreview>
-    </Card>
-  </PageContainer>
-);
+        <ProCard.TabPane key="my_algo" tab="创建自动化搜索作业">
+          <ProTable
+            columns={t_manage}
+            actionRef={actionRef}
+            request={async (params = {}) =>
+              request('https://proapi.azurewebsites.net/github/issues', {
+                params,
+              })
+            }
+            rowKey="id"
+            search={{
+              labelWidth: 'auto',
+            }}
+            pagination={{
+              pageSize: 5,
+            }}
+            dateFormatter="string"
+            // headerTitle="高级表格"
+            toolBarRender={() => [
+              <Button key="button" icon={<PlusOutlined />} type="primary">
+                新建
+              </Button>,
+            ]}
+          />
+        </ProCard.TabPane>
+        <ProCard.TabPane key="assign_algo" tab="作业参数管理">
+          <ProTable
+            columns={p_manage}
+            actionRef={actionRef}
+            request={async (params = {}) =>
+              request('https://proapi.azurewebsites.net/github/issues', {
+                params,
+              })
+            }
+            rowKey="id"
+            search={{
+              labelWidth: 'auto',
+            }}
+            pagination={{
+              pageSize: 5,
+            }}
+            dateFormatter="string"
+            // headerTitle="高级表格"
+            toolBarRender={() => [
+              <Button key="button" icon={<SearchOutlined />} type="primary">
+                查找算法
+              </Button>,
+            ]}
+          />
+        </ProCard.TabPane>
+      </ProCard>
+    </PageContainer>
+  );
+  
+} 
