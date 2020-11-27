@@ -24,15 +24,15 @@ from django.views.generic.base import TemplateView
 
 from .settings import MEDIA_ROOT
 
-import sys
-sys.path.append("..")
+# import sys
+# sys.path.append("..")
 from backend import views
 
 urlpatterns = [
     # Manage tool urls
     path('admin/', admin.site.urls),
-    url(r"^api-auth/", include("rest_framework.urls")),
-    url(r'api/login/account', views.Login.as_view(), name='login'),
-    url(r'api/currentUser', views.currentUser.as_view(), name='current'),
-
+    url(r"api-auth/", include("rest_framework.urls"),name='api_check'),
+    url(r'api/login/account', views.Login.as_view(), name='log'),
+    url(r'api/currentUser', views.CurrentUser.as_view(), name='current'),
+    url(r'api/automl',views.AutoML.as_view(),name='automl'),
 ]
