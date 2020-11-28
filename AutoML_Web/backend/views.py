@@ -34,7 +34,6 @@ from .parser import Parser,errParser
     #             'data': 'a'
     #         }
     #         return Response(res)
-
 ## 每个页面对应一个类?
 class OverView(APIView):
     def get(self, request):
