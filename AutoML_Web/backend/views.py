@@ -122,8 +122,9 @@ class CurrentUser(APIView):
         print("Post currentUser: ",request)
         pass
 class AutoML(APIView):
+    # 规定解析器接受数据的格式为json
     parser_classes = (JSONParser,)
-    @login_required()
+
     def get(self, request):
         """
         get AutoML's record table

@@ -40,7 +40,7 @@ const columns = [
     title: '项目类型',
     dataIndex: 'type',
     initialValue: '全部',
-    filters: true,
+    // filters: true,
     valueType:'select',
     valueEnum: {
       all: {text: '全部', status: 'Default',},
