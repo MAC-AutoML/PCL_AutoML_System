@@ -96,7 +96,7 @@ Frontend中存放前台代码，详见文件夹内readme.
 进入项目文件夹后，进入前端项目文件夹`cd PCL_AutoML_System/Frontend`
 #### 前端运行环境
 
-需要安装node.js
+需要安装[node.js](https://nodejs.org/en/)
 
 - node.js 12.19.0 / 14.15.1
 
