@@ -79,7 +79,7 @@ Frontend中存放前台代码，详见文件夹内readme.
 
 `sudo mount -t nfs 192.168.202.159:/mnt/neuronfs/ghome/wudch/ /wdc_mnt/`
 
-##### 1.后端部署
+#### 1. 后端部署
 
 后端位于鹏程服务器挂载的位置，`cd wdc_mnt/PCL_AutoML`可进入。
 
@@ -90,6 +90,37 @@ Frontend中存放前台代码，详见文件夹内readme.
 若需要后台运行：
 
 `nohup python manage.py runserver 192.168.207.73:8000 &`
+### 2. 前端部署
+前端基于[Ant Design Pro](https://pro.ant.design)开发。
+前端同样位于项目文件夹 `cd wdc_mnt/PCL_AutoML`进入。
+进入项目文件夹后，进入前端项目文件夹`cd PCL_AutoML_System/Frontend`
+#### 前端运行环境
 
+需要安装node.js
+
+- node.js 12.19.0 / 14.15.1
+
+#### 安装运行所需的js包
+
+第一次启动前运行如下命令
+
+```shell
+npm install
+```
+
+#### 前端测试版服务器启动
+**注意**需要开启后端服务器才能获取数据
+
+```shell
+npm run start:no-mock
+```
+
+#### 编译前端项目
+
+```shell
+npm run build
+```
+编译后的结果存放在项目根目录下的dist/文件夹
+### 
 
 
