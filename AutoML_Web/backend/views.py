@@ -48,13 +48,12 @@ class Login(APIView):
         login get
         """
         return Response()
-
+        # 登陆用 数据接口 :
         # status={
         #     "status":"ok",
         #     "type":"account",
         #     "currentAuthority":"admin",
         # }
-
         # return Response(data=Parser(status))
     def post(self,request):
         username = request.data['username']
@@ -64,9 +63,7 @@ class Login(APIView):
         message = '请检查填写的内容！'
         index=-1
         for (i,item) in enumerate(mock.USER_LIST):
-            name=item['username']
-            pw=item['password']
-            if(username==name and password==pw):
+            if(username==item['username'] and password==item['password']):
                 index=i
         if(index<0):
             message = "用户名或密码错误！"
@@ -75,15 +72,16 @@ class Login(APIView):
             return Response(data=status)
         else:
             #检查并创建数据库用户
-            UID = mock.USER_LIST[index]['id']
+            selected_user=mock.USER_LIST[index]
+            UID = selected_user['id']
             DUser = models.User.objects.filter(api_id = UID)
             if len(DUser) == 0:
                 new_user = models.User.objects.create_user(
-                    username=mock.USER_LIST[index]['username'],
-                    tocken = mock.USER_LIST[index]['tocken'],
-                    password=mock.USER_LIST[index]['password'],
-                    first_name = mock.USER_LIST[index]['first_name'],
-                    api_id = mock.USER_LIST[index]['id'])
+                    username    = selected_user['username'],
+                    tocken      = selected_user['tocken'],
+                    password    = selected_user['password'],
+                    first_name  = selected_user['first_name'],
+                    api_id      = selected_user['id'])
                 ## 不能直接把api传来的id赋值给数据库里的id，会有莫名的bug
                 new_user.save()
             else:
@@ -100,37 +98,33 @@ class Login(APIView):
                 auth.login(request, user)
                 print(request.session)     
         
-        status={"status":"ok", "type":"account", "currentAuthority":"user",}       
-        return Response(data=status)
+        response={"status":"ok", "type":"account", "currentAuthority":"user",}       
+        return Response(data=response)
     def delete(self,request):
         auth.logout(request)
         return Response()
 class CurrentUser(APIView):
     def get(self,request):
         user=auth.get_user(request)
-        access='guest'
         if(user.is_authenticated):
             access='user'
             return Response(data={
                 "name" : str(user),
                 "access":access,
             })
-        return Response(data={
-            "data": {
-            "isLogin": "false",
-            },
-            "errorCode": '401',
-            "errorMessage": '请先登录！',
-            "success": "true",
-        },status=status.HTTP_401_UNAUTHORIZED)
+        return Response(data=errParser(401),status=status.HTTP_401_UNAUTHORIZED)
+        # 重点是参数 status 即HTTP状态码
     def post(self, request):
         """
         post
+        currentUser 只有get方法
         """
         print("Post currentUser: ",request)
         pass
 class AutoML(APIView):
+    # 规定解析器接受数据的格式为json
     parser_classes = (JSONParser,)
+
     def get(self, request):
         """
         get AutoML's record table
@@ -138,6 +132,7 @@ class AutoML(APIView):
         # 这里假设每条记录是字典形式，query结果是列表
         # [{},{},{}]
         result=mock.FAKE_Automl
+        ## 将回传的get url参数解码成字典
         params=request.query_params.dict()
         ## 针对性解码
         params['current']=int(params['current'])
@@ -149,13 +144,15 @@ class AutoML(APIView):
         print(params)
         # # 开始筛选 - key= 'type' 的类型
         selector=copy.deepcopy(params)
-        # # 把传来的其他键值删掉，只保留选择用的键值对
+        # # 把传来的其他键值删掉，只保留回传的筛选栏键值对
         del(selector['current'])
         del(selector['pageSize'])
         del(selector['sorter'])
         del(selector['filter'])
         print(selector)
-        # 需要一个配置文件，记录该条数据结构的键值对，对于选择形的参数，要列出其所有选项
+        # 需要一个配置文件，记录不同表格每条数据 - 数据结构的键值对，对于选择形的参数，要列出其所有选项
+        
+        # # 处理页面上方的筛选栏回传的参数
         temp=[]
         for item in result:
             ## type: 筛选条件不在记录的类型中时,直接置为[True]
@@ -166,15 +163,14 @@ class AutoML(APIView):
                 temp.append(item)
         result=temp
 
-        # selector.pop[]
-        if(params['type'] in mock.m_type):
-            temp=[]
-            for item in result:
-                if(item['type']==params['type']):
-                    temp.append(item)
-            result=temp
-        # # filter:key
-        if(len(params['filter'])):# filter 长度不为零
+        # if(params['type'] in mock.m_type):
+        #     temp=[]
+        #     for item in result:
+        #         if(item['type']==params['type']):
+        #             temp.append(item)
+        #     result=temp
+        # # filter:key 对数据进行筛选,功能与筛选栏类似
+        if(len(params['filter'])):
             temp=[]
             for item in result:
                 # # 如果某个[filter]内容是[None]等不可迭代的对象,该位置直接置为[True]
@@ -186,10 +182,17 @@ class AutoML(APIView):
                         for (k,v) in params['filter'].items()])):
                     temp.append(item)
             result=temp
+            
+        # # sorter: 对数据进行排序 【待完成】 
+        # # 这里需要对返回给前端的所有数据进行排序
+        if(len(params['sorter'])):
+            pass        
+        
+        # # 给数据添加antd-pro推荐的传输头
         response=Parser(result)
-        ## 未设置则antd-pro使用 data 的长度
+        ## response['total'] 未设置则antd-pro使用 data 的长度
         # 参考网址：https://procomponents.ant.design/components/table#request
-        # response['total']
+
         return Response(data=response)
         pass
     def post(self,request):

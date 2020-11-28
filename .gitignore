@@ -1,5 +1,6 @@
 
-
+## specific file
+db.sqlite3
 ## Frontend ignore files
 # dependencies
 **/node_modules
@@ -181,7 +182,6 @@ Temporary Items
 docs/_build/
 
 ### Django ###
-
 *.log
 *.pot
 *.pyc
