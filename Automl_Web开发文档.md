@@ -85,11 +85,14 @@ Frontend中存放前台代码，详见文件夹内readme.
 
 进入项目文件夹后，进入后台文件夹`cd PCL_AutoML_System/AutoML_Web` ，运行代码
 
-`python manage.py runserver http://127.0.0.1:8999/`可启动服务器。
+`python manage.py runserver 192.168.207.73:8999`
+
+可启动服务器。
 
 若需要后台运行：
 
-`nohup python manage.py runserver 192.168.207.73:8000 &`
+`nohup python manage.py runserver 192.168.207.73:8999 &`
+
 ### 2. 前端部署
 前端基于[Ant Design Pro](https://pro.ant.design)开发。
 前端同样位于项目文件夹 `cd wdc_mnt/PCL_AutoML`进入。
