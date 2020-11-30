@@ -21,6 +21,8 @@ from _app import models
 
 from . import mock
 from .parser import Parser,errParser
+import tools.API_tools as API_tools
+from  tools.API_tools import get_keyword
 # Create your views here.
 
 # class Test(APIView):
@@ -62,33 +64,36 @@ class Login(APIView):
         ### Dev mock user   
         message = '请检查填写的内容！'
         index=-1
+        '''
         for (i,item) in enumerate(mock.USER_LIST):
             if(username==item['username'] and password==item['password']):
-                index=i
-        if(index<0):
+                index=i'''
+        uinfo = API_tools.check_user(username, password)
+        '''
+                if(index<0):
+                    message = "用户名或密码错误！"
+                    print(message)
+                    status={"status":"error","type":"account","currentAuthority":"guest"}
+                    return Response(data=status)'''
+        if "错误" in uinfo:
             message = "用户名或密码错误！"
             print(message)
-            status={"status":"error","type":"account","currentAuthority":"guest"}
+            status = {"status": "error", "type": "account", "currentAuthority": "guest"}
             return Response(data=status)
         else:
-            #检查并创建数据库用户
-            selected_user=mock.USER_LIST[index]
-            UID = selected_user['id']
-            DUser = models.User.objects.filter(api_id = UID)
+            UID = int(uinfo["payload"]["userInfo"]["userId"])
+            DUser = models.User.objects.filter(id=UID)
+            print("UID,len",UID, DUser)
             if len(DUser) == 0:
-                new_user = models.User.objects.create_user(
-                    username    = selected_user['username'],
-                    tocken      = selected_user['tocken'],
-                    password    = selected_user['password'],
-                    first_name  = selected_user['first_name'],
-                    api_id      = selected_user['id'])
-                ## 不能直接把api传来的id赋值给数据库里的id，会有莫名的bug
+                new_user = models.User.objects.create_user(username=username,
+                                                           tocken=API_tools.get_tocken(username, password),
+                                                           password=password, first_name=password, id=UID)
                 new_user.save()
             else:
-                # DUser[0].username = username
-                # DUser[0].set_password(password)
-                # DUser[0].first_name = username
-                DUser[0].tocken = mock.get_tocken()
+                DUser[0].username = username
+                DUser[0].set_password(password)
+                DUser[0].first_name = password
+                DUser[0].tocken = API_tools.get_tocken(username, password)
                 DUser[0].save()
             user = auth.authenticate(
                 username=username, password=password)  # 验证是否存在用户
@@ -96,7 +101,7 @@ class Login(APIView):
             if (user):
                 print("login!!!!!!!!!!!!!!!!!!")
                 auth.login(request, user)
-                print(request.session)     
+                print(request.session)
         
         response={"status":"ok", "type":"account", "currentAuthority":"user",}       
         return Response(data=response)
@@ -121,6 +126,7 @@ class CurrentUser(APIView):
         """
         print("Post currentUser: ",request)
         pass
+from .serializers import *
 class AutoML(APIView):
     # 规定解析器接受数据的格式为json
     parser_classes = (JSONParser,)
@@ -131,7 +137,25 @@ class AutoML(APIView):
         """
         # 这里假设每条记录是字典形式，query结果是列表
         # [{},{},{}]
-        result=mock.FAKE_Automl
+        rec = []
+        queryset = models.User_Job.objects.all()
+        ret = JobsSerializers(queryset, many=True)
+        print("%ret%","%ret%",type(ret.data),type(ret.data[0]))
+        for onejob in ret.data:
+            tALG = models.User_algorithm.objects.filter(id = onejob["algorithm_id"])[0]
+
+            rec.append(
+                {
+                    'id': onejob["jobid"],
+                    'title': onejob["name"],
+                    'type': tALG.task,
+                    'train_status': onejob["state"],
+                    'deploy_status': tALG.name,
+                    'data_source': onejob["_path"],
+                    'created_at': onejob["createdTime"],
+                }
+            )
+        result=rec
         ## 将回传的get url参数解码成字典
         params=request.query_params.dict()
         ## 针对性解码
