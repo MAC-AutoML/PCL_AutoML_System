@@ -7,17 +7,16 @@ import {Link} from 'umi';
 
 import { PlusOutlined, EllipsisOutlined } from '@ant-design/icons';
 import { Button, Tag, Space, Menu, Dropdown } from 'antd';
-import ProTable, { TableDropdown } from '@ant-design/pro-table';
+import ProTable, { ProColumns, ActionType, TableDropdown } from '@ant-design/pro-table';
 import request from 'umi-request';
+
+import {TableItem} from './data.d';
+import { queryMission} from './service';
+
 
 import shower from '../../../public/banner1.jpg'
 
 const columns = [
-  // {
-  //   dataIndex: 'index',
-  //   valueType: 'indexBorder',
-  //   width: 48,
-  // },
   {
     title: '项目名称',
     dataIndex: 'title', //回传数据的键
@@ -26,74 +25,61 @@ const columns = [
     tip: '标题过长会自动收缩',
     formItemProps: {
       rules: [
-        {
-          required: true,
-          message: '此项为必填项',
-        },
+        {required: true, message: '此项为必填项',},
       ],
     },
     width: '30%',
     search: false,
     defaultSortOrder: 'descend',
-    sorter: (a, b) => a > b, //使用何种排序
-    render: (_) => <a>{_}</a>,
+    // sorter: (a, b) => a > b, //使用何种排序
+    // render: (dom, entity) => {
+    //   return <a onClick={() => setRow(entity)}>{dom}</a>;
+    // },  
   },
   {
     title: '项目类型',
-    dataIndex: 'state',
-    initialValue: '图像分类',
-    filters: true,
+    dataIndex: 'type',
+    initialValue: '全部',
+    // filters: true,
     valueType:'select',
     valueEnum: {
-      all: {
-        text: '全部',
-        status: 'Default',
-      },
-      image_classification: {
-        text: '图像分类',
-        status: 'IC',
-      },
-      object_detection: {
-        text: '物体检测',
-        status: 'OD',
-      },
-      predict_analysis: {
-        text: '预测分析',
-        status: 'PA',
-      },
+      all: {text: '全部', status: 'Default',},
+      image_classifica: {text: '图像分类',status: 'IC', },
+      object_detection: {text: '物体检测',status: 'OD', },
+      predict_analysis: {text: '预测分析',status: 'PA', },
     },
   },
   {
     title: '训练状态',//列表列名
-    key: 'status',//未知
+    // key: 'status',//未知
     dataIndex: 'train_status',//回传的数据键名
     valueType: 'text',//未知 数据类型？
   },
   {
     title: '部署状态',//列表列名
-    key: 'status',//未知
+    // key: 'status',//未知
     dataIndex: 'deploy_status',//回传的数据键名
     valueType: 'text',//未知 数据类型？
   },
   {
     title: '数据源',//列表列名
-    key: 'status',//未知
+    // key: 'status',//未知
     dataIndex: 'data_source',//回传的数据键名
     valueType: 'text',//未知 数据类型？
     defaultSortOrder: 'descend',
-    sorter: (a, b) => a.age - b.age,
+    // sorter: (a, b) => a > b,
   },
   {
     title: '创建时间',
-    key: 'since',
+    // key: 'since',
     dataIndex: 'created_at',
     valueType: 'date',
     defaultSortOrder: 'descend',
-    sorter: (a, b) => a.age - b.age,
+    // sorter: (a, b) => a > b,
   },
   {
     title: '描述',//列表列名
-    key: 'status',//未知
+    // key: 'status',//未知
     dataIndex: 'description',//回传的数据键名
     valueType: 'text',//未知 数据类型？
   },
@@ -101,12 +87,8 @@ const columns = [
     title: '操作',
     valueType: 'option',
     render: (text, row, _, action) => [
-      <a href={row.url} target="_blank" rel="noopener noreferrer" key="link">
-        删除
-      </a>,
-      <a href={row.url} target="_blank" rel="noopener noreferrer" key="view">
-        查看
-      </a>,
+      <Button danger> 删除 </Button>,
+      <Button       > 查看 </Button> 
     ],
   },
 ];
@@ -148,27 +130,23 @@ export default (): React.ReactNode => {
       </ProCard>
       <ProCard gutter={8} title="任务列表" layout="center" bordered headerBordered>
         <ProTable
-        columns={columns}
-        actionRef={actionRef}
-        request={async (params = {}) =>
-          request('https://proapi.azurewebsites.net/github/issues', {
-            params,
-          })
-        }
-        rowKey="id"
-        search={{
-          labelWidth: 'auto',
-        }}
-        pagination={{
-          pageSize: 5,
-        }}
-        dateFormatter="string"
-        toolBarRender={() => [
-          <Button key="button" icon={<PlusOutlined />} type="primary">
-            新建
-          </Button>,
-        ]}
-      />        
+          columns={columns}
+          actionRef={actionRef}
+          request={(params, sorter, filter) => queryMission({ ...params, sorter, filter })}
+          rowKey="id"
+          search={{
+            labelWidth: 'auto',
+          }}
+          pagination={{
+            pageSize: 5,
+          }}
+          dateFormatter="string"
+          // toolBarRender={() => [
+          //   <Button key="button" icon={<PlusOutlined />} type="primary">
+          //     新建
+          //   </Button>,
+          // ]}
+        />        
       </ProCard>
     </PageContainer>
   );
