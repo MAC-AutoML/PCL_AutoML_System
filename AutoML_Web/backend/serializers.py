@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from _app.models import Algorithm,User_Job
+from _app.models import Algorithm,User_Job,User_algorithm,Dataset
 
 class JobsSerializers(serializers.ModelSerializer):
     class Meta:
@@ -9,8 +9,17 @@ class JobsSerializers(serializers.ModelSerializer):
 class AlgorithmSerializers(serializers.ModelSerializer):
     class Meta:
         model = Algorithm  # 指定的模型类
-        fields = ('pk', 'name', 'task', )  # 需要序列化的属性
+        fields = ('id', 'name', 'task', "_path", "is_check")  # 需要序列化的属性
 
+class UAlgorithmSerializers(serializers.ModelSerializer):
+    class Meta:
+        model = User_algorithm  # 指定的模型类
+        fields = ('id', 'name', 'task', "_path", "user_id", "algorithm_id")  # 需要序列化的属性
+
+class DatasetSerializers(serializers.ModelSerializer):
+    class Meta:
+        model = Dataset  # 指定的模型类
+        fields = ('id', 'name', 'task', "_path", "is_check")  # 需要序列化的属性
 
 
 
