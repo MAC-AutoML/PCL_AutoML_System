@@ -290,6 +290,74 @@ class AIMarket(APIView):
         """
         login get
         """
+        #公开算法数据库内容[{}{}{}]
+        rec = []
+        queryset = models.Algorithm.objects.all()
+        ret = JobsSerializers(queryset, many=True)
+        print("%ret%", "%ret%", type(ret.data), type(ret.data[0]))
+        for onejob in ret.data:
+
+            rec.append(
+                {
+                    'id':onejob["id"],
+                    'name':onejob["name"],
+                    'task':onejob["task"],
+                    "_path":onejob["_path"],
+                }
+            )
+        result = rec
         pass
     def post(self,request):
-        pass 
+        pass
+
+class UserAlgorithm(APIView):
+    def get(self, request):
+        """
+        login get
+        """
+        #公开算法数据库内容[{}{}{}]
+        rec = []
+        queryset = models.User_algorithm.objects.all()
+        ret = UAlgorithmSerializers(queryset, many=True)
+        print("%ret%", "%ret%", type(ret.data), type(ret.data[0]))
+        for onejob in ret.data:
+
+            rec.append(
+                {
+                    'id':onejob["id"],
+                    'name':onejob["name"],
+                    'task':onejob["task"],
+                    "_path":onejob["_path"],
+                }
+            )
+        result = rec
+        pass
+    def post(self,request):
+        pass
+
+class PubDataset(APIView):
+    def get(self, request):
+        """
+        login get
+        """
+        #公开算法数据库内容[{}{}{}]
+        rec = []
+        queryset = models.Dataset.objects.all()
+        ret = DatasetSerializers(queryset, many=True)
+        print("%ret%", "%ret%", type(ret.data), type(ret.data[0]))
+        for onejob in ret.data:
+
+            rec.append(
+                {
+                    'id':onejob["id"],
+                    'name':onejob["name"],
+                    'task':onejob["task"],
+                    "_path":onejob["_path"],
+                }
+            )
+        result = rec
+        pass
+    def post(self,request):
+        pass
+
+
