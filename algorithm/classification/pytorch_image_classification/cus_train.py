@@ -445,9 +445,10 @@ def main(model,dataset,params):
                                             config.train.val_period == 0):
             cur = validate(epoch, config, model, val_loss, val_loader, logger,
                      tensorboard_writer)
-        logger.info("##",cur,best_acc)
+        logger.info(f'###cur {cur:.2f}')
+
         best_acc = max(cur,best_acc)
-        logger.info("###Curbest = ",best_acc)
+        logger.info(f'###best_acc {best_acc:.2f}')
         tensorboard_writer.flush()
         tensorboard_writer2.flush()
 
