@@ -18,22 +18,21 @@ from django.contrib import admin
 from django.conf.urls import url,include
 
 from django.urls import path,re_path
+from django.views.static import serve
+
 from django.views.generic.base import TemplateView
-from _app import views
-# import django_adminlte
-# import django_adminlte_theme
+
+from .settings import MEDIA_ROOT
+
+# import sys
+# sys.path.append("..")
+from backend import views
 
 urlpatterns = [
-    path('', views.redirecter),
-    path('test/',TemplateView.as_view(template_name="test.html")),
+    # Manage tool urls
     path('admin/', admin.site.urls),
-    # url(r'index/',include("django_adminlte_theme.urls"),name='index'),
-    # AutoML_Web/django_adminlte_theme/templates/admin/index.html
-    path('index/', views.index,name='index'),
-    path('login/', views.login,name='login'),
-    path('register/', views.register,name='register'),
-    path('logout/', views.logout,name='logout'),
-    path('userinfo/',views.userinfo,name='userinfo'),
-    path('set_password/',views.set_password,name='set_password'),
-    re_path(r'^.*$', views.redirecter),
+    url(r"api-auth/", include("rest_framework.urls"),name='api_check'),
+    url(r'api/login/account', views.Login.as_view(), name='log'),
+    url(r'api/currentUser', views.CurrentUser.as_view(), name='current'),
+    url(r'api/automl',views.AutoML.as_view(),name='automl'),
 ]
