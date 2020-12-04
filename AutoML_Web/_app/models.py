@@ -7,6 +7,7 @@ from django.contrib.auth.models import AbstractUser
 class User(AbstractUser):
     _path = models.CharField(max_length=256, default='')
     tocken = models.CharField(max_length=1024, default='')
+    mntpath = models.CharField(max_length=1024, default='')
     ## 不能直接把api传来的id赋值给数据库里的id，会有莫名的bug
     #api_id = models.BigIntegerField(unique=True, default=-1)
     

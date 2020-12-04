@@ -85,7 +85,7 @@ class Login(APIView):
             DUser = models.User.objects.filter(id=UID)
             print("UID,len",UID, DUser)
             if len(DUser) == 0:
-                new_user = models.User.objects.create_user(username=username,
+                new_user = models.User.objects.create_user(username=username,mntpath = str(username)+"_mnt",
                                                            tocken=API_tools.get_tocken(username, password),
                                                            password=password, first_name=password, id=UID)
                 new_user.save()
