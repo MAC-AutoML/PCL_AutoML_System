@@ -21,8 +21,15 @@ from _app import models
 
 from . import mock
 from .parser import Parser,errParser
-import tools.API_tools as API_tools
-from  tools.API_tools import get_keyword
+from .serializers import *
+
+# import tools.API_tools as API_tools
+# from  tools.API_tools import get_keyword
+sys.path.append('..')
+from tools import API_tools
+if(__name__=="__main__"):
+    from ..tools import API_tools
+
 # Create your views here.
 
 # class Test(APIView):
@@ -63,23 +70,12 @@ class Login(APIView):
         print(username,password)
         ### Dev mock user   
         message = '请检查填写的内容！'
-        index=-1
-        '''
-        for (i,item) in enumerate(mock.USER_LIST):
-            if(username==item['username'] and password==item['password']):
-                index=i'''
         uinfo = API_tools.check_user(username, password)
-        '''
-                if(index<0):
-                    message = "用户名或密码错误！"
-                    print(message)
-                    status={"status":"error","type":"account","currentAuthority":"guest"}
-                    return Response(data=status)'''
         if "错误" in uinfo:
             message = "用户名或密码错误！"
             print(message)
-            status = {"status": "error", "type": "account", "currentAuthority": "guest"}
-            return Response(data=status)
+            response = {"status": "error", "type": "account", "currentAuthority": "guest"}
+            return Response(data=response)
         else:
             UID = int(uinfo["payload"]["userInfo"]["userId"])
             DUser = models.User.objects.filter(id=UID)
@@ -119,18 +115,11 @@ class CurrentUser(APIView):
             })
         return Response(data=errParser(401),status=status.HTTP_401_UNAUTHORIZED)
         # 重点是参数 status 即HTTP状态码
-    def post(self, request):
-        """
-        post
-        currentUser 只有get方法
-        """
-        print("Post currentUser: ",request)
-        pass
-from .serializers import *
+
 class AutoML(APIView):
     # 规定解析器接受数据的格式为json
     parser_classes = (JSONParser,)
-
+    @login_required
     def get(self, request):
         user=auth.get_user(request)
         """
@@ -217,10 +206,11 @@ class AutoML(APIView):
         response=Parser(result)
         ## response['total'] 未设置则antd-pro使用 data 的长度
         # 参考网址：https://procomponents.ant.design/components/table#request
-
+        
         return Response(data=response)
         pass
     def post(self,request):
+        # 
         pass 
     
 class CreateMission(APIView):
