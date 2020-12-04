@@ -132,6 +132,7 @@ class AutoML(APIView):
     parser_classes = (JSONParser,)
 
     def get(self, request):
+        user=auth.get_user(request)
         """
         get AutoML's record table
         """
