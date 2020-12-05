@@ -4,6 +4,7 @@ from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_exempt,csrf_protect
 
 from rest_framework import serializers
+from rest_framework import response
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
@@ -27,9 +28,12 @@ from .serializers import *
 # from  tools.API_tools import get_keyword
 sys.path.append('..')
 from tools import API_tools
+
+## 方便debug用, VScode pylance 可以解析到这些包的位置
+## 不影响正常运行
 if(__name__=="__main__"):
     from ..tools import API_tools
-
+    from .._app  import models
 # Create your views here.
 
 # class Test(APIView):
@@ -119,9 +123,14 @@ class CurrentUser(APIView):
 class AutoML(APIView):
     # 规定解析器接受数据的格式为json
     parser_classes = (JSONParser,)
-    @login_required
+    # @login_required
     def get(self, request):
         user=auth.get_user(request)
+        # print(user)
+        # print(type(user))
+        # if(isinstance(user,Iterable)):
+        #     for item in user:
+        #         print(item)
         """
         get AutoML's record table
         """
@@ -130,7 +139,7 @@ class AutoML(APIView):
         rec = []
         queryset = models.User_Job.objects.all()
         ret = JobsSerializers(queryset, many=True)
-        print("%ret%","%ret%",type(ret.data),type(ret.data[0]))
+        # print("%ret%","%ret%",type(ret.data),type(ret.data[0]))
         for onejob in ret.data:
             tALG = models.User_algorithm.objects.filter(id = onejob["algorithm_id"])[0]
 
@@ -146,6 +155,11 @@ class AutoML(APIView):
                 }
             )
         result=rec
+        result=[]
+        # 长度为零
+        if(not len(result)):
+            response=Parser(result)
+            return Response(data=response)            
         ## 将回传的get url参数解码成字典
         params=request.query_params.dict()
         ## 针对性解码
@@ -155,7 +169,7 @@ class AutoML(APIView):
         params['filter']=json.loads(params['filter'])
         # for (k,v)in params.items():
         #     params[k]=json.loads(v)
-        print(params)
+        # print(params)
         # # 开始筛选 - key= 'type' 的类型
         selector=copy.deepcopy(params)
         # # 把传来的其他键值删掉，只保留回传的筛选栏键值对
@@ -163,7 +177,7 @@ class AutoML(APIView):
         del(selector['pageSize'])
         del(selector['sorter'])
         del(selector['filter'])
-        print(selector)
+        # print(selector)
         # 需要一个配置文件，记录不同表格每条数据 - 数据结构的键值对，对于选择形的参数，要列出其所有选项
         
         # # 处理页面上方的筛选栏回传的参数
@@ -210,9 +224,66 @@ class AutoML(APIView):
         return Response(data=response)
         pass
     def post(self,request):
-        # 
-        pass 
-    
+        # AutoML 新建任务
+        # res 字典数据格式详见 @/Frontend/src/pages/AutoML/CreateMission/data.d.ts
+            # export interface Former {
+            # //Base set
+            # type:string;
+            # name:string;
+            # description?:string;
+            # //Dataset set
+            # dataName?:string; //新建数据集的名称
+            # dataOutput?:string; //新建数据集的输出路径
+            # dataInput?:string; //新建数据集的输入路径
+            # dataSelection?:string; // 已有数据集的id
+            # //Model set
+            # modelsize:number;
+            # }
+        # @指项目文件夹路径
+        form_dict=request.data
+        # 创建任务
+
+        # 创建完成
+        # 【】前端 后端 需要添加判断任务是否创建成功
+        res=[]
+        res=Parser(res)
+        return Response(data=res)
+        # return Response(data=errParser(errcode=404))
+
+    def delete(self,request):
+        # AutoML 删除任务
+        pass
+
+class RefreshData(APIView):
+    ''' 
+        更新数据集下拉列表
+    '''
+    def get(self,request):
+        # print(request.data)
+        params=request.query_params.dict()
+        # 这里应该是任务类型
+        typer=params["type"]
+        # typer=request.query_params.dict()["type"]
+        
+        # 按request传来的任务类型返回需要的数据集列表
+        datasets=models.Dataset.objects.filter(task=typer).all()
+        ''' get dataset list '''
+        if(not len(datasets)):
+            return Response(data=[])
+        # print(type(datasets))
+        
+        res=[]
+        for item in datasets:
+            res.append({
+                'label':item.name,
+                'value':item.id,
+                })
+        # 获取数据集列表后回传
+        # 这里返回的数据集列表结构为
+        # [{'label': ,'value': ,},{}]
+        # res=Parser(res) # 不一定打包
+        return Response(data=res)
+
 class CreateMission(APIView):
     def get(self, request):
         """

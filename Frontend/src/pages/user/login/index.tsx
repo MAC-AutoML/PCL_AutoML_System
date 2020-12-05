@@ -176,12 +176,12 @@ const Login: React.FC<{}> = () => {
               </a>
             </div>
           </ProForm>
-          <Space className={styles.other}>
+          {/* <Space className={styles.other}>
             <FormattedMessage id="pages.login.loginWith" defaultMessage="其他登录方式" />
             <AlipayCircleOutlined className={styles.icon} />
             <TaobaoCircleOutlined className={styles.icon} />
             <WeiboCircleOutlined className={styles.icon} />
-          </Space>
+          </Space> */}
         </div>
       </div>
       <Footer />

@@ -1,0 +1,13 @@
+{
+    "automl":
+    {
+        "mission_type":
+        [
+            "Image_Classification",
+            "Object_Dectection",
+            "Predict_Analysis",
+            "Voice_Classfication",
+            "Text_Classification"
+        ]
+    }
+}
