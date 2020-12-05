@@ -1,4 +1,6 @@
 import React, { Children } from 'react';
+import { Redirect } from 'umi';
+
 import { Card, Typography, Alert, Button } from 'antd';
 import { PageContainer } from '@ant-design/pro-layout';
 import { message, Radio } from 'antd';
@@ -16,15 +18,19 @@ import ProForm, {
   ProFormSlider,
   } from '@ant-design/pro-form';
 import Title from 'antd/lib/typography/Title';
+import { history } from 'umi';
 
-const waitTime = (time = 100) =>
-  new Promise(resolve => {
-    setTimeout(() => {
-      resolve(true);
-    }, time);
-  });
+import {postForm, getDataset} from './service';
+
+
+const afterSuccess = () =>
+  {
+    history.goBack();
+  }
 export default (props): React.ReactNode =>{
-  const [dataType,setType]=React.useState(true)
+  // console.log(props.match.params)
+  const [dataType,setType]=React.useState(true);
+  const missionType= props.match.params.type;
   let dataSelect;
   if(dataType){
     dataSelect=(<>
@@ -57,31 +63,42 @@ export default (props): React.ReactNode =>{
   }
   else{
     dataSelect=(
-      <ProFormText
+      <ProFormSelect
         width="m"
         name="dataSelection"
         label="选择数据集"
-        tooltip="最长为 24 位"
-        placeholder="请输入名称"
-        rules={[{ required: true }]}
-      />)
+        showSearch
+        request={()=>{return getDataset(missionType);}}
+        placeholder="Please select a dataset"
+        rules={[{ required: true, 
+          message: '请选择一个数据集' ,
+        }]}
+      />
+      )
   }
 
   return (
   <PageContainer content="" >
     <Card>
       <ProForm
+      //onFinish 【】 前端 需要添加 判断任务是否创建成功
       onFinish={async values => {
-        await waitTime(2000);
-        console.log(values);
-        message.success('提交成功！');
-      }}
-      initialValues={{
-        name: '',
-        useMode: 'chapter',
+          let res=postForm(values);
+          message.success('提交成功！');
+          // history 回退到上一层
+          afterSuccess();
       }}
       layout="vertical"
       >
+        <ProForm.Group>
+          <ProFormText
+              width="m"
+              name="type"
+              label="任务类型"
+              initialValue={missionType}
+              disabled
+            />
+        </ProForm.Group>
         <ProForm.Group>
           <ProFormText
             width="m"

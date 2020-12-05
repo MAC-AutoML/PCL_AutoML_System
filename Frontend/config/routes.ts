@@ -24,7 +24,7 @@
         exact:true,
       },
       {
-        path: '/AutoML/CreateMission',
+        path: '/AutoML/CreateMission/:type',
         name: '创建自动学习任务',
         icon: 'smile',
         component: './AutoML/CreateMission',
