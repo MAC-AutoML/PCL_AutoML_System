@@ -299,7 +299,7 @@ def parse_args(parser, argv=None):
         args[CmdArgs.data_root] = abspath(args[CmdArgs.data_root], verify=not args[CmdArgs.dry_run])
 
     # Get git version of the benchmark itself for meta-data, just in case we need it.
-    args[CmdArgs.rev] = load_rev_number()
+    # args[CmdArgs.rev] = load_rev_number()
 
     # We may support ability to specify version at args in the future, from now it is implied
     args[CmdArgs.opt_rev] = None
