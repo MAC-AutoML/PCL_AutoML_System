@@ -36,7 +36,28 @@ USER_LIST=[
 		'id':3,
 	},
 ]
-
+DATASET_LIST=[
+	{
+		# 'name':'ImageNet 2012',
+		# 'path':'/src/data/imagenet',
+		'label':'ImageNet 2012',
+		'value':'/src/data/imagenet',
+	},
+	{
+		# 'name':'cifar 10',
+		# 'path':'/src/data/cifar10',
+		'label':'cifar 10',
+		'value':'/src/data/cifar10',
+		
+	},
+	{
+		# 'name':'kinetics',
+		# 'path':'/src/data/kinetics',
+		'label':'kinetics',
+		'value':'/src/data/kinetics',
+		
+	},
+]
 def get_tocken()->str:
 	return ''.join(random.sample("0123456789abcdefghijklmnopqrstuvwxyz!@#$%^&*()", 16))
 	
