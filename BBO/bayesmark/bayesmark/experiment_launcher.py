@@ -143,6 +143,7 @@ def gen_commands(args, opt_file_lookup, run_uuid):
             assert all((_is_arg_safe(ss) == (ii % 2 == 1)) for ii, ss in enumerate(cmd_args))
 
             full_cmd = experiment_cmd + cmd_args
+            print("full_cmd",full_cmd)
             yield iteration_key, full_cmd
 
 
