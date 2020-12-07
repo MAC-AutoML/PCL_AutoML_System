@@ -29,7 +29,7 @@ def updata_jobtable(tocken,un,pa):
 def alg_cp(source,target):
     #jobspace / algorithm /classification/pytorch_automodel/
     if os.path.exists(r'~/wdc_mnt/jobspace') != True:
-        os.makedirs(r'./jobspace')
+        os.makedirs(r'~/wdc_mnt/jobspace')
     if os.path.exists(r'~/wdc_mnt/jobspace/algorithm') != True:
         os.makedirs(r'~/wdc_mnt/jobspace/algorithm')
     if os.path.exists(r'~/wdc_mnt/jobspace/algorithm/classification') != True:
