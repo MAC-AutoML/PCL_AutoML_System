@@ -16,7 +16,7 @@ class DeepNet(TestFunction):
         self.dataset=dataset
         self.api_config = api_config
 
-    def evaluation(self, params):
+    def evaluate(self, params):
         valid_acc = call_evalute(self.model, self.dataset, params)
         return valid_acc
 
