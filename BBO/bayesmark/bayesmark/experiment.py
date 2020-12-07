@@ -485,7 +485,7 @@ def experiment_main(opt_class, args=None):  # pragma: main
     if args is None:
         description = "Run a study with one benchmark function and an optimizer"
         args = cmd.parse_args(cmd.experiment_parser(description))
-    args[CmdArgs.opt_rev] = opt_class.get_version()
+    #args[CmdArgs.opt_rev] = opt_class.get_version()
 
     run_uuid = uuid.UUID(args[CmdArgs.uuid])
 
