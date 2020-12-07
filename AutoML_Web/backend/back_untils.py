@@ -36,7 +36,9 @@ def alg_cp(source,target):
         os.makedirs(r'/home/pcl/wdc_mnt/jobspace/algorithm/classification')
     if os.path.exists(r'/home/pcl/wdc_mnt/jobspace/algorithm/classification/pytorch_automodel') != True:
         os.makedirs(r'jobspace/algorithm/classification/pytorch_automodel')
-    print("###", os.path.exists(r'/home/pcl/wdc_mnt/jobspace/algorithm/classification/pytorch_automodel'))
+    if os.path.exists(r'/home/pcl/wdc_mnt/jobspace/algorithm/classification/pytorch_automodel/image_classification') != True:
+        os.makedirs(r'jobspace/algorithm/classification/pytorch_automodel/image_classification')
+    print("###", os.path.exists(r'/home/pcl/wdc_mnt/jobspace/algorithm/classification/pytorch_automodel/image_classification'))
 
     #print(os.system("mkdir stest"))
 
