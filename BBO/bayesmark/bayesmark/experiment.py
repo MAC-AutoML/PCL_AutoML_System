@@ -185,7 +185,7 @@ def run_study(optimizer, test_problem, n_calls, n_suggestions, n_obj=1, callback
     return function_evals, (suggest_time, eval_time, observe_time), suggest_log
 
 
-def run_DeepNet_study(opt_class, opt_kwargs, model_name, dataset,  n_calls, n_suggestions, data_root=None,  callback=None,
+def run_DeepNet_study(opt_class, opt_kwargs, model_name, dataset,  n_calls, n_suggestions, api_config, data_root=None,  callback=None,
 ):
     """Run a study for a single optimizer on a single `sklearn` model/data set combination.
 
@@ -226,7 +226,6 @@ def run_DeepNet_study(opt_class, opt_kwargs, model_name, dataset,  n_calls, n_su
     """
     # Setup test function
     # function_instance = _build_test_problem(model_name, dataset, scorer, data_root)
-    api_config ={"epochs": {"type": "int", "space": "linear", "range": (10, 30)},"momentum": {"type": "real", "space": "log", "range": (0.7, 0.9999)}, "base_lr": {"type": "real", "space": "log", "range": (1e-5, 1e-1)}, "weight_decay": {"type": "real", "space": "log", "range": (1e-5, 1e-1)}, "lr_decay": {"type": "real", "space": "logit", "range": (0.05, 0.2)}, }
     function_instance = DeepNet(model_name, dataset, api_config)
     # Setup optimizer
     api_config = function_instance.get_api_config()
@@ -597,6 +596,7 @@ def experiment_main(opt_class, args=None):  # pragma: main
         args[CmdArgs.data],
         args[CmdArgs.n_calls],
         args[CmdArgs.n_suggest],
+        api_config={"epochs": {"type": "int", "space": "linear", "range": (10, 30)}, "momentum": {"type": "real", "space": "log", "range": (0.7, 0.9999)}, "base_lr": {"type": "real", "space": "log", "range": (1e-5, 1e-1)}, "weight_decay": {"type": "real", "space": "log", "range": (1e-5, 1e-1)}, "lr_decay": {"type": "real", "space": "logit", "range": (0.05, 0.2)}, },
         data_root=args[CmdArgs.data_root],
         callback=callback,
     )

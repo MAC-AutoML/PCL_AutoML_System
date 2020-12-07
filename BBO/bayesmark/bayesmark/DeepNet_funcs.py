@@ -9,7 +9,7 @@ MODEL_NAME={
 "resnet110",
 }
 
-def DeepNet(TestFunction):
+class DeepNet(TestFunction):
     objective_names = "valid_acc"
     def __init__(self, model_name, dataset, api_config):
         self.model=model_name
