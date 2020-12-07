@@ -81,6 +81,7 @@ CMD_STR = {
     CmdArgs.dry_run: (None, "dry_run"),  # Will not be specified from CLI
     CmdArgs.rev: (None, "rev"),  # Will not be specified from CLI
     CmdArgs.opt_rev: (None, "opt_rev"),  # Will not be specified from CLI. Which version of optimizer.
+    CmdArgs.api_config: ("-", "--api_config"),
 }
 
 
