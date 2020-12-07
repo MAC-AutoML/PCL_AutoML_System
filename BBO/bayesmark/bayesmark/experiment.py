@@ -185,7 +185,7 @@ def run_study(optimizer, test_problem, n_calls, n_suggestions, n_obj=1, callback
     return function_evals, (suggest_time, eval_time, observe_time), suggest_log
 
 
-def run_DeepNet_study(opt_class, opt_kwargs, model_name, dataset,  n_calls, n_suggestions, data_root=None, api_config, callback=None,
+def run_DeepNet_study(opt_class, opt_kwargs, model_name, dataset,  n_calls, n_suggestions, api_config, data_root=None,  callback=None,
 ):
     """Run a study for a single optimizer on a single `sklearn` model/data set combination.
 
