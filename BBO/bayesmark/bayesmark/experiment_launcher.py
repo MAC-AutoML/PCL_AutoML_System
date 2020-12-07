@@ -38,7 +38,7 @@ from bayesmark.util import range_str, shell_join, str_join_safe, strict_sorted
 UUID_JOB_CHARS = 7
 # Warning: this name is also specified in setup.py, and violates the DRY principle. So if it gets changed in setup.py,
 # it must also be changed here!
-EXPERIMENT_ENTRY = "bayesmark-exp"
+EXPERIMENT_ENTRY ="bayesmark.experiment:main"
 
 logger = logging.getLogger(__name__)
 
