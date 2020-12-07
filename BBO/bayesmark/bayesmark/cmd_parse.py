@@ -244,7 +244,7 @@ def launcher_parser(description):
 
 
 def experiment_parser(description):
-    parser = argparse.ArgumentParser(description=description, parents=[base_parser()])
+    parser = argparse.ArgumentParser(description=description)
 
     add_argument(parser, CmdArgs.uuid, type=uuid, required=True, help="length 32 hex UUID for this experiment")
 
