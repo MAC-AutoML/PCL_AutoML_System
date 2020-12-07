@@ -135,12 +135,14 @@ def run_study(optimizer, test_problem, n_calls, n_suggestions, n_obj=1, callback
 
         logger.info("suggestion time taken %f iter %d next_points %s" % (suggest_time[ii], ii, str(next_points)))
         assert len(next_points) == n_suggestions, "invalid number of suggestions provided by the optimizer"
+        logging.info("1")
 
         # We could put this inside the TestProblem class, but ok here for now.
         try:
             space_for_validate.validate(next_points)  # Fails if suggestions outside allowed range
         except Exception:
             raise ValueError("Optimizer suggestion is out of range.")
+        logging.info("2")
 
         for jj, next_point in enumerate(next_points):
             tt = time()
@@ -159,6 +161,7 @@ def run_study(optimizer, test_problem, n_calls, n_suggestions, n_obj=1, callback
                 "function_evaluation time %f value %f suggestion %s"
                 % (eval_time[ii, jj], f_current_eval[0], str(next_point))
             )
+        logging.info("3")
 
         # Note: this could be inf in the event of a crash in f evaluation, the optimizer must be able to handle that.
         # Only objective 0 is seen by optimizer.
