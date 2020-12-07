@@ -28,24 +28,25 @@ def updata_jobtable(tocken,un,pa):
 
 def alg_cp(source,target):
     #jobspace / algorithm /classification/pytorch_automodel/
-    if os.path.exists(r'~/wdc_mnt/jobspace') != True:
-        os.makedirs(r'~/wdc_mnt/jobspace')
-    if os.path.exists(r'~/wdc_mnt/jobspace/algorithm') != True:
-        os.makedirs(r'~/wdc_mnt/jobspace/algorithm')
-    if os.path.exists(r'~/wdc_mnt/jobspace/algorithm/classification') != True:
-        os.makedirs(r'~/wdc_mnt/jobspace/algorithm/classification')
-    if os.path.exists(r'~/wdc_mnt/jobspace/algorithm/classification/pytorch_automodel') != True:
-        os.makedirs(r'~/wdc_mnt/jobspace/algorithm/classification/pytorch_automodel')
+    if os.path.exists(r'/home/pcl/wdc_mnt/jobspace') != True:
+        os.makedirs(r'/home/pcl/wdc_mnt/jobspace')
+    if os.path.exists(r'/home/pcl/wdc_mnt/jobspace/algorithm') != True:
+        os.makedirs(r'/home/pcl/wdc_mnt/jobspace/algorithm')
+    if os.path.exists(r'/home/pcl/wdc_mnt/jobspace/algorithm/classification') != True:
+        os.makedirs(r'/home/pcl/wdc_mnt/jobspace/algorithm/classification')
+    if os.path.exists(r'/home/pcl/wdc_mnt/jobspace/algorithm/classification/pytorch_automodel') != True:
+        os.makedirs(r'jobspace/algorithm/classification/pytorch_automodel')
+    print("###", os.path.exists(r'/home/pcl/wdc_mnt/jobspace/algorithm/classification/pytorch_automodel'))
 
     #print(os.system("mkdir stest"))
 
-    os.chmod(r'~/wdc_mnt/jobspace/algorithm/classification/pytorch_automodel',
+    os.chmod(r'/home/pcl/wdc_mnt/jobspace/algorithm/classification/pytorch_automodel',
              stat.S_IRWXO + stat.S_IRWXG + stat.S_IRWXU)
-    os.chmod(r'~/wdc_mnt/PCL_AutoML/PCL_AutoML_System/algorithm/classification/pytorch_automodel/image_classification',
+    os.chmod(r'/home/pcl/wdc_mnt/PCL_AutoML/PCL_AutoML_System/algorithm/classification/pytorch_automodel/image_classification',
              stat.S_IRWXO + stat.S_IRWXG + stat.S_IRWXU)
 
-    source_path = os.path.abspath(r'~/wdc_mnt/PCL_AutoML/PCL_AutoML_System/algorithm/classification/pytorch_automodel/image_classification')
-    target_path = os.path.abspath(r'~/wdc_mnt/jobspace/algorithm/classification/pytorch_automodel')
+    source_path = os.path.abspath(r'/home/pcl/wdc_mnt/PCL_AutoML/PCL_AutoML_System/algorithm/classification/pytorch_automodel/image_classification')
+    target_path = os.path.abspath(r'/home/pcl/wdc_mnt/jobspace/algorithm/classification/pytorch_automodel')
 
     def del_file(filepath):
         del_list = os.listdir(filepath)

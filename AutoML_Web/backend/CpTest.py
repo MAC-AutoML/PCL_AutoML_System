@@ -17,17 +17,17 @@ new_path = r'~/wdc_mnt/jobspace/algorithm'
 
 def alg_cp(source,target):
     #jobspace / algorithm /classification/pytorch_automodel/
-    if os.path.exists(r'~/wdc_mnt/jobspace') != True:
-        os.makedirs(r'~/wdc_mnt/jobspace')
-    if os.path.exists(r'~/wdc_mnt/jobspace/algorithm') != True:
-        os.makedirs(r'~/wdc_mnt/jobspace/algorithm')
-    if os.path.exists(r'~/wdc_mnt/jobspace/algorithm/classification') != True:
-        os.makedirs(r'~/wdc_mnt/jobspace/algorithm/classification')
-    if os.path.exists(r'~/wdc_mnt/jobspace/algorithm/classification/pytorch_automodel') != True:
-        os.makedirs(r'~/wdc_mnt/jobspace/algorithm/classification/pytorch_automodel')
-
+    if os.path.exists(r'/home/pcl/wdc_mnt/jobspace') != True:
+        os.makedirs(r'/home/pcl/wdc_mnt/jobspace')
+    if os.path.exists(r'/home/pcl/wdc_mnt/jobspace/algorithm') != True:
+        os.makedirs(r'/home/pcl/wdc_mnt/jobspace/algorithm')
+    if os.path.exists(r'/home/pcl/wdc_mnt/jobspace/algorithm/classification') != True:
+        os.makedirs(r'/home/pcl/wdc_mnt/jobspace/algorithm/classification')
+    if os.path.exists(r'/home/pcl/wdc_mnt/jobspace/algorithm/classification/pytorch_automodel') != True:
+        os.makedirs(r'/home/pcl/wdc_mnt/jobspace/algorithm/classification/pytorch_automodel')
+    print("###",os.path.exists(r'/home/pcl/wdc_mnt/jobspace/algorithm/classification/pytorch_automodel'))
     #print(os.system("mkdir stest"))
-
+    '''
     os.chmod(r'~/wdc_mnt/jobspace/algorithm/classification/pytorch_automodel',
              stat.S_IRWXO + stat.S_IRWXG + stat.S_IRWXU)
     os.chmod(r'~/wdc_mnt/PCL_AutoML/PCL_AutoML_System/algorithm/classification/pytorch_automodel/image_classification',
@@ -50,5 +50,5 @@ def alg_cp(source,target):
 
     shutil.copytree(source_path, target_path)
 
-    print('$$$$$$$$$$$$$$$$$Copy files finished!')
+    print('$$$$$$$$$$$$$$$$$Copy files finished!')'''
 alg_cp("","")
