@@ -38,7 +38,7 @@ from bayesmark.util import range_str, shell_join, str_join_safe, strict_sorted
 UUID_JOB_CHARS = 7
 # Warning: this name is also specified in setup.py, and violates the DRY principle. So if it gets changed in setup.py,
 # it must also be changed here!
-EXPERIMENT_ENTRY ="bayesmark.experiment:main"
+EXPERIMENT_ENTRY ="bayesmark/experiment.py"
 
 logger = logging.getLogger(__name__)
 
@@ -143,7 +143,7 @@ def gen_commands(args, opt_file_lookup, run_uuid):
             assert all((_is_arg_safe(ss) == (ii % 2 == 1)) for ii, ss in enumerate(cmd_args))
 
             full_cmd = experiment_cmd + cmd_args
-            print("full_cmd",full_cmd)
+            print("full_cmd", full_cmd)
             yield iteration_key, full_cmd
 
 
