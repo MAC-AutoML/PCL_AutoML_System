@@ -261,7 +261,7 @@ class AutoML(APIView):
             print(datasetname.name)
         algname = 'resnet50'
         #-------挂载CP算法操作----------
-        alg_cp(r'../../algorithm/classification/pytorch_automodel/image_classification',"")
+        alg_cp(r'./../../algorithm/classification/pytorch_automodel/image_classification',"")
 
         #-----------------------------
         #command = "cd ../userhome/fakejobspace/algorithm/classification/pytorch_automodel/image_classification/;"

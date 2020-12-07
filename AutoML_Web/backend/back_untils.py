@@ -41,10 +41,10 @@ def alg_cp(source,target):
 
     os.chmod(r'~/wdc_mnt/jobspace/algorithm/classification/pytorch_automodel',
              stat.S_IRWXO + stat.S_IRWXG + stat.S_IRWXU)
-    os.chmod(source,
+    os.chmod(r'./../../algorithm/classification/pytorch_automodel/image_classification',
              stat.S_IRWXO + stat.S_IRWXG + stat.S_IRWXU)
 
-    source_path = os.path.abspath(source)
+    source_path = os.path.abspath('./../../algorithm/classification/pytorch_automodel/image_classification')
     target_path = os.path.abspath(r'~/wdc_mnt/jobspace/algorithm/classification/pytorch_automodel')
 
     def del_file(filepath):
