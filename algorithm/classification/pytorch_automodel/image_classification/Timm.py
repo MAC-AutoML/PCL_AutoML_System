@@ -12,7 +12,7 @@ if not os.path.exists(args.outputdir):
     os.mkdir(args.outputdir)
 m = timm.create_model('mobilenetv3_large_100', pretrained=True)
 m.eval()
-torch.save(m,args.outputdir+"/"+args.modelname+"_"+args.dataset+".pkl")
+torch.save(m,args.outputdir+"/"+args.algname+"_"+args.dataset+".pkl")
 from pprint import pprint
 model_names = timm.list_models(pretrained=True)
 pprint(model_names)

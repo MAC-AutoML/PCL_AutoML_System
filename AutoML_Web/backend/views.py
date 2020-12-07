@@ -260,15 +260,7 @@ class AutoML(APIView):
             print(datasetname.name)
         algname = 'resnet50'
         #-------挂载CP算法操作----------
-        '''
-        job
-            alg
-            imageclas
-                exp
-            test
-                exp
-            
-        '''
+        untils.alg_cp(r'../../algorithm/classification/pytorch_automodel/image_classification',"")
 
         #-----------------------------
         #command = "cd ../userhome/fakejobspace/algorithm/classification/pytorch_automodel/image_classification/;"
@@ -282,13 +274,13 @@ class AutoML(APIView):
         command = command + " --dataset " + str(datasetname)
         command = command + " --algname " + str(algname)
         print(command)
-
+        '''
         info = API_tools.creat_mission(str(jobname), command, user.tocken, user, user.first_name)
-        timeArray = time.localtime()
-        otherStyleTime = time.strftime("%Y-%m-%d %H:%M:%S", timeArray)
         if not info["payload"]:
             print("error~!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
             return Response(data=errParser(errcode=404))
+        timeArray = time.localtime()
+        otherStyleTime = time.strftime("%Y-%m-%d %H:%M:%S", timeArray)
         jobid = get_keyword(str(info["payload"]["jobId"]))
         name = get_keyword(str(jobname))
         username = get_keyword(str(user.username))
@@ -307,7 +299,7 @@ class AutoML(APIView):
             )
             print("$$$$$$$$$$$", sqltext)
             cursor.execute(sqltext)
-
+        '''
 
         # 创建完成
         # 【】前端 后端 需要添加判断任务是否创建成功

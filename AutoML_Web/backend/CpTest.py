@@ -15,18 +15,15 @@ old_path = r'~/wdc_mnt/PCL_AutoML/PCL_AutoML_System/algorithm/classification/pyt
 new_path = r'~/wdc_mnt/jobspace/algorithm'
 '''
 
-if os.path.exists(r'./jobspace') !=True:
-    os.makedirs(r'./jobspace')
 if os.path.exists(r'./test') !=True:
     os.makedirs(r'./test')
 
 
-print(os.system("mkdir stest"))
+#print(os.system("mkdir stest"))
 
-os.chmod(r'./jobspace',stat.S_IRWXO+stat.S_IRWXG+stat.S_IRWXU)
 os.chmod(r'./test',stat.S_IRWXO+stat.S_IRWXG+stat.S_IRWXU)
 
-source_path = os.path.abspath(r'./jobspace')
+source_path = os.path.abspath(r'../../algorithm/classification/pytorch_automodel/image_classification')
 target_path = os.path.abspath(r'./test')
 def del_file(filepath):
     del_list = os.listdir(filepath)
