@@ -13,6 +13,7 @@
 # limitations under the License.
 """Launch studies in separate studies or do dry run to build jobs file with lists of commands to run.
 """
+#! /usr/bin/env python
 import json
 import logging
 import random as pyrandom
