@@ -595,7 +595,6 @@ def experiment_main(opt_class, args=None):  # pragma: main
         opt_kwargs,
         args[CmdArgs.classifier],
         args[CmdArgs.data],
-        args[CmdArgs.metric],
         args[CmdArgs.n_calls],
         args[CmdArgs.n_suggest],
         data_root=args[CmdArgs.data_root],
