@@ -196,7 +196,7 @@ def load_rev_number():
 
 def base_parser():
     parser = argparse.ArgumentParser(add_help=False)
-
+    print('base')
     add_argument(
         parser, CmdArgs.db_root, default=".", type=filepath, help="root directory for all benchmark experiments output"
     )
