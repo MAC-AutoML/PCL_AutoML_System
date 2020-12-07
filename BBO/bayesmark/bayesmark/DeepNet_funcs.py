@@ -1,5 +1,5 @@
 from .sklearn_funcs import TestFunction
-from algorithm.classification.pytorch_image_classification.configs.
+from algorithm.classification.pytorch_image_classification.cus_train import main as call_evalute
 DATASET={"cifar10", "cifar100"}
 MODEL_NAME={
 "resnet20",
