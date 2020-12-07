@@ -20,7 +20,8 @@ if os.path.exists(r'./jobspace') !=True:
 if os.path.exists(r'./test') !=True:
     os.makedirs(r'./test')
 
-print("?????")
+
+print(os.system("mkdir stest"))
 
 os.chmod(r'./jobspace',stat.S_IRWXO+stat.S_IRWXG+stat.S_IRWXU)
 os.chmod(r'./test',stat.S_IRWXO+stat.S_IRWXG+stat.S_IRWXU)

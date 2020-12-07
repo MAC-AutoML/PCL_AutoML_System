@@ -1,5 +1,6 @@
 from django.shortcuts import render
 from django.contrib import auth
+from django.db import connection
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_exempt,csrf_protect
 
@@ -23,11 +24,14 @@ from _app import models
 from . import mock
 from .parser import Parser,errParser
 from .serializers import *
+import time
+from tools.API_tools import get_keyword
 
 # import tools.API_tools as API_tools
 # from  tools.API_tools import get_keyword
 sys.path.append('..')
 from tools import API_tools
+import back_untils as untils
 
 ## 方便debug用, VScode pylance 可以解析到这些包的位置
 ## 不影响正常运行
@@ -137,9 +141,11 @@ class AutoML(APIView):
         # 这里假设每条记录是字典形式，query结果是列表
         # [{},{},{}]
         rec = []
+        untils.updata_jobtable(user.tocken, user, user.first_name)
         queryset = models.User_Job.objects.all()
+        print(queryset)
         ret = JobsSerializers(queryset, many=True)
-        # print("%ret%","%ret%",type(ret.data),type(ret.data[0]))
+        print("%ret%","%ret%",type(ret.data),type(ret.data[0]))
         for onejob in ret.data:
             tALG = models.User_algorithm.objects.filter(id = onejob["algorithm_id"])[0]
 
@@ -155,8 +161,7 @@ class AutoML(APIView):
                 }
             )
         result=rec
-        result=[]
-        # 长度为零
+
         if(not len(result)):
             response=Parser(result)
             return Response(data=response)            
@@ -240,8 +245,69 @@ class AutoML(APIView):
             # modelsize:number;
             # }
         # @指项目文件夹路径
+        user = auth.get_user(request)
         form_dict=request.data
         # 创建任务
+        print(form_dict)
+        #{'type': 'Image_Classification', 'name': 'dsad', 'modelsize': 12321, 'dataSelection': 3}
+        datasetname = None
+        algtype = form_dict["type"]
+        jobname = form_dict['name']
+        maxflops = form_dict['modelsize']
+        datasetid = form_dict['dataSelection']
+        if form_dict['dataSelection'] != None:
+            datasetname = models.Dataset.objects.filter(id = int(datasetid))[0]
+            print(datasetname.name)
+        algname = 'resnet50'
+        #-------挂载CP算法操作----------
+        '''
+        job
+            alg
+            imageclas
+                exp
+            test
+                exp
+            
+        '''
+
+        #-----------------------------
+        #command = "cd ../userhome/fakejobspace/algorithm/classification/pytorch_automodel/image_classification/;"
+        command = "cd ../userhome;mkdir jobspace;cd jobspace;mkdir image_classification;cd ..;"
+        # 测试时使用fakejobspace中的算法运行
+        command = command+"cd fakejobspace/algorithm/classification/pytorch_automodel/image_classification/;"
+        command = command + "PYTHONPATH=./ python Timm.py "
+        expdirname = str(jobname) + "_" + str(datasetname) + "_" + str(maxflops) + "_exp_" + str(time.time())
+        outputdir = "/userhome/jobspace/image_classification/"+expdirname
+        command = command + " --outputdir " + outputdir
+        command = command + " --dataset " + str(datasetname)
+        command = command + " --algname " + str(algname)
+        print(command)
+
+        info = API_tools.creat_mission(str(jobname), command, user.tocken, user, user.first_name)
+        timeArray = time.localtime()
+        otherStyleTime = time.strftime("%Y-%m-%d %H:%M:%S", timeArray)
+        if not info["payload"]:
+            print("error~!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+            return Response(data=errParser(errcode=404))
+        jobid = get_keyword(str(info["payload"]["jobId"]))
+        name = get_keyword(str(jobname))
+        username = get_keyword(str(user.username))
+        user_id = str(user.id)
+        state = get_keyword("WAITTING")
+        createdTime = get_keyword(str(otherStyleTime))
+        completedTime = get_keyword(str(0))
+        _path = get_keyword(str("/userhome/jobspace/image_classification/" + outputdir))
+        Da = models.User_algorithm.objects.filter(user_id=user.id).filter(name=algname)[0]
+        algorithm_id = get_keyword(str(Da.id))
+        dataset_id = get_keyword(str(datasetname))
+        with connection.cursor() as cursor:
+            sqltext = "INSERT INTO `automl_web`.`_app_user_job`(`jobid`, `name`, `username`, `user_id`, `state`, `createdTime`, `completedTime`,`_path`, `algorithm_id`, `dataset_id`) " \
+                      "VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}','{9}');".format(
+                jobid, name, username, user_id, state, createdTime, completedTime, _path, algorithm_id, dataset_id
+            )
+            print("$$$$$$$$$$$", sqltext)
+            cursor.execute(sqltext)
+
 
         # 创建完成
         # 【】前端 后端 需要添加判断任务是否创建成功
