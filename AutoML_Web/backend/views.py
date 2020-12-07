@@ -31,7 +31,7 @@ from tools.API_tools import get_keyword
 # from  tools.API_tools import get_keyword
 sys.path.append('..')
 from tools import API_tools
-import back_untils as untils
+from .back_untils import *
 
 ## 方便debug用, VScode pylance 可以解析到这些包的位置
 ## 不影响正常运行
@@ -141,7 +141,7 @@ class AutoML(APIView):
         # 这里假设每条记录是字典形式，query结果是列表
         # [{},{},{}]
         rec = []
-        untils.updata_jobtable(user.tocken, user, user.first_name)
+        updata_jobtable(user.tocken, user, user.first_name)
         queryset = models.User_Job.objects.all()
         print(queryset)
         ret = JobsSerializers(queryset, many=True)
@@ -260,7 +260,7 @@ class AutoML(APIView):
             print(datasetname.name)
         algname = 'resnet50'
         #-------挂载CP算法操作----------
-        untils.alg_cp(r'../../algorithm/classification/pytorch_automodel/image_classification',"")
+        #untils.alg_cp(r'../../algorithm/classification/pytorch_automodel/image_classification',"")
 
         #-----------------------------
         #command = "cd ../userhome/fakejobspace/algorithm/classification/pytorch_automodel/image_classification/;"
@@ -274,7 +274,7 @@ class AutoML(APIView):
         command = command + " --dataset " + str(datasetname)
         command = command + " --algname " + str(algname)
         print(command)
-        '''
+
         info = API_tools.creat_mission(str(jobname), command, user.tocken, user, user.first_name)
         if not info["payload"]:
             print("error~!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
@@ -288,10 +288,10 @@ class AutoML(APIView):
         state = get_keyword("WAITTING")
         createdTime = get_keyword(str(otherStyleTime))
         completedTime = get_keyword(str(0))
-        _path = get_keyword(str("/userhome/jobspace/image_classification/" + outputdir))
+        _path = get_keyword(str(outputdir))
         Da = models.User_algorithm.objects.filter(user_id=user.id).filter(name=algname)[0]
-        algorithm_id = get_keyword(str(Da.id))
-        dataset_id = get_keyword(str(datasetname))
+        algorithm_id = Da.id
+        dataset_id = form_dict['dataSelection']
         with connection.cursor() as cursor:
             sqltext = "INSERT INTO `automl_web`.`_app_user_job`(`jobid`, `name`, `username`, `user_id`, `state`, `createdTime`, `completedTime`,`_path`, `algorithm_id`, `dataset_id`) " \
                       "VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}','{9}');".format(
@@ -299,7 +299,7 @@ class AutoML(APIView):
             )
             print("$$$$$$$$$$$", sqltext)
             cursor.execute(sqltext)
-        '''
+
 
         # 创建完成
         # 【】前端 后端 需要添加判断任务是否创建成功
