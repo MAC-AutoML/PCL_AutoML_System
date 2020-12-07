@@ -514,10 +514,10 @@ def experiment_main(opt_class, args=None):  # pragma: main
     # Setup random streams for computing the signature, must use same seed
     # across all runs to ensure signature is consistent. This seed is random:
     _setup_seeds("7e9f2cabb0dd4f44bc10cf18e440b427")  # pragma: allowlist secret
-    signature = get_objective_signature(
-        args[CmdArgs.classifier], args[CmdArgs.data], args[CmdArgs.metric], data_root=args[CmdArgs.data_root]
-    )
-    logger.info("computed signature: %s" % str(signature))
+    # signature = get_objective_signature(
+    #     args[CmdArgs.classifier], args[CmdArgs.data], args[CmdArgs.metric], data_root=args[CmdArgs.data_root]
+    # )
+    # logger.info("computed signature: %s" % str(signature))
 
     opt_kwargs = load_optimizer_kwargs(args[CmdArgs.optimizer], args[CmdArgs.optimizer_root])
 
