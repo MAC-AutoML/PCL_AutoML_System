@@ -293,7 +293,6 @@ def parse_args(parser, argv=None):
 
     # Then make sure all path vars are abspath:
     # Dry run might be executing on diff system => cannot verify yet
-    args[CmdArgs.db_root] = abspath(args[CmdArgs.db_root], verify=not args[CmdArgs.dry_run])
     args[CmdArgs.optimizer_root] = abspath(args[CmdArgs.optimizer_root], verify=True)
     if (CmdArgs.data_root in args) and (args[CmdArgs.data_root] is not None):
         args[CmdArgs.data_root] = abspath(args[CmdArgs.data_root], verify=not args[CmdArgs.dry_run])
