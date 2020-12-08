@@ -631,6 +631,7 @@ def experiment_main(opt_class, args=None):  # pragma: main
     XRSerializer.save(suggest_ds, meta, args[CmdArgs.db_root], db=args[CmdArgs.db], key=cc.SUGGEST_LOG, uuid_=run_uuid)
 
     logger.info("done")
+    print('done')
 
 
 def _get_opt_class(opt_name):
