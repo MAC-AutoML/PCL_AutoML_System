@@ -205,6 +205,7 @@ def base_parser():
     )
     # Always a verbose flag option
     add_argument(parser, CmdArgs.verbose, action="store_true", help="print the study logs to console")
+    print('base_end')
     return parser
 
 
