@@ -14,14 +14,18 @@ import { QueryFilter,
   ProFormDateRangePicker,
   ProFormSelect,
   LightFilter
- } 
-  from '@ant-design/pro-form';
+ } from '@ant-design/pro-form';
+
+ import { PageContainer } from '@ant-design/pro-layout';
+
+import {history} from 'umi';
+
 
 import { AlgorithmItem } from './data.d';
 import {queryAlgorithms} from './service';
 import ExportComponent from '@ant-design/pro-form/lib/components/DatePicker';
-import { values } from 'lodash';
 
+import placeHolder from '../../../public/Placeholder.png'
 // // 【】需要 - 第一次加载时从后端获取一次数据
 
 const {Option} = Select;
@@ -33,26 +37,14 @@ const mission_type=[
   {label:"预测分析", value:"Predict_Analysis",},
   {label:"音频分类", value:"Voice_Classfication",},
   {label:"文本分类", value:"Text_Classification",},
-]
+];
+
 function handleChange(value) {
   console.log(`selected ${value}`);
 };
 
-export default ():React.ReactNode =>{ 
-
-  let initial:AlgorithmItem[]=[];
-   queryAlgorithms({"key":"hhhhh"}).then(
-    (values)=>{
-      let temp:AlgorithmItem[]=[];
-      for(let i in values.data)
-        temp.push(values.data[i]);
-      initial=temp;
-      console.log(values.data);
-      return values;
-    }
-  );
-  console.log("initial is: ",initial);
-  const [showAlgos, setShowAlgos] = useState<AlgorithmItem[]>(initial);  
+export default (props):React.ReactNode =>{ 
+  const [showAlgos, setShowAlgos] = useState<AlgorithmItem[]>([]);  
   const updateAlgorithms= (params)=>
     queryAlgorithms(params).then((values)=>{
       values.data;//返回的算法数据
@@ -65,7 +57,8 @@ export default ():React.ReactNode =>{
 
   let showData=showAlgos;
 
-  return(<>
+  return(
+  <PageContainer>
   <Card gutter={0} layout="center" title="筛选搜索" bordered>
     <QueryFilter defaultCollapsed 
       onFinish={updateAlgorithms}
@@ -95,13 +88,16 @@ export default ():React.ReactNode =>{
 
     </QueryFilter>
   </Card>
-  <ProCard style={{ marginTop: 0 }} gutter={16} layout="center" title=""  >
+  <Card style={{ marginTop: 0 }} >
+    {/* <Card.Grid>
+
+    </Card.Grid> */}
     <List
       pagination={{
-        defaultPageSize: 3,
+        defaultPageSize: 10,
         showSizeChanger: true,
       }}
-      grid={{ gutter:16 , xs:1,
+      grid={{ gutter:8 , xs:1,
         sm:2, md:4, lg:4, xl:6,
         xxl:6,
       }}
@@ -111,14 +107,22 @@ export default ():React.ReactNode =>{
       // }}
       dataSource={ showData }
       renderItem={(item) => (
-        <List.Item>
-          <Card title={item.name} bordered>
-            {item.task}
-            {item.createTime}
+        <List.Item> 
+          <Card bordered hoverable
+            cover={<img alt="Placeholder" src={placeHolder} />}
+            onClick={()=>{props.history.push("/");}}
+          >
+            
+            <List.Item.Meta
+              title={item.name}
+              description={item.createTime}
+              // avatar={<img alt="Placeholder" src={placeHolder} sizes={'20px'} />}
+            />
           </Card>
         </List.Item>
       )}
     />
-  </ProCard>
-  </>);
+  </Card>
+  </PageContainer>
+  );
 }
