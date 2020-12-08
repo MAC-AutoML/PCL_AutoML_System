@@ -670,9 +670,6 @@ def main():  # pragma: main
     """This is where experiments happen. Usually called by the experiment launcher."""
     description = "Run a study with one benchmark function and an optimizer"
     args = cmd.parse_args(cmd.experiment_parser(description))
-    from bayesmark.constants import EXP_VARS
-    args[CmdArgs.db] = XRSerializer.init_db(args[CmdArgs.db_root], db=args[CmdArgs.db], keys=EXP_VARS, exist_ok=True)
-    logger.info("Supply --db %s to append to this experiment or reproduce jobs file." % args[CmdArgs.db])
 
     opt_class = _get_opt_class(args[CmdArgs.optimizer])
     experiment_main(opt_class, args=args)
