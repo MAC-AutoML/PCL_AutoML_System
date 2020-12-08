@@ -89,7 +89,7 @@ def creat_mission(job_name, command,tocken,username,password):
     "jobName": "{job_name}",
     "retryCount": 0,
     "gpuType": "dgx",
-    "image": "dockerhub.pcl.ac.cn:5000/user-images/wudch:1.1",
+    "image": "dockerhub.pcl.ac.cn:5000/user-images/wudch:1.2",
     "taskRoles": [
         {{
         "taskNumber": 1,
