@@ -231,9 +231,11 @@ def run_DeepNet_study(opt_class, opt_kwargs, model_name, dataset,  n_calls, n_su
     # function_instance = _build_test_problem(model_name, dataset, scorer, data_root)
     print('begin')
     function_instance = DeepNet(model_name, dataset, api_config)
+    print('1')
     # Setup optimizer
     api_config = function_instance.get_api_config()
     optimizer_instance = opt_class(api_config, **opt_kwargs)
+    print('2')
 
     # assert function_instance.objective_names == OBJECTIVE_NAMES
     # assert OBJECTIVE_NAMES[0] == cc.VISIBLE_TO_OPT
