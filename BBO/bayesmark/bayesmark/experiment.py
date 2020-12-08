@@ -492,8 +492,10 @@ def experiment_main(opt_class, args=None):  # pragma: main
     #args[CmdArgs.opt_rev] = opt_class.get_version()
 
     run_uuid = uuid.UUID(args[CmdArgs.uuid])
+    print('1')
 
     logging.captureWarnings(True)
+    print('2')
 
     # Setup logging to both a file and stdout (if verbose is set to True)
     logger.setLevel(logging.INFO)  # Note this is the module-wide logger
@@ -502,6 +504,7 @@ def experiment_main(opt_class, args=None):  # pragma: main
     logger.addHandler(logger_file_handler)
     if args[CmdArgs.verbose]:
         logger.addHandler(logging.StreamHandler())
+    print('3')
 
     warnings_logger = logging.getLogger("py.warnings")
     warnings_logger.addHandler(logger_file_handler)
