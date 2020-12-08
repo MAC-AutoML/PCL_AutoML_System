@@ -58,6 +58,7 @@ DATASET_LIST=[
 		
 	},
 ]
+
 def get_tocken()->str:
 	return ''.join(random.sample("0123456789abcdefghijklmnopqrstuvwxyz!@#$%^&*()", 16))
 	
@@ -90,7 +91,11 @@ def get_fake_title(length:int=5)->str:
     index=''.join(random.sample(NUMBER,length))
     return name+'_'+index
 ## generate test data for AutoML mission
-m_type=['image_classifica','object_detection','predict_analysis']
+m_type=["Image_Classification",
+		"Object_Dectection",
+		"Predict_Analysis",
+		"Voice_Classfication",
+		"Text_Classification"]
 train_s=['wait','run','stop','success','error']
 deploy_s=['single','multiple','error','wait']
 
@@ -108,6 +113,56 @@ def genAutoList(num:int=10)->list:
     result=[ genAutoItem(i) for i in range(num)]
     return result
 ## generate test data for 
+ALGORITHM_LIST=[
+	{
+     'id' : 1,
+     'name':'Yolov4',
+     'task' : 'Object_Dectection',
+     'UID' :1,
+     'path':get_fake_path(4),
+     'created_at':get_fake_time(),
+    },
+	{
+     'id' : 2,
+     'name':'FasterRCNN',
+     'task' : 'Image_Classification',
+     'UID' :1,
+     'path':get_fake_path(4),
+     'created_at':get_fake_time(),
+    },
+	{
+     'id' : 3,
+     'name':'Mask-RCNN',
+     'task' : 'Image_Classification',
+     'UID' :2,
+     'path':get_fake_path(4),
+     'created_at':get_fake_time(),
+    },
+]
+def genAlgorithm(i:int)->dict:
+    algoName=[
+		'SIFT',
+		'KMEANS',
+		'KNearst',
+		'FasterRCNN',
+		'Helio',
+		'Mask-RCNN',
+		'Bert',
+		'KernelSVM',
+		]
+    
+    return {
+		'id' : random.randint(1,1e3),
+		'name' : algoName[random.randint(0,len(algoName)-1)]+'_'+''.join(random.sample(NUMBER,4)),
+		'task' :m_type[random.randint(0,len(m_type)-1)],
+		'path':get_fake_path(4),
+  		'created_at':get_fake_time(),
+    	'uid' : random.randint(0,len(USER_LIST)-1),
+	}
+    pass
+def genAlgoList(num:int=5)->list:
+    result=[genAlgorithm(i) for i in range(num)]
+    return result  
 
 FAKE_Automl=genAutoList(20)
 

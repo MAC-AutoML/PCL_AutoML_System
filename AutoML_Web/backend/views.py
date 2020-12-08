@@ -353,25 +353,74 @@ class AIMarket(APIView):
         login get
         """
         #公开算法数据库内容[{}{}{}]
+        
+        params=request.query_params.dict()
+        print(params)
+        
         rec = []
         queryset = models.Algorithm.objects.all()
-        ret = JobsSerializers(queryset, many=True)
-        print("%ret%", "%ret%", type(ret.data), type(ret.data[0]))
-        for onejob in ret.data:
+        
+        # if(not len(queryset)):# 返回伪造数据
+        if(True):# 返回伪造数据
+            result=mock.genAlgoList()
+            # result=mock.ALGORITHM_LIST
+        else:
+        # Algo={
+            #     'id' ,
+            #     'name' ,
+            #     'task' ,
+            #     'path',
+            #     'created_at',
+            #     'uid',}
+            ret = AlgorithmSerializers(queryset, many=True) # 
+            print("%ret%", "%ret%", type(ret.data), type(ret.data[0]))
+            for onejob in ret.data:
 
-            rec.append(
-                {
-                    'id':onejob["id"],
-                    'name':onejob["name"],
-                    'task':onejob["task"],
-                    "_path":onejob["_path"],
-                }
-            )
-        result = rec
-        pass
+                rec.append(
+                    {
+                        'id':onejob["id"],
+                        'name':onejob["name"],
+                        'task':onejob["task"],
+                        "path":onejob["_path"],
+                    }
+                )
+            result = rec
+        
+        # 对get回传的筛选/搜索参数进行处理
+        
+        # 开始搜索
+        
+        # 开始筛选
+        for item in result:
+            ids=item['uid']
+            del item['uid']
+            # 这里应该从数据库里query 创建者的名字
+            item['createUser']=mock.USER_LIST[ids]
+        # result=result
+        result=Parser(result)
+        return Response(data=result)
+
     def post(self,request):
-        pass
+        form_dict=request.data
+        print(form_dict)
+        # 回传的筛选条件 - 字典形式
+        # name type dataRange createUser
+        
+        result=mock.genAlgoList()
+        # result=mock.ALGORITHM_LIST
 
+        if(not len(form_dict)): # 此时说明重置，返回所有已查询
+            pass
+        else: # 进行条件过滤
+            pass
+        for item in result:
+            ids=item['uid']
+            del item['uid']
+            # 这里应该从数据库里query 创建者的名字
+            item['createUser']=mock.USER_LIST[ids]        
+        result=Parser(result)
+        return Response(data=result)
+ 
 class UserAlgorithm(APIView):
     def get(self, request):
         """
