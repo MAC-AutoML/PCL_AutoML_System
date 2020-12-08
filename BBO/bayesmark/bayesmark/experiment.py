@@ -585,6 +585,7 @@ def experiment_main(opt_class, args=None):  # pragma: main
     _setup_seeds(args[CmdArgs.uuid])
 
     # Now do the experiment
+    print('4')
     logger.info(
         "starting sklearn study %s %s %s %s %d %d"
         % (
@@ -597,6 +598,7 @@ def experiment_main(opt_class, args=None):  # pragma: main
         )
     )
     logger.info("with data root: %s" % args[CmdArgs.data_root])
+    print('5')
     function_evals, timing, suggest_log = run_DeepNet_study(
         opt_class,
         opt_kwargs,
