@@ -58,7 +58,6 @@ DATASET_LIST=[
 		
 	},
 ]
-
 def get_tocken()->str:
 	return ''.join(random.sample("0123456789abcdefghijklmnopqrstuvwxyz!@#$%^&*()", 16))
 	
