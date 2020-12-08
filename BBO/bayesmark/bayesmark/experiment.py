@@ -111,7 +111,7 @@ def run_study(optimizer, test_problem, n_calls, n_suggestions, n_obj=1, callback
     assert n_obj >= 1, "Must be at least one objective"
 
     space_for_validate = JointSpace(test_problem.get_api_config())
-
+    print('1')
     if callback is not None:
         # First do initial log at inf score, in case we don't even get to first eval before crash/job timeout
         callback(np.full((n_obj,), np.inf, dtype=float), 0)
@@ -121,6 +121,7 @@ def run_study(optimizer, test_problem, n_calls, n_suggestions, n_obj=1, callback
     eval_time = np.zeros((n_calls, n_suggestions))
     function_evals = np.zeros((n_calls, n_suggestions, n_obj))
     suggest_log = [None] * n_calls
+    print('2')
     for ii in range(n_calls):
         tt = time()
         try:
@@ -184,6 +185,7 @@ def run_study(optimizer, test_problem, n_calls, n_suggestions, n_obj=1, callback
             "observation time %f, current best %f at iter %d"
             % (observe_time[ii], np.min(function_evals[: ii + 1, :, 0]), ii)
         )
+    print('3')
 
     return function_evals, (suggest_time, eval_time, observe_time), suggest_log
 
