@@ -150,21 +150,25 @@ def run_study(optimizer, test_problem, n_calls, n_suggestions, n_obj=1, callback
 
         for jj, next_point in enumerate(next_points):
             tt = time()
+            print('jj', jj)
             try:
                 f_current_eval = test_problem.evaluate(next_point)
             except Exception as e:
                 logger.warning("Failure in function eval. Setting to inf.")
                 logger.exception(e, exc_info=True)
                 f_current_eval = np.full((n_obj,), np.inf, dtype=float)
+            print('jj 0', jj)
             eval_time[ii, jj] = time() - tt
             assert np.shape(f_current_eval) == (n_obj,)
 
             suggest_log[ii] = next_points
             function_evals[ii, jj, :] = f_current_eval
+            print('jj 1', jj)
             logger.info(
                 "function_evaluation time %f value %f suggestion %s"
                 % (eval_time[ii, jj], f_current_eval[0], str(next_point))
             )
+            print('end jj', jj)
         logging.info("3")
         print('2')
 
