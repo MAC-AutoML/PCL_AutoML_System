@@ -670,6 +670,7 @@ def main():  # pragma: main
     """This is where experiments happen. Usually called by the experiment launcher."""
     description = "Run a study with one benchmark function and an optimizer"
     args = cmd.parse_args(cmd.experiment_parser(description))
+    print('end_parse')
 
     opt_class = _get_opt_class(args[CmdArgs.optimizer])
     experiment_main(opt_class, args=args)
