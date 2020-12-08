@@ -124,6 +124,7 @@ def run_study(optimizer, test_problem, n_calls, n_suggestions, n_obj=1, callback
     print('2')
     for ii in range(n_calls):
         tt = time()
+        print('ii', ii)
         try:
             next_points = optimizer.suggest(n_suggestions)
         except Exception as e:
@@ -137,6 +138,7 @@ def run_study(optimizer, test_problem, n_calls, n_suggestions, n_obj=1, callback
         logger.info("suggestion time taken %f iter %d next_points %s" % (suggest_time[ii], ii, str(next_points)))
         assert len(next_points) == n_suggestions, "invalid number of suggestions provided by the optimizer"
         logging.info("1")
+        print('0')
 
         # We could put this inside the TestProblem class, but ok here for now.
         try:
@@ -144,6 +146,7 @@ def run_study(optimizer, test_problem, n_calls, n_suggestions, n_obj=1, callback
         except Exception:
             raise ValueError("Optimizer suggestion is out of range.")
         logging.info("2")
+        print('1')
 
         for jj, next_point in enumerate(next_points):
             tt = time()
@@ -163,6 +166,7 @@ def run_study(optimizer, test_problem, n_calls, n_suggestions, n_obj=1, callback
                 % (eval_time[ii, jj], f_current_eval[0], str(next_point))
             )
         logging.info("3")
+        print('2')
 
         # Note: this could be inf in the event of a crash in f evaluation, the optimizer must be able to handle that.
         # Only objective 0 is seen by optimizer.
@@ -185,6 +189,7 @@ def run_study(optimizer, test_problem, n_calls, n_suggestions, n_obj=1, callback
             "observation time %f, current best %f at iter %d"
             % (observe_time[ii], np.min(function_evals[: ii + 1, :, 0]), ii)
         )
+        print('ii end', ii)
     print('3')
 
     return function_evals, (suggest_time, eval_time, observe_time), suggest_log
