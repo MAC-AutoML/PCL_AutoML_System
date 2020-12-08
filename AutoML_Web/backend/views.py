@@ -247,6 +247,7 @@ class AutoML(APIView):
             # }
         # @指项目文件夹路径
         user = auth.get_user(request)
+
         form_dict=request.data
         # 创建任务
         print(form_dict)
@@ -254,52 +255,63 @@ class AutoML(APIView):
         datasetname = None
         algtype = form_dict["type"]
         jobname = form_dict['name']
-        maxflops = form_dict['modelsize']
+        maxflops = int(form_dict['modelsize'])
         datasetid = form_dict['dataSelection']
         if form_dict['dataSelection'] != None:
             datasetname = models.Dataset.objects.filter(id = int(datasetid))[0]
             print(datasetname.name)
-        algname = 'resnet50'
-        #-------挂载CP算法操作----------
-        #alg_cp(r'./../../algorithm/classification/pytorch_automodel/image_classification',"")
+        if algtype == 'Image_Classification':
+            algdict = ["efficientnet_b3a","mobilenetv2_120d","efficientnet_lite0","mobilenetv2_100","mobilenetv3_large_100"]
+            if maxflops > 900:
+                algname = 'efficientnet_b3a'
+            elif maxflops > 600:
+                algname = 'mobilenetv2_120d'
+            elif maxflops > 400:
+                algname = 'efficientnet_lite0'
+            elif maxflops > 300:
+                algname = 'mobilenetv2_100'
+            else:
+                algname = 'mobilenetv3_large_100'
+            #-------挂载CP算法操作----------
+            #alg_cp(r'./../../algorithm/classification/pytorch_automodel/image_classification',"")
 
-        #-----------------------------
-        #command = "cd ../userhome/fakejobspace/algorithm/classification/pytorch_automodel/image_classification/;"
-        command = "cd ../userhome;mkdir jobspace;cd jobspace;mkdir image_classification;cd ..;"
-        # 测试时使用fakejobspace中的算法运行
-        command = command+"cd fakejobspace/algorithm/classification/pytorch_automodel/image_classification/;"
-        command = command + "PYTHONPATH=./ python Timm.py "
-        expdirname = str(jobname) + "_" + str(datasetname) + "_" + str(maxflops) + "_exp_" + str(time.time())
-        outputdir = "/userhome/jobspace/image_classification/"+expdirname
-        command = command + " --outputdir " + outputdir
-        command = command + " --dataset " + str(datasetname)
-        command = command + " --algname " + str(algname)
-        print(command)
+            #-----------------------------
+            #command = "cd ../userhome/fakejobspace/algorithm/classification/pytorch_automodel/image_classification/;"
+            command = "cd ../userhome;mkdir jobspace;cd jobspace;mkdir image_classification;cd ..;"
+            # 测试时使用fakejobspace中的算法运行
+            command = command+"cd fakejobspace/algorithm/classification/pytorch_automodel/image_classification/;"
+            command = command + "PYTHONPATH=./ python Timm.py "
+            expdirname = str(jobname) + "_" + str(datasetname) + "_" + str(maxflops) + "_exp_" + str(time.time())
+            outputdir = "/userhome/jobspace/image_classification/"+expdirname
+            command = command + " --outputdir " + outputdir
+            command = command + " --dataset " + str(datasetname)
+            command = command + " --algname " + str(algname)
+            print(command)
 
-        info = API_tools.creat_mission(str(jobname), command, user.tocken, user, user.first_name)
-        if not info["payload"]:
-            print("error~!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-            return Response(data=errParser(errcode=404))
-        timeArray = time.localtime()
-        otherStyleTime = time.strftime("%Y-%m-%d %H:%M:%S", timeArray)
-        jobid = get_keyword(str(info["payload"]["jobId"]))
-        name = get_keyword(str(jobname))
-        username = get_keyword(str(user.username))
-        user_id = str(user.id)
-        state = get_keyword("WAITTING")
-        createdTime = get_keyword(str(otherStyleTime))
-        completedTime = get_keyword(str(0))
-        _path = get_keyword(str(outputdir))
-        Da = models.User_algorithm.objects.filter(user_id=user.id).filter(name=algname)[0]
-        algorithm_id = Da.id
-        dataset_id = form_dict['dataSelection']
-        with connection.cursor() as cursor:
-            sqltext = "INSERT INTO `automl_web`.`_app_user_job`(`jobid`, `name`, `username`, `user_id`, `state`, `createdTime`, `completedTime`,`_path`, `algorithm_id`, `dataset_id`) " \
-                      "VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}','{9}');".format(
-                jobid, name, username, user_id, state, createdTime, completedTime, _path, algorithm_id, dataset_id
-            )
-            print("$$$$$$$$$$$", sqltext)
-            cursor.execute(sqltext)
+            info = API_tools.creat_mission(str(jobname), command, user.tocken, user, user.first_name)
+            if not info["payload"]:
+                print("error~!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+                return Response(data=errParser(errcode=404))
+            timeArray = time.localtime()
+            otherStyleTime = time.strftime("%Y-%m-%d %H:%M:%S", timeArray)
+            jobid = get_keyword(str(info["payload"]["jobId"]))
+            name = get_keyword(str(jobname))
+            username = get_keyword(str(user.username))
+            user_id = str(user.id)
+            state = "WAITTING"
+            createdTime = get_keyword(str(otherStyleTime))
+            completedTime = str(0)
+            _path = get_keyword(str(outputdir))
+            Da = models.User_algorithm.objects.filter(user_id=user.id).filter(name=algname)[0]
+            algorithm_id = Da.id
+            dataset_id = form_dict['dataSelection']
+            with connection.cursor() as cursor:
+                sqltext = "INSERT INTO `automl_web`.`_app_user_job`(`jobid`, `name`, `username`, `user_id`, `state`, `createdTime`, `completedTime`,`_path`, `algorithm_id`, `dataset_id`) " \
+                          "VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}','{9}');".format(
+                    jobid, name, username, user_id, state, createdTime, completedTime, _path, algorithm_id, dataset_id
+                )
+                print("$$$$$$$$$$$", sqltext)
+                cursor.execute(sqltext)
 
 
         # 创建完成
@@ -318,6 +330,7 @@ class RefreshData(APIView):
         更新数据集下拉列表
     '''
     def get(self,request):
+
         # print(request.data)
         params=request.query_params.dict()
         # 这里应该是任务类型

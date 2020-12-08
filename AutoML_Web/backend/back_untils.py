@@ -8,6 +8,24 @@ import time
 from tools import API_tools
 from  tools.API_tools import get_keyword
 
+def updata_user_algorithm(user,id):
+    u_alg = models.User_algorithm.objects.exclude(algorithm_id=None).filter(user_id=id)
+    p_alg = models.Algorithm.objects.all()
+    uid = id
+    fk = []
+    pk = []
+    for it in u_alg:
+        fk.append(it.algorithm_id)
+    for it in p_alg:
+        pk.append(it.id)
+    print("fk and pk:",fk,pk)
+    for it in pk:
+        print("it",it)
+        if it not in fk:
+            palobj = models.Algorithm.objects.filter(id=it)[0]
+            ujb = models.User_algorithm.objects.create(algorithm_id = it,user_id=uid,name=palobj.name,task=palobj.task,_path=palobj._path)
+            ujb.save()
+
 
 def updata_jobtable(tocken,un,pa):
     #同步云脑数据库job信息
