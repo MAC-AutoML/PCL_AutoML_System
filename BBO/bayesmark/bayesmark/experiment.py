@@ -513,6 +513,7 @@ def experiment_main(opt_class, args=None):  # pragma: main
 
     logger.info("running: %s" % str(cmd.serializable_dict(args)))
     logger.info("cmd: %s" % cmd.cmd_str())
+    print('uuid', args[CmdArgs.uuid])
 
     # assert (
     #     args[CmdArgs.metric] in METRICS_LOOKUP[get_problem_type(args[CmdArgs.data])]
