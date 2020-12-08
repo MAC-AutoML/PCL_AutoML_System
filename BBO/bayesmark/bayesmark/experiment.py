@@ -685,3 +685,4 @@ def main():  # pragma: main
 
 if __name__ == "__main__":
     main()  # pragma: main
+    print('done')
