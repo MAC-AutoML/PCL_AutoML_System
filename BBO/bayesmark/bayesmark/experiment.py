@@ -229,6 +229,7 @@ def run_DeepNet_study(opt_class, opt_kwargs, model_name, dataset,  n_calls, n_su
     """
     # Setup test function
     # function_instance = _build_test_problem(model_name, dataset, scorer, data_root)
+    print('begin')
     function_instance = DeepNet(model_name, dataset, api_config)
     # Setup optimizer
     api_config = function_instance.get_api_config()
@@ -242,6 +243,7 @@ def run_DeepNet_study(opt_class, opt_kwargs, model_name, dataset,  n_calls, n_su
     function_evals, timing, suggest_log = run_study(
         optimizer_instance, function_instance, n_calls, n_suggestions, n_obj=n_obj, callback=callback
     )
+    print('begin')
     return function_evals, timing, suggest_log
 
 def run_sklearn_study(
