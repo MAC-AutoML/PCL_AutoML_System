@@ -148,5 +148,21 @@ if __name__ == "__main__":
     str = "qweq('deafeaf'),eqwe"
     result = re.findall(".*'(.*)'.*", str)
     print(result[0])'''
-    UID = 1
-    print(check_user("wudch", "woodchen"))
+    #UID = 1
+    #print(check_user("wudch", "woodchen"))
+    jbl = get_joblist("","wudch", "woodchen",size=10,offset=0)
+    print("#######")
+    print(jbl)
+    jbd = get_jobinfo("19760a900392d011eb0b03c0e1c553706053","","wudch", "woodchen")
+    print("##########")
+    print(jbd)
+
+    headers = {
+        "Content-Type": 'application/json',
+        "Authorization": get_tocken("wudch", "woodchen")
+    }
+    url = "http://192.168.204.24/rest-server/api/v1/jobs/"+"19760a900392d011eb0b03c0e1c553706053"+"/queryImage?taskContainerId=01555b17453ffd87975119296260001d3be22c728af4cf1809d6b77c72cfa2e8"
+    response = requests.get(url=url, json={}, headers=headers)
+    info = bytes2dict(response)
+    print("#####!!")
+    print(info)
