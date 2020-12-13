@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+import numpy as np
 
 
 class TestFunction(ABC):
@@ -28,3 +29,19 @@ class TestFunction(ABC):
         """
         assert self.api_config is not None, "API config is not set."
         return self.api_config
+
+class rastrigin_function(TestFunction):
+    def __init__(self):
+        self.api_config ={
+           "x1": {"type": "real", "space": "linear", "range": (-5.12, 5.12)},
+           "x2": {"type": "real", "space": "linear", "range": (-5.12, 5.12)},
+        }
+
+    def evaluate(self, params):
+        print(params)
+        f_x = 10. * len(params)
+        for key, value in params.items():
+            # print('key', key)
+            # print('value', value)
+            f_x += value ** 2 - 10 * np.cos(2 * np.pi * value)
+        return f_x
