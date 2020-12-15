@@ -161,7 +161,7 @@ if __name__ == "__main__":
         "Content-Type": 'application/json',
         "Authorization": get_tocken("wudch", "woodchen")
     }
-    url = "http://192.168.204.24/rest-server/api/v1/jobs/"+"19760a900392d011eb0b03c0e1c553706053"+"/queryImage?taskContainerId=01555b17453ffd87975119296260001d3be22c728af4cf1809d6b77c72cfa2e8"
+    url = "http://192.168.204.24/rest-server/api/single/log?job=flops9000test&taskName=random&taskPod=19760a900392d011eb0b03c0e1c553706053-random-0-0-0"
     response = requests.get(url=url, json={}, headers=headers)
     info = bytes2dict(response)
     print("#####!!")

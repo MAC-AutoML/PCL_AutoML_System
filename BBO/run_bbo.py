@@ -73,7 +73,7 @@ def main(optimizer, test_problem, n_calls, n_suggestions, n_obj=1):
         for jj, next_point in enumerate(next_points):
             tt = time()
             try:
-                f_current_eval = test_problem.evaluate(next_point)
+                f_current_eval = test_problem.evaluate(next_point,ii)
                 mi = min(f_current_eval, mi)
             except Exception as e:
                 logger.warning("Failure in function eval. Setting to inf.")
