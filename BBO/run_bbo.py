@@ -81,7 +81,7 @@ def main(optimizer, test_problem, n_calls, n_suggestions, n_obj=1):
             tt = time()
             try:
                 f_current_eval = test_problem.evaluate(next_point,ii,jj)
-                #m_list.append(f_current_eval)
+                m_list.append(f_current_eval)
                 #mi = min(f_current_eval, mi)
             except Exception as e:
                 logger.warning("Failure in function eval. Setting to inf.")
@@ -91,7 +91,7 @@ def main(optimizer, test_problem, n_calls, n_suggestions, n_obj=1):
             print('epoch {},iter {}, f_current {}'.format(ii,jj, f_current_eval))
             # print('f_current shape', f_current_eval.size)
 
-            assert f_current_eval.size == n_obj
+            #assert f_current_eval.size == n_obj
 
             suggest_log[ii][jj] = next_points
             function_evals[ii, jj, :] = f_current_eval
@@ -137,5 +137,5 @@ def main(optimizer, test_problem, n_calls, n_suggestions, n_obj=1):
     return function_evals, (suggest_time, eval_time, observe_time), suggest_log
 
 if __name__ == '__main__':
-    test_problem=classify_train('/userhome/test/train.py',"/userhome/test/output/")
+    test_problem=rastrigin_function('/userhome/test/train.py',"/userhome/test/output/")
     main(RandomOptimizer(test_problem.get_api_config()), test_problem, 100, 2, 1)

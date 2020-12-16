@@ -50,6 +50,7 @@ class rastrigin_function(TestFunction):
             # print('key', key)
             # print('value', value)
             f_x += value ** 2 - 10 * np.cos(2 * np.pi * value)
+
         return f_x
 
 
@@ -75,6 +76,7 @@ class classify_train(TestFunction):
             os.makedirs(new_outpath)
         command = "cd " + self.algpath[0:-8] + ";PYTHONPATH=./ python train.py --lr " + str(params["lr"]) + " --outputdir " + str(new_outpath)
         print(str("bbo_"+str(ii)+"_"+str(jj)),command)
-        #os.system(command)
-        info = API_tools.creat_mission(str("bbo_"+str(ii)+"_"+str(jj)), command, "qwer", "wudch", "woodchen")
+
+        os.system(command)
+        #info = API_tools.creat_mission(str("bbo_"+str(ii)+"_"+str(jj)), command, "qwer", "wudch", "woodchen")
         return 1
