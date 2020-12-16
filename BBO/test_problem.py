@@ -65,7 +65,7 @@ class classify_train(TestFunction):
         self.algpath = algpath
 
     def printinfo(self):
-        return self.ouputdir,self.algpath
+        return self.algpath,self.ouputdir
 
     def evaluate(self, params,ii,jj):
         print(params)
@@ -75,7 +75,7 @@ class classify_train(TestFunction):
         if os.path.exists(new_outpath) != True:
             os.makedirs(new_outpath)
         command = "cd " + self.algpath[0:-8] + ";PYTHONPATH=./ python "+self.algpath[-8:]+" --lr " + str(params["lr"]) + " --outputdir " + str(new_outpath)
-        print(str("bbo_"+str(ii)+"_"+str(jj)),command)
+        print(new_outpath,command)
 
         os.system(command)
         #info = API_tools.creat_mission(str("bbo_"+str(ii)+"_"+str(jj)), command, "qwer", "wudch", "woodchen")
