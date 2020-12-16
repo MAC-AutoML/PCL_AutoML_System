@@ -78,6 +78,6 @@ class classify_train(TestFunction):
         command = "cd " + self.algpath[0:-8] + ";PYTHONPATH=./ python "+self.algpath[-8:]+" --lr " + str(params["lr"]) + " --outputdir " + str(new_outpath)
         print(new_outpath,command)
 
-        os.system(command)
-        #info = API_tools.creat_mission(str("bbo_"+str(ii)+"_"+str(jj)), command, "qwer", "wudch", "woodchen")
+        #os.system(command)
+        info = API_tools.creat_mission(str("bbo_"+str(ii)+"_"+str(jj)), command, "qwer", "wudch", "woodchen")
         return 1
