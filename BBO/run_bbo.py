@@ -1,5 +1,5 @@
 import logging
-from .space import JointSpace
+from space import JointSpace
 import numpy as np
 from time import time
 from optimizer import random_search as rs
