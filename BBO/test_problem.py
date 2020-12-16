@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 import numpy as np
-import os
+import os,time
 from tools import API_tools
 import shutil
 
@@ -71,12 +71,12 @@ class classify_train(TestFunction):
 
     def evaluate(self, params,ii,jj):
         print(params)
-        new_outpath = self.ouputdir + "/" + str(os.times())
+        new_outpath = self.ouputdir + "/" + str(time.time())
         if os.path.exists(self.ouputdir) != True:
             os.makedirs(self.ouputdir)
         if os.path.exists(new_outpath) != True:
             os.makedirs(new_outpath)
-        new_outpath = self.ouputdir + "/bbo_out_" + str(ii) + "_" + str(jj)
+        new_outpath = new_outpath + "/bbo_out_" + str(ii) + "_" + str(jj)
         if os.path.exists(new_outpath) != True:
             os.makedirs(new_outpath)
         command = "cd " + self.algpath[0:-8] + ";PYTHONPATH=./ python "+self.algpath[-8:]+" --lr " + str(params["lr"]) + " --outputdir " + str(new_outpath)
