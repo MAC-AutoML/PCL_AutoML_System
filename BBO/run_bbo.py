@@ -137,5 +137,5 @@ def main(optimizer, test_problem, n_calls, n_suggestions, n_obj=1):
     return function_evals, (suggest_time, eval_time, observe_time), suggest_log
 
 if __name__ == '__main__':
-    test_problem=classify_train('/userhome/test/fake_alg.py',"/userhome/test/output/")
+    test_problem=classify_train('/userhome/test/train.py',"/userhome/test/output/")
     main(RandomOptimizer(test_problem.get_api_config()), test_problem, 100, 2, 1)
