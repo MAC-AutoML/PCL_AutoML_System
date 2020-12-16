@@ -138,11 +138,13 @@ def main(optimizer, test_problem, n_calls, n_suggestions, n_obj=1):
 
 if __name__ == '__main__':
     ouputdir = "/userhome/test/output/"
-    fc = 2
+    fc = 0
+    ouputdir = ouputdir+"/0"
     while True:
-        if os.path.exists(ouputdir) == True:
-            ouputdir = ouputdir[0:-2] + "_" + str(fc)
+        if os.path.exists(ouputdir+"/"+str(fc)) == True:
             fc = fc + 1
+            ouputdir = ouputdir[0:-1] + str(fc)
+
             continue
         break
     test_problem=classify_train('/userhome/test/train.py',ouputdir)
