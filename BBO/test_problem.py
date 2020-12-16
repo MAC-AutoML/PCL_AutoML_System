@@ -2,6 +2,8 @@ from abc import ABC, abstractmethod
 import numpy as np
 import os
 from tools import API_tools
+import shutil
+
 
 class TestFunction(ABC):
     """Abstract base class for test functions in the benchmark. These do not need to be ML hyper-parameter tuning.
@@ -69,9 +71,12 @@ class classify_train(TestFunction):
 
     def evaluate(self, params,ii,jj):
         print(params)
-        new_outpath = self.ouputdir + "/bbo_out_" + str(ii) + "_" + str(jj)
+        new_outpath = self.ouputdir + "/" + str(os.times())
         if os.path.exists(self.ouputdir) != True:
             os.makedirs(self.ouputdir)
+        if os.path.exists(new_outpath) != True:
+            os.makedirs(self.ouputdir)
+        new_outpath = self.ouputdir + "/bbo_out_" + str(ii) + "_" + str(jj)
         if os.path.exists(new_outpath) != True:
             os.makedirs(new_outpath)
         command = "cd " + self.algpath[0:-8] + ";PYTHONPATH=./ python "+self.algpath[-8:]+" --lr " + str(params["lr"]) + " --outputdir " + str(new_outpath)
