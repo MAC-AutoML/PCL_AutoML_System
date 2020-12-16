@@ -74,7 +74,7 @@ class classify_train(TestFunction):
             os.makedirs(self.ouputdir)
         if os.path.exists(new_outpath) != True:
             os.makedirs(new_outpath)
-        command = "cd " + self.algpath[0:-8] + ";PYTHONPATH=./ python train.py --lr " + str(params["lr"]) + " --outputdir " + str(new_outpath)
+        command = "cd " + self.algpath[0:-8] + ";PYTHONPATH=./ python "+self.algpath[-8:]+" --lr " + str(params["lr"]) + " --outputdir " + str(new_outpath)
         print(str("bbo_"+str(ii)+"_"+str(jj)),command)
 
         os.system(command)
