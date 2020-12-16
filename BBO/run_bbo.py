@@ -1,10 +1,10 @@
 import logging
-from BBO.space import JointSpace
+from .space import JointSpace
 import numpy as np
 from time import time
-from BBO.optimizer import random_search as rs
-from BBO.optimizer.random_optimizer import RandomOptimizer
-from BBO.test_problem import rastrigin_function,classify_train
+from .optimizer import random_search as rs
+from .optimizer.random_optimizer import RandomOptimizer
+from .test_problem import rastrigin_function,classify_train
 import os
 
 
