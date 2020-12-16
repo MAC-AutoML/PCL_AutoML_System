@@ -141,11 +141,11 @@ if __name__ == '__main__':
     fc = 0
     ouputdir = ouputdir+"/0"
     while True:
-        if os.path.exists(ouputdir+"/"+str(fc)) == True:
+        if os.path.exists(ouputdir) == True:
             fc = fc + 1
             ouputdir = ouputdir[0:-1] + str(fc)
-
             continue
         break
+    print("#########",ouputdir)
     test_problem=classify_train('/userhome/test/train.py',ouputdir)
     main(RandomOptimizer(test_problem.get_api_config()), test_problem, 100, 2, 1)
