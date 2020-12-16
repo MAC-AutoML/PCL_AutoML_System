@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
 import numpy as np
 import os
+from BBO.tools import API_tools
 
 class TestFunction(ABC):
     """Abstract base class for test functions in the benchmark. These do not need to be ML hyper-parameter tuning.
@@ -15,7 +16,7 @@ class TestFunction(ABC):
         self.api_config = None
 
     @abstractmethod
-    def evaluate(self, params,ii):
+    def evaluate(self, params,ii,jj):
         """Abstract method to evaluate the function at a parameter setting.
         """
 
@@ -31,13 +32,18 @@ class TestFunction(ABC):
         return self.api_config
 
 class rastrigin_function(TestFunction):
-    def __init__(self):
+    def __init__(self,algpath,ouputdir):
         self.api_config ={
            "x1": {"type": "real", "space": "linear", "range": (-5.12, 5.12)},
            "x2": {"type": "real", "space": "linear", "range": (-5.12, 5.12)},
         }
+        self.ouputdir = ouputdir
+        self.algpath = algpath
 
-    def evaluate(self, params,ii):
+    def printinfo(self):
+        return self.ouputdir,self.algpath
+
+    def evaluate(self, params,ii,jj):
         print(params["x1"])
         f_x = 10. * len(params)
         for key, value in params.items():
@@ -57,18 +63,17 @@ class classify_train(TestFunction):
         self.ouputdir = ouputdir
         self.algpath = algpath
 
-    def evaluate(self, params,ii):
+    def printinfo(self):
+        return self.ouputdir,self.algpath
+
+    def evaluate(self, params,ii,jj):
         print(params)
-        new_outpath = self.ouputdir + "/bbo_out" + str(ii)
+        new_outpath = self.ouputdir + "/bbo_out_" + str(ii) + "_" + str(jj)
+        if os.path.exists(self.ouputdir) != True:
+            os.makedirs(self.ouputdir)
+        if os.path.exists(new_outpath) != True:
+            os.makedirs(new_outpath)
         command = "cd " + self.algpath[0:-8] + ";PYTHONPATH=./ python train.py --lr " + str(params["lr"]) + " --outputdir " + str(new_outpath)
-        print(command)
-        os.system(command)
-        if os.path.isfile(new_outpath + "/reward.txt"):
-            fp = open(new_outpath + "/reward.txt", 'r')
-            st = fp.read()
-            fp.close()
-            reward = int(st)
-        else:
-            print("reward error!!!")
-            return 0
-        return reward
+        print(str("bbo_"+str(ii)+"_"+str(jj)),command)
+        info = API_tools.creat_mission(str("bbo_"+str(ii)+"_"+str(jj)), command, "qwer", "wudch", "woodchen")
+        return True
