@@ -137,5 +137,13 @@ def main(optimizer, test_problem, n_calls, n_suggestions, n_obj=1):
     return function_evals, (suggest_time, eval_time, observe_time), suggest_log
 
 if __name__ == '__main__':
-    test_problem=classify_train('/userhome/test/train.py',"/userhome/test/output/")
+    ouputdir = "/userhome/test/output/"
+    fc = 2
+    while True:
+        if os.path.exists(ouputdir) == True:
+            ouputdir = ouputdir[0:-2] + "_" + str(fc)
+            fc = fc + 1
+            continue
+        break
+    test_problem=classify_train('/userhome/test/train.py',ouputdir)
     main(RandomOptimizer(test_problem.get_api_config()), test_problem, 100, 2, 1)

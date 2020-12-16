@@ -70,12 +70,6 @@ class classify_train(TestFunction):
     def evaluate(self, params,ii,jj):
         print(params)
         new_outpath = self.ouputdir + "/bbo_out_" + str(ii) + "_" + str(jj)
-        fc = 2
-        while True:
-            if os.path.exists(self.ouputdir) == True:
-                self.ouputdir += "_"+str(fc)
-                continue
-            break
         if os.path.exists(self.ouputdir) != True:
             os.makedirs(self.ouputdir)
         if os.path.exists(new_outpath) != True:
