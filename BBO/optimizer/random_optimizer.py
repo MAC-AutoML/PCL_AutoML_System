@@ -1,6 +1,6 @@
-import BBO.optimizer.random_search as rs
-from BBO import np_util
-from BBO.abstract_optimizer import AbstractOptimizer
+import optimizer.random_search as rs
+import np_util
+from abstract_optimizer import AbstractOptimizer
 # from bayesmark.experiment import experiment_main
 
 

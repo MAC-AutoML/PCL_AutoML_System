@@ -15,8 +15,8 @@
 """
 import numpy as np
 
-from BBO import np_util
-from BBO.space import JointSpace
+import np_util
+from space import JointSpace
 
 
 def suggest_dict(X, y, meta, n_suggestions=1, random=np_util.random):
