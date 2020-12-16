@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 import numpy as np
 import os
-from BBO.tools import API_tools
+from tools import API_tools
 
 class TestFunction(ABC):
     """Abstract base class for test functions in the benchmark. These do not need to be ML hyper-parameter tuning.
