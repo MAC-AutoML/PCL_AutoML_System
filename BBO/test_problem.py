@@ -75,6 +75,6 @@ class classify_train(TestFunction):
             os.makedirs(new_outpath)
         command = "cd " + self.algpath[0:-8] + ";PYTHONPATH=./ python train.py --lr " + str(params["lr"]) + " --outputdir " + str(new_outpath)
         print(str("bbo_"+str(ii)+"_"+str(jj)),command)
-        os.system(command)
-        #info = API_tools.creat_mission(str("bbo_"+str(ii)+"_"+str(jj)), command, "qwer", "wudch", "woodchen")
+        #os.system(command)
+        info = API_tools.creat_mission(str("bbo_"+str(ii)+"_"+str(jj)), command, "qwer", "wudch", "woodchen")
         return 1
