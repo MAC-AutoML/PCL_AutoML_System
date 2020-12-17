@@ -41,6 +41,10 @@ class Algorithm(models.Model):
     # code path
     _path = models.CharField(max_length=256, default='')
     is_check = models.BooleanField(default=False)
+    created_at = models.CharField(max_length=256, default='')
+    hyperp_path = models.CharField(max_length=256, default='')
+    uid = models.ForeignKey(User, models.SET_NULL, null=True, blank=True)
+
     objects=models.Manager()
 
     def __str__(self):
@@ -57,6 +61,10 @@ class User_algorithm(models.Model):
     algorithm = models.ForeignKey(Algorithm, models.SET_NULL, null=True, blank=True)
     task = models.CharField(max_length=128, default='')
     _path = models.CharField(max_length=256, default='')
+    created_at = models.CharField(max_length=256, default='')
+    hyperp_path = models.CharField(max_length=256, default='')
+    uid = models.ForeignKey(User, models.SET_NULL, null=True, blank=True)
+
     objects=models.Manager()
 
     def __str__(self):

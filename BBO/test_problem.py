@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
 import numpy as np
-
+import os
+from tools import API_tools
 
 class TestFunction(ABC):
     """Abstract base class for test functions in the benchmark. These do not need to be ML hyper-parameter tuning.
@@ -15,7 +16,7 @@ class TestFunction(ABC):
         self.api_config = None
 
     @abstractmethod
-    def evaluate(self, params):
+    def evaluate(self, params,ii,jj):
         """Abstract method to evaluate the function at a parameter setting.
         """
 
@@ -31,17 +32,52 @@ class TestFunction(ABC):
         return self.api_config
 
 class rastrigin_function(TestFunction):
-    def __init__(self):
+    def __init__(self,algpath,ouputdir):
         self.api_config ={
            "x1": {"type": "real", "space": "linear", "range": (-5.12, 5.12)},
            "x2": {"type": "real", "space": "linear", "range": (-5.12, 5.12)},
         }
+        self.ouputdir = ouputdir
+        self.algpath = algpath
 
-    def evaluate(self, params):
-        print(params)
+    def printinfo(self):
+        return self.ouputdir,self.algpath
+
+    def evaluate(self, params,ii,jj):
+        print(params["x1"])
         f_x = 10. * len(params)
         for key, value in params.items():
             # print('key', key)
             # print('value', value)
             f_x += value ** 2 - 10 * np.cos(2 * np.pi * value)
+
         return f_x
+
+
+class classify_train(TestFunction):
+    def __init__(self,algpath,ouputdir):
+        self.api_config ={
+           "lr": {"type": "real", "space": "linear", "range": (0.0001, 0.1)},
+           "momentum": {"type": "real", "space": "linear", "range": (0.9, 0.99)},
+           "weight_decay": {"type": "real", "space": "linear", "range": (1e-5, 3e-4)},
+        }
+        self.ouputdir = ouputdir
+        self.algpath = algpath
+
+    def printinfo(self):
+        return self.algpath,self.ouputdir
+
+    def evaluate(self, params,ii,jj):
+        print(params)
+
+        new_outpath = self.ouputdir + "/bbo_out_" + str(ii) + "_" + str(jj)
+        if os.path.exists(self.ouputdir) != True:
+            os.makedirs(self.ouputdir)
+        if os.path.exists(new_outpath) != True:
+            os.makedirs(new_outpath)
+        command = "cd " + self.algpath[0:-8] + ";PYTHONPATH=./ python "+self.algpath[-8:]+" --lr " + str(params["lr"]) + " --outputdir " + str(new_outpath)
+        print(new_outpath,command)
+
+        #os.system(command)
+        info = API_tools.creat_mission(str("bbo_"+str(ii)+"_"+str(jj)), command, "qwer", "wudch", "woodchen")
+        return 1

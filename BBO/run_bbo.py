@@ -1,10 +1,12 @@
 import logging
-from BBO.space import JointSpace
+from space import JointSpace
 import numpy as np
 from time import time
-from BBO.optimizer import random_search as rs
-from BBO.optimizer.random_optimizer import RandomOptimizer
-from BBO.test_problem import rastrigin_function
+from optimizer import random_search as rs
+from optimizer.random_optimizer import RandomOptimizer
+from test_problem import rastrigin_function,classify_train
+import os
+
 
 logger = logging.getLogger(__name__)
 
@@ -46,7 +48,11 @@ def main(optimizer, test_problem, n_calls, n_suggestions, n_obj=1):
     observe_time = np.zeros(n_calls)
     eval_time = np.zeros((n_calls, n_suggestions))
     function_evals = np.zeros((n_calls, n_suggestions, n_obj))
-    suggest_log = [None] * n_calls
+    tn = [None]*n_suggestions
+    print(len(tn))
+    suggest_log = [tn] * n_calls
+    print(len(suggest_log))
+    print(len(suggest_log[0]))
     mi = 999999
     for ii in range(n_calls):
         tt = time()
@@ -69,28 +75,43 @@ def main(optimizer, test_problem, n_calls, n_suggestions, n_obj=1):
             space_for_validate.validate(next_points)  # Fails if suggestions outside allowed range
         except Exception:
             raise ValueError("Optimizer suggestion is out of range.")
-
+        m_list = [mi]
         for jj, next_point in enumerate(next_points):
+            print(next_points)
             tt = time()
             try:
-                f_current_eval = test_problem.evaluate(next_point)
-                mi = min(f_current_eval, mi)
+                f_current_eval = test_problem.evaluate(next_point,ii,jj)
+                m_list.append(f_current_eval)
+                #mi = min(f_current_eval, mi)
             except Exception as e:
                 logger.warning("Failure in function eval. Setting to inf.")
                 logger.exception(e, exc_info=True)
                 f_current_eval = np.full((n_obj,), np.inf, dtype=float)
             eval_time[ii, jj] = time() - tt
-            print('iter {}, f_current {}'.format(jj, f_current_eval))
+            print('epoch {},iter {}, f_current {}'.format(ii,jj, f_current_eval))
             # print('f_current shape', f_current_eval.size)
 
-            assert f_current_eval.size == n_obj
+            #assert f_current_eval.size == n_obj
 
-            suggest_log[ii] = next_points
+            suggest_log[ii][jj] = next_points
             function_evals[ii, jj, :] = f_current_eval
             # logger.info(
             #     "function_evaluation time %f value %f suggestion %s"
             #     % (eval_time[ii, jj], f_current_eval[0], str(next_point))
             # )
+        print(len(next_points))
+        for kk in range(len(next_points)):
+            _,outpath = test_problem.printinfo()
+            new_outpath = outpath + "/bbo_out_" + str(ii) + "_" + str(kk)
+            while True:
+                if os.path.isfile(new_outpath + "/reward.txt"):
+                    fp = open(new_outpath + "/reward.txt", 'r')
+                    st = fp.read()
+                    fp.close()
+                    reward = int(st)
+                    m_list.append(reward)
+                    break
+        mi = min(m_list)
         # logging.info("3")
 
         # Note: this could be inf in the event of a crash in f evaluation, the optimizer must be able to handle that.
@@ -116,5 +137,15 @@ def main(optimizer, test_problem, n_calls, n_suggestions, n_obj=1):
     return function_evals, (suggest_time, eval_time, observe_time), suggest_log
 
 if __name__ == '__main__':
-    test_problem=rastrigin_function()
-    main(RandomOptimizer(test_problem.get_api_config()), test_problem, 100, 1, 1)
+    ouputdir = "/userhome/test/output/"
+    fc = 0
+    ouputdir = ouputdir+"/0"
+    while True:
+        if os.path.exists(ouputdir) == True:
+            fc = fc + 1
+            ouputdir = ouputdir[0:-1] + str(fc)
+            continue
+        break
+    print("#########",ouputdir)
+    test_problem=classify_train('/userhome/test/train.py',ouputdir)
+    main(RandomOptimizer(test_problem.get_api_config()), test_problem, 100, 2, 1)

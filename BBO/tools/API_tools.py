@@ -149,7 +149,8 @@ if __name__ == "__main__":
     result = re.findall(".*'(.*)'.*", str)
     print(result[0])'''
     #UID = 1
-    #print(check_user("wudch", "woodchen"))
+    print(check_user("wudch", "woodchen"))
+    '''
     jbl = get_joblist("","wudch", "woodchen",size=10,offset=0)
     print("#######")
     print(jbl)
@@ -165,4 +166,4 @@ if __name__ == "__main__":
     response = requests.get(url=url, json={}, headers=headers)
     info = bytes2dict(response)
     print("#####!!")
-    print(info)
+    '''

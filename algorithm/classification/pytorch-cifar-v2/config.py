@@ -77,6 +77,7 @@ class AugmentConfig(BaseConfig):
                             default=0, help='drop out rate')
         parser.add_argument(
             '--autoaugment', action='store_true', help='use auto augmentation')
+        parser.add_argument('--outputdir', default='./experiment')
         parser.add_argument('--genotype', type=str,
                             default=None, help='genotype of nasnet')
         return parser
@@ -89,7 +90,8 @@ class AugmentConfig(BaseConfig):
         self.data_path = '/gdata/cifar10'
         _path = "{}_{}_{}".format(
             self.model_name, time.strftime("%Y%m%d-%H%M%S"), torch.__version__)
-        self.path = os.path.join('./experiments', _path)
+        #self.path = os.path.join('./experiments', _path)
+        self.path = args.outputdir
         self.gpus = parse_gpus(self.gpus)
 
 
