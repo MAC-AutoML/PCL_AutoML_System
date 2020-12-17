@@ -277,9 +277,11 @@ class AutoML(APIView):
 
             #-----------------------------
             #command = "cd ../userhome/fakejobspace/algorithm/classification/pytorch_automodel/image_classification/;"
-            command = "cd ../userhome;mkdir jobspace;cd jobspace;mkdir image_classification;cd ..;"
+            command = "cd ../userhome;mkdir jobspace;cd jobspace;rm -r algorithm;mkdir algorithm;cd algorithm;" \
+                      "git clone https://github.com/MAC-AutoML/PCL_AutoML_System.git;cd ..;" \
+                      "mkdir image_classification;cd ..;"
             # 测试时使用fakejobspace中的算法运行
-            command = command+"cd fakejobspace/algorithm/classification/pytorch_automodel/image_classification/;"
+            command = command+"cd jobspace/algorithm/PCL_AutoML_System/algorithm/classification/pytorch_automodel/image_classification;"
             command = command + "PYTHONPATH=./ python Timm.py "
             expdirname = str(jobname) + "_" + str(datasetname) + "_" + str(maxflops) + "_exp_" + str(time.time())
             outputdir = "/userhome/jobspace/image_classification/"+expdirname
