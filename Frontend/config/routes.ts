@@ -13,6 +13,7 @@
     path: '/AutoML',
     name: '自动学习',
     icon: 'smile',
+    authority: ['admin', 'user'],
     // hideInMenu: 'true', 
     routes: [//子界面
       {
@@ -46,6 +47,8 @@
     name: '数据集管理',
     icon: 'smile',
     component: './DataManage',
+    authority: ['admin', 'user'],
+
     // hideInMenu: 'true', 
   },
   //level:01, id:04 
@@ -53,6 +56,7 @@
     path: '/DevEnv',
     name: '开发环境',
     icon: 'table',
+    authority: ['admin', 'user'],
     // component: './DevEnv',
     routes: [//子界面
       {
@@ -70,6 +74,7 @@
     name: '算法管理',
     icon: 'smile',
     component: './AlgoManage',
+    authority: ['admin', 'user'],
     // hideInMenu: 'true', 
   },
   //level:01, id:06 
@@ -78,6 +83,7 @@
     name: '作业管理',
     icon: 'table',
     // component: './JobManage',
+    authority: ['admin', 'user'],
     // hideInMenu: 'true', 
     routes: [//子界面
       {
@@ -135,6 +141,7 @@
     path: '/ModelManage',
     name: '模型管理',
     icon: 'smile',
+    authority: ['admin', 'user'],
     component: './ModelManage',
     // hideInMenu: 'true', 
   },
@@ -143,7 +150,9 @@
     path: '/AIMarket',
     name: 'AI市场',
     icon: 'smile',
+    authority: ['admin', 'user'],
     component: './AIMarket',
+    //【】如何让菜单在该页面中默认收起
     // hideInMenu: 'true', 
   },
   //设计页面结束

@@ -38,4 +38,5 @@ urlpatterns = [
     url(r'api/currentUser', views.CurrentUser.as_view(), name='current'),
     url(r'api/automl/refresh/dataset',views.RefreshData.as_view(),name='automl_data'),
     url(r'api/automl',views.AutoML.as_view(),name='automl'),
+    url(r'api/AImarket',views.AIMarket.as_view(),name='aimarket'),
 ]
