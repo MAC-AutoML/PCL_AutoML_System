@@ -89,7 +89,7 @@ def creat_mission(job_name, command,tocken,username,password):
     "jobName": "{job_name}",
     "retryCount": 0,
     "gpuType": "dgx",
-    "image": "dockerhub.pcl.ac.cn:5000/user-images/wudch:1.1",
+    "image": "dockerhub.pcl.ac.cn:5000/user-images/wudch:1.2",
     "taskRoles": [
         {{
         "taskNumber": 1,
@@ -148,5 +148,21 @@ if __name__ == "__main__":
     str = "qweq('deafeaf'),eqwe"
     result = re.findall(".*'(.*)'.*", str)
     print(result[0])'''
-    UID = 1
-    print(check_user("wudch", "woodchen"))
+    #UID = 1
+    #print(check_user("wudch", "woodchen"))
+    jbl = get_joblist("","wudch", "woodchen",size=10,offset=0)
+    print("#######")
+    print(jbl)
+    jbd = get_jobinfo("19760a900392d011eb0b03c0e1c553706053","","wudch", "woodchen")
+    print("##########")
+    print(jbd)
+
+    headers = {
+        "Content-Type": 'application/json',
+        "Authorization": get_tocken("wudch", "woodchen")
+    }
+    url = "http://192.168.204.24/rest-server/api/single/log?job=flops9000test&taskName=random&taskPod=19760a900392d011eb0b03c0e1c553706053-random-0-0-0"
+    response = requests.get(url=url, json={}, headers=headers)
+    info = bytes2dict(response)
+    print("#####!!")
+    print(info)
