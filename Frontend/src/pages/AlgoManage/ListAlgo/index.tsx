@@ -29,13 +29,13 @@ const my_algo = [
   },
   {
     title: '标签',//列表列名
-    key: 'status',//未知
+    key: 'label',//未知
     dataIndex: 'label',//回传的数据键名
     valueType: 'text',//未知 数据类型？
   },
   {
     title: '版本',//列表列名
-    key: 'status',//未知
+    key: 'version',//未知
     dataIndex: 'version',//回传的数据键名
     valueType: 'text',//未知 数据类型？
   },
@@ -47,13 +47,13 @@ const my_algo = [
   },
   {
     title: '大小',//列表列名
-    key: 'status',//未知
+    key: 'model_size',//未知
     dataIndex: 'model_size',//回传的数据键名
     valueType: 'text',//未知 数据类型？
   },
   {
     title: '描述',//列表列名
-    key: 'status',//未知
+    key: 'description',//未知
     dataIndex: 'description',//回传的数据键名
     valueType: 'text',//未知 数据类型？
   },
@@ -99,26 +99,26 @@ const market_assign = [
   },
   {
     title: '最新版本',//列表列名
-    key: 'status',//未知
+    key: 'label',//未知
     dataIndex: 'label',//回传的数据键名
     valueType: 'text',//未知 数据类型？
   },
   {
     title: '版本数量',//列表列名
-    key: 'status',//未知
+    key: 'version',//未知
     dataIndex: 'version',//回传的数据键名
     valueType: 'text',//未知 数据类型？
   },
   {
     title: '标签',//列表列名
-    key: 'status',//未知
-    dataIndex: 'status',//回传的数据键名
+    key: 'label',//未知
+    dataIndex: 'label',//回传的数据键名
     valueType: 'text',//未知 数据类型？
   },
   {
     title: '可用时间',//列表列名
-    key: 'status',//未知
-    dataIndex: 'model_size',//回传的数据键名
+    key: 'useble_time',//未知
+    dataIndex: 'useble_time',//回传的数据键名
     valueType: 'text',//未知 数据类型？
   },
   {
@@ -130,7 +130,7 @@ const market_assign = [
   },
   {
     title: '描述',//列表列名
-    key: 'status',//未知
+    key: 'description',//未知
     dataIndex: 'description',//回传的数据键名
     valueType: 'text',//未知 数据类型？
   },
@@ -148,7 +148,7 @@ const market_assign = [
   },
 ];
 
-export default (): React.ReactNode =>{
+export default (props): React.ReactNode =>{
   const actionRef = useRef();
   return (
     <PageContainer>
@@ -176,7 +176,9 @@ export default (): React.ReactNode =>{
             dateFormatter="string"
             // headerTitle="高级表格"
             toolBarRender={() => [
-              <Button key="button" icon={<PlusOutlined />} type="primary">
+              <Button key="button" icon={<PlusOutlined />} type="primary"
+              onClick={()=>{props.history.push("/AlgoManage/CreateAlgo");}}
+              >
                 新建
               </Button>,
             ]}

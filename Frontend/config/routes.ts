@@ -18,7 +18,7 @@
     routes: [//子界面
       {
         path: '/AutoML',
-        name: '创建自动学习任务',
+        name: '自动学习任务列表',
         // icon: 'smile',
         component: './AutoML/ListMission',
         hideInMenu:'true',
@@ -73,9 +73,25 @@
     path: '/AlgoManage',
     name: '算法管理',
     icon: 'smile',
-    component: './AlgoManage',
+    // component: './AlgoManage',
     authority: ['admin', 'user'],
     // hideInMenu: 'true', 
+    routes:[
+      {
+        path:'/AlgoManage',
+        // name:'算法列表',
+        component:'./AlgoManage/ListAlgo',
+        hideInMenu:'true',
+        exact:true,
+      },
+      {
+        path:'/AlgoManage/CreateAlgo',
+        name:'创建算法',
+        icon:'smile',
+        component:'./AlgoManage/CreateAlgo',
+        hideInMenu:true,
+      },
+    ]
   },
   //level:01, id:06 
   {
