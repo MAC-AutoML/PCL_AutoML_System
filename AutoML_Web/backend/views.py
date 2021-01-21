@@ -357,7 +357,14 @@ class RefreshData(APIView):
         # [{'label': ,'value': ,},{}]
         # res=Parser(res) # 不一定打包
         return Response(data=res)
-
+class RefreshPath(APIView):
+    def get(self,request):
+        # print("Get")
+        params=request.query_params.dict()
+        print("Params is:",params)
+        res=[]
+        
+        return Response(data=res)
 class CreateMission(APIView):
     def get(self, request):
         """

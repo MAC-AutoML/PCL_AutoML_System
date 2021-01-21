@@ -36,7 +36,11 @@ urlpatterns = [
     url(r"api-auth/", include("rest_framework.urls"),name='api_check'),
     url(r'api/login/account', views.Login.as_view(), name='log'),
     url(r'api/currentUser', views.CurrentUser.as_view(), name='current'),
-    url(r'api/automl/refresh/dataset',views.RefreshData.as_view(),name='automl_data'),
     url(r'api/automl',views.AutoML.as_view(),name='automl'),
     url(r'api/AImarket',views.AIMarket.as_view(),name='aimarket'),
+    url(r'api/algoManage',views.AlgoManage.as_view(),name='algo_manage'),
+    
+    url(r'api/refresh/dataset',views.RefreshData.as_view(),name='refresh_dataset'),
+    url(r'api/refresh/path',views.RefreshPath.as_view(),name='refresh_path'),
+
 ]
