@@ -35,7 +35,7 @@ import { ProFormRadio } from '@ant-design/pro-form';
 import { message } from 'antd';
 import { history } from 'umi';
 
-import {PathProvider,InputConstraint} from './components';
+import {PathProvider,InputConstraint,EditableTable} from './components';
 // import {postForm, getDataset} from './service';
 // 测试用的 Options 数据
 const EngingOptions=[
@@ -91,20 +91,24 @@ const ioColumns:ProColumns<ioDataType>[]=[
   {
     title:'映射名称',
     dataIndex:'label',
+    valueType:'text',
     width:'20%',
   },
   {
     title:'参数名',
     dataIndex:'name',
+    valueType:'text',
     width:'20%',
   },
   {
     title:'映射路径',
     dataIndex:'path',
+    valueType:'text',
   },
   {
     title:'操作',
     valueType:'option',
+
   },
 ]
 // 工具函数
@@ -132,8 +136,9 @@ export default (): React.ReactNode =>{
 
   const [outputKeys,setOutput]=React.useState<string[]>([]);
   const [hyperList,setHyper] = React.useState<string[]>([]);
+  const [testNum,setTestNum] = React.useState<number>(0);
 
-  const changeState= (num:number,setState)=>{
+  const changeState= (num:number,setState:any)=>{
     let now=(createType+1)%num;
     console.log("Now is :", now);
     setState(now);
@@ -227,7 +232,7 @@ export default (): React.ReactNode =>{
         <Form.Item label="路径选择器 待施工">
           <PathProvider disable={true} label={"待施工"}/>
         </Form.Item>
-        <Divider/>
+        <Divider />
         <Form.Item > 
           <Typography.Text strong> 创建方式 : </Typography.Text>
           <Radio.Group defaultValue={0} buttonStyle="solid"
@@ -238,40 +243,38 @@ export default (): React.ReactNode =>{
           </Radio.Group>
         </Form.Item>
         {createContent}
-        <Divider/>
-          {/* <DynamicForm /> */}
-          <Form.Item 
-            label="输入数据配置" 
-            trigger = "onValuesChange"
-            // initialValue={[]}
-            >
-            <EditableProTable<ioDataType>
-              // rowKey={(e:ioDataType)=>(e.id)}
-              value={inputData}
-              onChange={(data) => {
-                setInputKeys(data.map((item)=>item.id));
-                setInputData(data);
-              }}
-              rowKey={'id'}
-              maxLength={5}
-              toolBarRender={false}
-              columns={ioColumns}
-              recordCreatorProps={{
-                newRecordType:'ioDataType',
-                position:'bottom',
-                record: {newRecord},
-              }}
-              editable={{
-                type:'multiple',
-                editableKeys:inputKeys,
-                onChange:setInputKeys,
-                onSave:async ()=>setNewRecord({id:(Math.random()*1000000)/1})
-                // actionRender:(row,_,dom)=>{
-                //   return [dom.delete];
-                // }
-              }}
-              />
-          </Form.Item>
+        <Divider />
+        <EditableTable />
+        <Divider />
+        <Form.Item 
+          label="输入数据配置" 
+          // trigger = "onValuesChange"
+          initialValue={[]}
+          >
+          {/* {console.log("Editable ProTable")} */}
+          <EditableProTable<ioDataType>
+            // rowKey={(item:ioDataType,index)=>(item.id)}
+            rowKey="id"
+            maxLength={5}
+            toolBarRender={false}
+            columns={ioColumns}
+            recordCreatorProps={{
+              newRecordType:'ioDataType',
+              position:'bottom',
+              // record: {id: Date.now(),},
+              record: () => ({ id: Date.now(),}),
+            }}
+            editable={{
+              type:'multiple',
+              editableKeys:inputKeys,
+              onChange:setInputKeys,
+              // onSave:async ()=>setNewRecord({id:(Math.random()*1000000)/1})
+              actionRender:(row,_,dom)=>{
+                return [dom.delete];
+              },
+            }}
+            />
+        </Form.Item>
         <Divider />
           {/* <DynamicForm /> */}
           <Form.Item label="输出数据配置" >

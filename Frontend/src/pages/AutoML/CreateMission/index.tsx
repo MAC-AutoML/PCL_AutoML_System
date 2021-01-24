@@ -21,6 +21,7 @@ import Title from 'antd/lib/typography/Title';
 import { history } from 'umi';
 
 import {postForm, getDataset} from './service';
+import Form from 'antd/lib/form/Form';
 
 
 const afterSuccess = () =>
