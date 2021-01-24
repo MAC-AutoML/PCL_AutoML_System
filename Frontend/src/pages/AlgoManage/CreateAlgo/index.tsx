@@ -108,7 +108,6 @@ const ioColumns:ProColumns<ioDataType>[]=[
   {
     title:'操作',
     valueType:'option',
-
   },
 ]
 // 工具函数
