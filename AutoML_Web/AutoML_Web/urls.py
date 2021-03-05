@@ -13,6 +13,7 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
+
 from django.contrib import admin
 
 from django.conf.urls import url,include
@@ -24,9 +25,10 @@ from django.views.generic.base import TemplateView
 
 from .settings import MEDIA_ROOT
 
-# import sys
-# sys.path.append("..")
 from backend import views
+
+if(__name__=='__main__'):
+    from ..backend import views
 
 urlpatterns = [
     # Manage tool urls
@@ -35,4 +37,10 @@ urlpatterns = [
     url(r'api/login/account', views.Login.as_view(), name='log'),
     url(r'api/currentUser', views.CurrentUser.as_view(), name='current'),
     url(r'api/automl',views.AutoML.as_view(),name='automl'),
+    url(r'api/AImarket',views.AIMarket.as_view(),name='aimarket'),
+    url(r'api/algoManage',views.AlgoManage.as_view(),name='algo_manage'),
+    
+    url(r'api/refresh/dataset',views.RefreshData.as_view(),name='refresh_dataset'),
+    url(r'api/refresh/path',views.RefreshPath.as_view(),name='refresh_path'),
+
 ]

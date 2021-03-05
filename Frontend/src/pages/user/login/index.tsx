@@ -119,7 +119,7 @@ const Login: React.FC<{}> = () => {
                   }}
                   placeholder={intl.formatMessage({
                     id: 'pages.login.username.placeholder',
-                    defaultMessage: '用户名: admin or user',
+                    defaultMessage: '用户名: wudch',
                   })}
                   rules={[
                     {
@@ -141,7 +141,7 @@ const Login: React.FC<{}> = () => {
                   }}
                   placeholder={intl.formatMessage({
                     id: 'pages.login.password.placeholder',
-                    defaultMessage: '密码: ant.design',
+                    defaultMessage: '密码: woodchen',
                   })}
                   rules={[
                     {
@@ -176,12 +176,12 @@ const Login: React.FC<{}> = () => {
               </a>
             </div>
           </ProForm>
-          <Space className={styles.other}>
+          {/* <Space className={styles.other}>
             <FormattedMessage id="pages.login.loginWith" defaultMessage="其他登录方式" />
             <AlipayCircleOutlined className={styles.icon} />
             <TaobaoCircleOutlined className={styles.icon} />
             <WeiboCircleOutlined className={styles.icon} />
-          </Space>
+          </Space> */}
         </div>
       </div>
       <Footer />

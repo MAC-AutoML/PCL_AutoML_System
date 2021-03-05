@@ -12,30 +12,14 @@ LETTER=LOWER_LETTER+UPPER_LETTER
 NUMBER='1234567890'
 SAFE_CASE='_-'
 OTHER_CASE='!@#$%^&*()[];:,'
-
-USER_LIST=[
-	{
-		'username':'wuyuhang',
-		'tocken':'$^%2l&)6yn0p@xfs',
-		'password':'111111',
-		'first_name':'wuyuhang',
-		'id':1,
-	},
-	{
-		'username':'hello',
-		'tocken':'ObFoblKboajw581d',
-		'password':'111111',
-		'first_name':'he',
-		'id':2,
-	},
-	{
-		'username':'this',
-		'tocken':'HognPqkj9896519P',
-		'password':'111111',
-		'first_name':'thi',
-		'id':3,
-	},
-]
+## generate test data for AutoML mission
+m_type=["Image_Classification",
+		"Object_Dectection",
+		"Predict_Analysis",
+		"Voice_Classfication",
+		"Text_Classification"]
+train_s=['wait','run','stop','success','error']
+deploy_s=['single','multiple','error','wait']
 
 def get_tocken()->str:
 	return ''.join(random.sample("0123456789abcdefghijklmnopqrstuvwxyz!@#$%^&*()", 16))
@@ -69,9 +53,6 @@ def get_fake_title(length:int=5)->str:
     index=''.join(random.sample(NUMBER,length))
     return name+'_'+index
 ## generate test data for AutoML mission
-m_type=['image_classifica','object_detection','predict_analysis']
-train_s=['wait','run','stop','success','error']
-deploy_s=['single','multiple','error','wait']
 
 def genAutoItem(i:int)->dict:
     return {
@@ -86,7 +67,124 @@ def genAutoItem(i:int)->dict:
 def genAutoList(num:int=10)->list:
     result=[ genAutoItem(i) for i in range(num)]
     return result
-## generate test data for 
+
+def genAlgorithm(i:int)->dict:
+    algoName=[
+		'SIFT',
+		'KMEANS',
+		'KNearst',
+		'FasterRCNN',
+		'Helio',
+		'Mask-RCNN',
+		'Bert',
+		'KernelSVM',
+		]
+    
+    return {
+		'id' : random.randint(1,1e3),
+		'name' : algoName[random.randint(0,len(algoName)-1)]+'_'+''.join(random.sample(NUMBER,4)),
+		'task' :m_type[random.randint(0,len(m_type)-1)],
+		'path':get_fake_path(4),
+  		'created_at':get_fake_time(),
+    	'uid' : random.randint(0,len(USER_LIST)-1),
+	}
+    pass
+def genAlgoList(num:int=5)->list:
+    result=[genAlgorithm(i) for i in range(num)]
+    return result  
+
+## generate fixed test data
+USER_LIST=[
+	{
+		'username':'wuyuhang',
+		'tocken':'$^%2l&)6yn0p@xfs',
+		'password':'111111',
+		'first_name':'wuyuhang',
+		'id':1,
+	},
+	{
+		'username':'hello',
+		'tocken':'ObFoblKboajw581d',
+		'password':'111111',
+		'first_name':'he',
+		'id':2,
+	},
+	{
+		'username':'this',
+		'tocken':'HognPqkj9896519P',
+		'password':'111111',
+		'first_name':'thi',
+		'id':3,
+	},
+]
+DATASET_LIST=[
+	{
+		# 'name':'ImageNet 2012',
+		# 'path':'/src/data/imagenet',
+		'label':'ImageNet 2012',
+		'value':'/src/data/imagenet',
+	},
+	{
+		# 'name':'cifar 10',
+		# 'path':'/src/data/cifar10',
+		'label':'cifar 10',
+		'value':'/src/data/cifar10',
+		
+	},
+	{
+		# 'name':'kinetics',
+		# 'path':'/src/data/kinetics',
+		'label':'kinetics',
+		'value':'/src/data/kinetics',
+		
+	},
+]
+ALGORITHM_LIST=[
+	{
+     'id' : 1,
+     'name':'Yolov4',
+     'task' : 'Object_Dectection',
+     'UID' :1,
+     'path':get_fake_path(4),
+     'created_at':get_fake_time(),
+    },
+	{
+     'id' : 2,
+     'name':'FasterRCNN',
+     'task' : 'Image_Classification',
+     'UID' :1,
+     'path':get_fake_path(4),
+     'created_at':get_fake_time(),
+    },
+	{
+     'id' : 3,
+     'name':'Mask-RCNN',
+     'task' : 'Image_Classification',
+     'UID' :2,
+     'path':get_fake_path(4),
+     'created_at':get_fake_time(),
+    },
+]
+PATH_TREE_LIST=[
+	{
+		'vision':{
+			'classification':{
+				'vggTime':{
+					'part1':{},
+					'part2':{},
+				},
+				'cifarTime':{
+					'part1':{},
+					'part2':{},
+				},
+			},
+    		'textField':{},
+		},
+	},
+	{
+		
+	},
+]
 
 FAKE_Automl=genAutoList(20)
 

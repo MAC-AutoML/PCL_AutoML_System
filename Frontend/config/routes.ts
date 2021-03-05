@@ -13,18 +13,19 @@
     path: '/AutoML',
     name: '自动学习',
     icon: 'smile',
+    authority: ['admin', 'user'],
     // hideInMenu: 'true', 
     routes: [//子界面
       {
         path: '/AutoML',
-        name: '创建自动学习任务',
+        name: '自动学习任务列表',
         // icon: 'smile',
         component: './AutoML/ListMission',
         hideInMenu:'true',
         exact:true,
       },
       {
-        path: '/AutoML/CreateMission',
+        path: '/AutoML/CreateMission/:type',
         name: '创建自动学习任务',
         icon: 'smile',
         component: './AutoML/CreateMission',
@@ -46,6 +47,8 @@
     name: '数据集管理',
     icon: 'smile',
     component: './DataManage',
+    authority: ['admin', 'user'],
+
     // hideInMenu: 'true', 
   },
   //level:01, id:04 
@@ -53,6 +56,7 @@
     path: '/DevEnv',
     name: '开发环境',
     icon: 'table',
+    authority: ['admin', 'user'],
     // component: './DevEnv',
     routes: [//子界面
       {
@@ -69,8 +73,25 @@
     path: '/AlgoManage',
     name: '算法管理',
     icon: 'smile',
-    component: './AlgoManage',
+    // component: './AlgoManage',
+    authority: ['admin', 'user'],
     // hideInMenu: 'true', 
+    routes:[
+      {
+        path:'/AlgoManage',
+        // name:'算法列表',
+        component:'./AlgoManage/ListAlgo',
+        hideInMenu:'true',
+        exact:true,
+      },
+      {
+        path:'/AlgoManage/CreateAlgo',
+        name:'创建算法',
+        icon:'smile',
+        component:'./AlgoManage/CreateAlgo',
+        hideInMenu:true,
+      },
+    ]
   },
   //level:01, id:06 
   {
@@ -78,6 +99,7 @@
     name: '作业管理',
     icon: 'table',
     // component: './JobManage',
+    authority: ['admin', 'user'],
     // hideInMenu: 'true', 
     routes: [//子界面
       {
@@ -135,6 +157,7 @@
     path: '/ModelManage',
     name: '模型管理',
     icon: 'smile',
+    authority: ['admin', 'user'],
     component: './ModelManage',
     // hideInMenu: 'true', 
   },
@@ -143,7 +166,9 @@
     path: '/AIMarket',
     name: 'AI市场',
     icon: 'smile',
+    authority: ['admin', 'user'],
     component: './AIMarket',
+    //【】如何让菜单在该页面中默认收起
     // hideInMenu: 'true', 
   },
   //设计页面结束

@@ -3,7 +3,7 @@ import { PageContainer } from '@ant-design/pro-layout';
 import ProCard from '@ant-design/pro-card'
 import {Typography } from 'antd';
 import styles from './index.less';
-import {Link} from 'umi';
+import {Link,history } from 'umi';
 
 import { PlusOutlined, EllipsisOutlined } from '@ant-design/icons';
 import { Button, Tag, Space, Menu, Dropdown } from 'antd';
@@ -92,37 +92,39 @@ const columns = [
     ],
   },
 ];
-
-export default (): React.ReactNode => {
+// const goCreate = (type:string) =>{
+//   history.push("/AutoML/CreateMission/"+type);
+// }
+export default (props): React.ReactNode => {
   const actionRef = useRef();
   return (
     <PageContainer>
       <ProCard style={{ marginTop: 8 }} gutter={8} layout="center" title="" bordered headerBordered>
-        <ProCard colSpan="auto" layout="center" bordered>    
-          <Link to="/AutoML/CreateMission?id=Image Classfiction">
+        <ProCard colSpan="auto" layout="center" bordered >    
+          <Button onClick={()=>{props.history.push("/AutoML/CreateMission/Image_Classification");}}>
             图像分类
-          </Link>
+          </Button>        
         </ProCard>
-        <ProCard colSpan="auto" layout="center" bordered>
-          <Link to="/AutoML/CreateMission?id=Image Classfiction">
-          物体检测
-          </Link>
+        <ProCard colSpan="auto" layout="center" bordered >
+          <Button onClick={()=>{props.history.push("/AutoML/CreateMission/Object_Dectection");}}>
+            物体检测
+          </Button>
         </ProCard>
         
         <ProCard colSpan="auto" layout="center" bordered>    
-          <Link to="/AutoML/CreateMission?id=Image Classfiction">
+          <Link to="/AutoML/CreateMission/Predict_Analysis">
             预测分析
           </Link>
         </ProCard>
         
         <ProCard colSpan="auto" layout="center" bordered>
-          <Link to="/AutoML/CreateMission?id=Image Classfiction">
+          <Link to="/AutoML/CreateMission/Voice_Classfication">
             声音分类
           </Link>    
         </ProCard>
         
         <ProCard colSpan="auto" layout="center" bordered>    
-          <Link to="/AutoML/CreateMission?id=Image Classfiction">
+          <Link to="/AutoML/CreateMission/Text_Classification">
           文本分类
           </Link>
         </ProCard>

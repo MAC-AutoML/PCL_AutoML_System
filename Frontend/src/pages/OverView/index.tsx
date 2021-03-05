@@ -1,10 +1,12 @@
 import React from 'react';
 import { PageContainer } from '@ant-design/pro-layout';
 import ProCard from '@ant-design/pro-card'
-import { Card, Alert, Typography } from 'antd';
+import { Carousel, Card, Alert, Typography } from 'antd';
 import styles from './index.less';
 
-import shower from '../../../public/banner1.jpg'
+// import shower from '../../../public/banner1.jpg'
+import mac from '../../../public/MAC.jpg'
+import pcl from '../../../public/PCL.jpg'
 
 const CodePreview: React.FC<{}> = ({ children }) => (
   <pre className={styles.pre}>
@@ -16,9 +18,14 @@ const CodePreview: React.FC<{}> = ({ children }) => (
 
 export default (): React.ReactNode => (
   <PageContainer>
-    <ProCard layout="center">
-      <img alt="Title" src={shower} />
-    </ProCard>
+    <Carousel autoplay >
+      <div>
+        <img alt="MAC" src={mac} />
+      </div>
+      <div>
+        <img alt="PCL" src={pcl} />
+      </div>
+    </Carousel>
     <ProCard style={{ marginTop: 8 }} gutter={8} layout="center" title="新手入门" bordered headerBordered>
       <ProCard colSpan={{ xs: 2, sm: 4, md: 6, lg: 8, xl: 10 }} layout="center" bordered>
         准备工作

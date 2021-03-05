@@ -75,36 +75,6 @@ REST_FRAMEWORK = {
     ),
     'DEFAULT_PAGINATION_CLASS': 'rest.pagination.StandardResultsSetPagination',
 }
-# Cors_headers settings
-# 允许Cookie
-CORS_ALLOW_CREDENTIALS = True
-
-## 只允许本机8000接口发送跨域请求
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:8000",
-    "http://127.0.0.1:8000",
-    "http://10.24.82.13:8000"
-]
-CORS_ALLOW_METHODS = [
-    'GET',
-    'POST',
-    'PUT',
-    'DELETE',
-    'OPTIONS',
-    'PATCH',
-]
-CORS_ALLOW_HEADERS = [
-    'accept',
-    'accept-encoding',
-    'authorization',
-    'content-type',
-    'dnt',
-    'origin',
-    'user-agent',
-    'x-csrftoken',
-    'x-requested-with',
-]
-
 # Rest_framework settings
 REST_FRAMEWORK = {
     # Use Django's standard `django.contrib.auth` permissions,
@@ -181,7 +151,12 @@ DATABASES = {
         'PASSWORD': 'root',
         'HOST': '127.0.0.1',
         'PORT': '3306',
-    }
+    },
+    # Frontend test
+    # 'default': {
+    #     'ENGINE': 'django.db.backends.sqlite3',
+    #     'NAME': BASE_DIR / 'db.sqlite3',
+    # }
 }
 
 
