@@ -1,6 +1,7 @@
 import React, { Props, useState } from 'react';
+import {useRequest} from 'umi';
 import { Card, Typography, Alert, Button,Cascader, Row,Col, Divider,
-		Form, Table, Input, InputNumber, Popconfirm,
+		Form, Table, Input, InputNumber, Popconfirm, AutoComplete
 	} from 'antd';
 import ProForm, {ProFormSelect} from '@ant-design/pro-form';
 import { ColumnsState, EditableProTable } from '@ant-design/pro-table';
@@ -8,10 +9,18 @@ import type { ProColumns } from '@ant-design/pro-table';
 
 import {getPath} from './service';
 import Item from 'antd/lib/list/Item';
-
+const {Option} = AutoComplete;
+// interface ProviderProps {
+// 	value?:{ key:string;label:string;}[];
+// 	onChange?:(
+// 		value:{key:string;label:string;}[],
+// 	)=>void;
+// };
 interface ProviderProps {
-	label:string,
-	disable:boolean,
+	value?:string;
+	onChange?:(
+		value:string,
+	)=>void;
 };
 interface PathType {
 	value:string,
@@ -29,221 +38,53 @@ const test=[{
 	isLeaf:false,
 }];
 // interface 定义部件参数名和类型 React.FC<ParamList>
-//需要换一种方式, Cascader 方式不好
 //仿照 VScode 选择路径的方式来, 基于antd select 模组
-const PathProvider:React.FC<ProviderProps>=(props)=>{
-	// 解包参数
-	const {label,disable}=props;
-	const [pathes,setPathes]=React.useState(test);
-	const onChange=(value,selectedPath) =>{
-		console.log("Value: ",value);
-		console.log("Selected: ",selectedPath);
-	};
-	const loadData= selectedPath => {
-		const targetOption = selectedPath.length ? selectedPath[selectedPath.length-1] : selectedPath ;
-		targetOption.loading=true;
-		// console.log("loading selected: ",selectedPath);
-		// console.log("loading target: ",targetOption);
-		let sender= selectedPath.map((item:PathType)=>{return item.value;});
-		// let root=sender.join("/");
-		// console.log("loading root: ", root);
-		// console.log("loading sender:",sender);
-		let nextLevel=getPath(sender);
-		// console.log(selectedPath,nextLevel);
-		targetOption.children=[
-			{
-				label:"a",
-				value:"a",
-				isLeaf:false,
-			},
-			{
-				label:"b",
-				value:"b",
-				isLeaf:false,
-			},
-		];
-		targetOption.loading=false;
-		// nextLevel.forEach(element => {
-		// 	targetOption.children
-		// });
-		// targetOption.children = nextLevel;
-		setPathes([...pathes]);
-	};
-	
-	return(
-		<Cascader options={pathes} loadData={loadData} 
-			onChange={onChange} changeOnSelect disabled={disable}/>
-	);
-};
 /* ----------------------------------------------------------- */
-interface Item {
-	key: string;
-	name: string;
-	age: number;
-	address: string;
-  }
-interface EditableCellProps extends React.HTMLAttributes<HTMLElement> {
-	editing: boolean;
-	dataIndex: string;
-	title: any;
-	inputType: 'number' | 'text';
-	record: Item;
-	index: number;
-	children: React.ReactNode;
-}
-const EditableCell: React.FC<EditableCellProps> = ({
-  editing,
-  dataIndex,
-  title,
-  inputType,
-  record,
-  index,
-  children,
-  ...restProps
-}) => {
-  const inputNode = inputType === 'number' ? <InputNumber /> : <Input />;
-
-  return (
-    <td {...restProps}>
-      {editing ? (
-        <Form.Item
-          name={dataIndex}
-          style={{ margin: 0 }}
-          rules={[
-            {
-              required: true,
-              message: `Please Input ${title}!`,
-            },
-          ]}
-        >
-          {inputNode}
-        </Form.Item>
-      ) : (
-        children
-      )}
-    </td>
-  );
-};
-
-const EditableTable = (props) => {
-  const [form] = Form.useForm();
-  const [data, setData] = useState<Item[]>([]);
-  const [editingKey, setEditingKey] = useState('');
-
-  const isEditing = (record: Item) => record.key === editingKey;
-
-  const edit = (record: Partial<Item> & { key: React.Key }) => {
-    form.setFieldsValue({ name: '', age: '', address: '', ...record });
-    setEditingKey(record.key);
-  };
-	const add=() =>{
-		
+const PathSelector:React.FC<ProviderProps>=({value,onChange})=>{
+	let p:string[]=[];
+	const [pathList, setPathList] = useState(p);
+	const [inputPath,setInputPath]=useState<string>("");
+	const handleChange = (changedValue:string)=>{
+		// 从后台请求数据 ， 需要加防抖功能
+		let promise=getPath(changedValue);
+		promise.then(
+			(resp)=>{
+				// console.log(resp.data);
+				setPathList(resp.data);
+				return resp;}
+		);
+		setInputPath(changedValue);
+		onChange?.(changedValue);
 	};
-  const cancel = () => {
-    setEditingKey('');
-  };
-
-  const save = async (key: React.Key) => {
-    try {
-      const row = (await form.validateFields()) as Item;
-
-      const newData = [...data];
-      const index = newData.findIndex(item => key === item.key);
-      if (index > -1) {
-        const item = newData[index];
-        newData.splice(index, 1, {
-          ...item,
-          ...row,
-        });
-        setData(newData);
-        setEditingKey('');
-      } else {
-        newData.push(row);
-        setData(newData);
-        setEditingKey('');
-      }
-    } catch (errInfo) {
-      console.log('Validate Failed:', errInfo);
-    }
-  };
-
-  const columns = [
-    {
-      title: 'name',
-      dataIndex: 'name',
-      width: '25%',
-      editable: true,
-    },
-    {
-      title: 'age',
-      dataIndex: 'age',
-      width: '15%',
-      editable: true,
-    },
-    {
-      title: 'address',
-      dataIndex: 'address',
-      width: '40%',
-      editable: true,
-    },
-    {
-      title: 'operation',
-      dataIndex: 'operation',
-      render: (_: any, record: Item) => {
-        const editable = isEditing(record);
-        return editable ? (
-          <span>
-            <a href="javascript:;" onClick={() => save(record.key)} style={{ marginRight: 8 }}>
-              Save
-            </a>
-            <Popconfirm title="Sure to cancel?" onConfirm={cancel}>
-              <a>Cancel</a>
-            </Popconfirm>
-          </span>
-        ) : (
-          <Typography.Link disabled={editingKey !== ''} onClick={() => edit(record)}>
-            Edit
-          </Typography.Link>
-        );
-      },
-    },
-  ];
-
-  const mergedColumns = columns.map(col => {
-    if (!col.editable) {
-      return col;
-    }
-    return {
-      ...col,
-      onCell: (record: Item) => ({
-        record,
-        inputType: col.dataIndex === 'age' ? 'number' : 'text',
-        dataIndex: col.dataIndex,
-        title: col.title,
-        editing: isEditing(record),
-      }),
-    };
-  });
-
-  return (
-    <Form form={form} component={Form.Item}>
-      <Table
-        components={{
-          body: {
-            cell: EditableCell,
-          },
-        }}
-        bordered
-        dataSource={data}
-        columns={mergedColumns}
-        rowClassName="editable-row"
-        pagination={{
-          onChange: cancel,
-        }}
-      />
-    </Form>
-  );
-};
+	const handleFocus = ()=>{
+		if(inputPath=="")
+			handleChange("");
+	}
+	const handleSelect = (selectValue:string)=>{
+		setInputPath(selectValue);
+	}
+	return <AutoComplete 
+		style={{width:350}} 
+		value={inputPath}
+		onChange={handleChange} 
+		onFocus={handleFocus}
+		onSelect={handleSelect}
+		> 
+		{
+			pathList.map(
+				(pathStr)=>{
+					// 这里假设返回的是文件的绝对路径(相对于分配给用户的根目录)
+					let v:number=pathStr.lastIndexOf("/");
+					if(v<0) return;
+					if(v+1>=pathStr.length) return;
+					let label:string=pathStr.slice(v+1);
+					//
+					return <Option key={pathStr} value={pathStr} > {label} </Option>;
+				}
+			)
+		}
+	</AutoComplete>
+}
 /* ----------------------------------------------------------- */
 interface InputProps{
 
@@ -282,10 +123,10 @@ const InputConstraint:React.FC<InputProps>=(props)=>{
 	if(selector.includes(sourceOptions[1].value))
 	{
 		others=<>
-			<Divider />
+			<Divider /> 
 			<Typography.Title level={4}>{Pname}</Typography.Title>
 			<Row><Col>{/* 没起到分栏分行作用，需要进一步研究 */}
-				<Typography.Text>按部件传入的参数列表循环列出</Typography.Text>	
+				<Typography.Text>按"训练规范-输入数据配置"部件传入的参数列表循环列出</Typography.Text>	
 			</Col></Row>
 			<Row><Col>
 				<ProFormSelect
@@ -333,7 +174,7 @@ const InputConstraint:React.FC<InputProps>=(props)=>{
 		{others}
 	</>;
 };
-export {PathProvider,EditableTable,InputConstraint,};
+export {InputConstraint,PathSelector};
 
 // for (let index = 0; index < inputlist.length; index++) {
 // 	let element = inputlist[index];

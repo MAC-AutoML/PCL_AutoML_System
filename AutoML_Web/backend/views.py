@@ -75,7 +75,7 @@ class Login(APIView):
     def post(self,request):
         username = request.data['username']
         password = request.data['password']
-        print(username,password)
+        # print(username,password)
         ### Dev mock user   
         message = '请检查填写的内容！'
         uinfo = API_tools.check_user(username, password)
@@ -144,9 +144,9 @@ class AutoML(APIView):
         rec = []
         updata_jobtable(user.tocken, user, user.first_name)
         queryset = models.User_Job.objects.all()
-        print(queryset)
+        # print(queryset)
         ret = JobsSerializers(queryset, many=True)
-        print("%ret%","%ret%",type(ret.data),type(ret.data[0]))
+        # print("%ret%","%ret%",type(ret.data),type(ret.data[0]))
         for onejob in ret.data:
             tALG = models.User_algorithm.objects.filter(id = onejob["algorithm_id"])[0]
 
@@ -168,6 +168,8 @@ class AutoML(APIView):
             return Response(data=response)            
         ## 将回传的get url参数解码成字典
         params=request.query_params.dict()
+        print(params)
+        
         ## 针对性解码
         params['current']=int(params['current'])
         params['pageSize']=int(params['pageSize'])
@@ -184,7 +186,7 @@ class AutoML(APIView):
         del(selector['sorter'])
         del(selector['filter'])
         # print(selector)
-        # 需要一个配置文件，记录不同表格每条数据 - 数据结构的键值对，对于选择形的参数，要列出其所有选项
+        # 需要一个配置文件，记录不同表格每条数据 - 数据结构的键值对，在这个配置文件中，对于需要用户选择的参数，要列出其所有选项
         
         # # 处理页面上方的筛选栏回传的参数
         temp=[]
@@ -250,71 +252,71 @@ class AutoML(APIView):
 
         form_dict=request.data
         # 创建任务
-        print(form_dict)
         #{'type': 'Image_Classification', 'name': 'dsad', 'modelsize': 12321, 'dataSelection': 3}
-        datasetname = None
-        algtype = form_dict["type"]
-        jobname = form_dict['name']
-        maxflops = int(form_dict['modelsize'])
-        datasetid = form_dict['dataSelection']
-        if form_dict['dataSelection'] != None:
-            datasetname = models.Dataset.objects.filter(id = int(datasetid))[0]
-            print(datasetname.name)
-        if algtype == 'Image_Classification':
-            algdict = ["efficientnet_b3a","mobilenetv2_120d","efficientnet_lite0","mobilenetv2_100","mobilenetv3_large_100"]
-            if maxflops > 900:
-                algname = 'efficientnet_b3a'
-            elif maxflops > 600:
-                algname = 'mobilenetv2_120d'
-            elif maxflops > 400:
-                algname = 'efficientnet_lite0'
-            elif maxflops > 300:
-                algname = 'mobilenetv2_100'
-            else:
-                algname = 'mobilenetv3_large_100'
-            #-------挂载CP算法操作----------
-            #alg_cp(r'./../../algorithm/classification/pytorch_automodel/image_classification',"")
+        FRONT_DEBUG=True
+        if(not FRONT_DEBUG):
+            datasetname = None
+            algtype = form_dict["type"]
+            jobname = form_dict['name']
+            maxflops = int(form_dict['modelsize'])
+            datasetid = form_dict['dataSelection']
+            if form_dict['dataSelection'] != None:
+                datasetname = models.Dataset.objects.filter(id = int(datasetid))[0]
+                # print(datasetname.name)
+            if algtype == 'Image_Classification':
+                algdict = ["efficientnet_b3a","mobilenetv2_120d","efficientnet_lite0","mobilenetv2_100","mobilenetv3_large_100"]
+                if maxflops > 900:
+                    algname = 'efficientnet_b3a'
+                elif maxflops > 600:
+                    algname = 'mobilenetv2_120d'
+                elif maxflops > 400:
+                    algname = 'efficientnet_lite0'
+                elif maxflops > 300:
+                    algname = 'mobilenetv2_100'
+                else:
+                    algname = 'mobilenetv3_large_100'
+                #-------挂载CP算法操作----------
+                #alg_cp(r'./../../algorithm/classification/pytorch_automodel/image_classification',"")
 
-            #-----------------------------
-            #command = "cd ../userhome/fakejobspace/algorithm/classification/pytorch_automodel/image_classification/;"
-            command = "cd ../userhome;mkdir jobspace;cd jobspace;rm -r algorithm;mkdir algorithm;cd algorithm;" \
-                      "git clone https://github.com/MAC-AutoML/PCL_AutoML_System.git;cd ..;" \
-                      "mkdir image_classification;cd ..;"
-            # 测试时使用fakejobspace中的算法运行
-            command = command+"cd jobspace/algorithm/PCL_AutoML_System/algorithm/classification/pytorch_automodel/image_classification;"
-            command = command + "PYTHONPATH=./ python Timm.py "
-            expdirname = str(jobname) + "_" + str(datasetname) + "_" + str(maxflops) + "_exp_" + str(time.time())
-            outputdir = "/userhome/jobspace/image_classification/"+expdirname
-            command = command + " --outputdir " + outputdir
-            command = command + " --dataset " + str(datasetname)
-            command = command + " --algname " + str(algname)
-            print(command)
+                #-----------------------------
+                #command = "cd ../userhome/fakejobspace/algorithm/classification/pytorch_automodel/image_classification/;"
+                command = "cd ../userhome;mkdir jobspace;cd jobspace;rm -r algorithm;mkdir algorithm;cd algorithm;" \
+                        "git clone https://github.com/MAC-AutoML/PCL_AutoML_System.git;cd ..;" \
+                        "mkdir image_classification;cd ..;"
+                # 测试时使用fakejobspace中的算法运行
+                command = command+"cd jobspace/algorithm/PCL_AutoML_System/algorithm/classification/pytorch_automodel/image_classification;"
+                command = command + "PYTHONPATH=./ python Timm.py "
+                expdirname = str(jobname) + "_" + str(datasetname) + "_" + str(maxflops) + "_exp_" + str(time.time())
+                outputdir = "/userhome/jobspace/image_classification/"+expdirname
+                command = command + " --outputdir " + outputdir
+                command = command + " --dataset " + str(datasetname)
+                command = command + " --algname " + str(algname)
+                print(command)
 
-            info = API_tools.creat_mission(str(jobname), command, user.tocken, user, user.first_name)
-            if not info["payload"]:
-                print("error~!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-                return Response(data=errParser(errcode=404))
-            timeArray = time.localtime()
-            otherStyleTime = time.strftime("%Y-%m-%d %H:%M:%S", timeArray)
-            jobid = get_keyword(str(info["payload"]["jobId"]))
-            name = get_keyword(str(jobname))
-            username = get_keyword(str(user.username))
-            user_id = str(user.id)
-            state = "WAITTING"
-            createdTime = get_keyword(str(otherStyleTime))
-            completedTime = str(0)
-            _path = get_keyword(str(outputdir))
-            Da = models.User_algorithm.objects.filter(user_id=user.id).filter(name=algname)[0]
-            algorithm_id = Da.id
-            dataset_id = form_dict['dataSelection']
-            with connection.cursor() as cursor:
-                sqltext = "INSERT INTO `automl_web`.`_app_user_job`(`jobid`, `name`, `username`, `user_id`, `state`, `createdTime`, `completedTime`,`_path`, `algorithm_id`, `dataset_id`) " \
-                          "VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}','{9}');".format(
-                    jobid, name, username, user_id, state, createdTime, completedTime, _path, algorithm_id, dataset_id
-                )
-                print("$$$$$$$$$$$", sqltext)
-                cursor.execute(sqltext)
-
+                info = API_tools.creat_mission(str(jobname), command, user.tocken, user, user.first_name)
+                if not info["payload"]:
+                    print("error~!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+                    return Response(data=errParser(errcode=404))
+                timeArray = time.localtime()
+                otherStyleTime = time.strftime("%Y-%m-%d %H:%M:%S", timeArray)
+                jobid = get_keyword(str(info["payload"]["jobId"]))
+                name = get_keyword(str(jobname))
+                username = get_keyword(str(user.username))
+                user_id = str(user.id)
+                state = "WAITTING"
+                createdTime = get_keyword(str(otherStyleTime))
+                completedTime = str(0)
+                _path = get_keyword(str(outputdir))
+                Da = models.User_algorithm.objects.filter(user_id=user.id).filter(name=algname)[0]
+                algorithm_id = Da.id
+                dataset_id = form_dict['dataSelection']
+                with connection.cursor() as cursor:
+                    sqltext = "INSERT INTO `automl_web`.`_app_user_job`(`jobid`, `name`, `username`, `user_id`, `state`, `createdTime`, `completedTime`,`_path`, `algorithm_id`, `dataset_id`) " \
+                            "VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}','{9}');".format(
+                        jobid, name, username, user_id, state, createdTime, completedTime, _path, algorithm_id, dataset_id
+                    )
+                    print("$$$$$$$$$$$", sqltext)
+                    cursor.execute(sqltext)
 
         # 创建完成
         # 【】前端 后端 需要添加判断任务是否创建成功
@@ -363,7 +365,12 @@ class RefreshPath(APIView):
         params=request.query_params.dict()
         print("Params is:",params)
         res=[]
-        
+        res=[
+            "/home/pcl/wyh_project/PCL_AutoML_System",
+            "/home/pcl/Archive/pCL_AutoML/PCL_AutoML",
+            "/home/pcl/Software/node-v12.19.0-linux-x64/bin",
+        ]
+        res=Parser(res)
         return Response(data=res)
 class CreateMission(APIView):
     def get(self, request):
@@ -399,8 +406,11 @@ class AlgoManage(APIView):
         """
         pass
     def post(self,request):
-        pass 
-    
+        form_dict=request.data
+        print(form_dict)
+        res=[]
+        res=Parser(res)
+        return Response(data=res)    
 class TrainJobManage(APIView):
     def get(self, request):
         """

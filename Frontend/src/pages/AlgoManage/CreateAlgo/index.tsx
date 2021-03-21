@@ -35,7 +35,8 @@ import { ProFormRadio } from '@ant-design/pro-form';
 import { message } from 'antd';
 import { history } from 'umi';
 
-import {PathProvider,InputConstraint,EditableTable} from './components';
+import {InputConstraint,PathSelector} from './components';
+import { postForm } from './service';
 // import {postForm, getDataset} from './service';
 // 测试用的 Options 数据
 const EngingOptions=[
@@ -74,7 +75,8 @@ type ioDataType={
   id:React.Key;
   name?:string;
   label?:string;
-  path?:string;
+  path?;
+  children?:ioDataType[];
 };
 type hpyerType={
   name:string;
@@ -103,7 +105,8 @@ const ioColumns:ProColumns<ioDataType>[]=[
   {
     title:'映射路径',
     dataIndex:'path',
-    valueType:'text',
+    renderFormItem:()=><PathSelector />,
+    // render
   },
   {
     title:'操作',
@@ -133,7 +136,7 @@ export default (): React.ReactNode =>{
   const [newRecord,setNewRecord] = React.useState({
     id:(Math.random()*1000000)/1,});
 
-  const [outputKeys,setOutput]=React.useState<string[]>([]);
+  const [outputKeys,setOutput]=React.useState<React.Key[]>([]);
   const [hyperList,setHyper] = React.useState<string[]>([]);
   const [testNum,setTestNum] = React.useState<number>(0);
 
@@ -153,10 +156,10 @@ export default (): React.ReactNode =>{
         <Cascader options={EngingOptions} />
       </Form.Item>
       <Form.Item name="CodePath" label="代码目录">
-        <PathProvider label="待构造" disable={false}/>
+        <PathSelector />
       </Form.Item>
       <Form.Item name="StartFile" label="启动文件">
-        <PathProvider label="待构造" disable={false}/>
+        <PathSelector />
       </Form.Item>
     </>;
   }
@@ -195,9 +198,12 @@ export default (): React.ReactNode =>{
   <ProCard>
   <StepsForm
 			onFinish={async (values)=>{
-				console.log(values);
+
 				await waitTime(200);
 				message.success("提交成功");
+        let res = postForm(values);
+				console.log(values);
+        afterSuccess();
 			}}
 		formProps={{
 			validateMessages:{
@@ -228,9 +234,6 @@ export default (): React.ReactNode =>{
           label="算法描述"
           width="lg"
         />
-        <Form.Item label="路径选择器 待施工">
-          <PathProvider disable={true} label={"待施工"}/>
-        </Form.Item>
         <Divider />
         <Form.Item > 
           <Typography.Text strong> 创建方式 : </Typography.Text>
@@ -243,42 +246,58 @@ export default (): React.ReactNode =>{
         </Form.Item>
         {createContent}
         <Divider />
-        <EditableTable />
-        <Divider />
-        <Form.Item 
-          label="输入数据配置" 
-          // trigger = "onValuesChange"
-          initialValue={[]}
+        <ProForm.Item label="输入数据配置" 
+          name="inputParams"
+          trigger="onValuesChange"
           >
           {/* {console.log("Editable ProTable")} */}
           <EditableProTable<ioDataType>
-            // rowKey={(item:ioDataType,index)=>(item.id)}
             rowKey="id"
-            maxLength={5}
+            maxLength={20}
             toolBarRender={false}
             columns={ioColumns}
             recordCreatorProps={{
-              newRecordType:'ioDataType',
+              newRecordType:'dataSource',
               position:'bottom',
-              // record: {id: Date.now(),},
               record: () => ({ id: Date.now(),}),
             }}
             editable={{
               type:'multiple',
               editableKeys:inputKeys,
               onChange:setInputKeys,
-              // onSave:async ()=>setNewRecord({id:(Math.random()*1000000)/1})
               actionRender:(row,_,dom)=>{
                 return [dom.delete];
               },
             }}
-            />
-        </Form.Item>
+          />
+        </ProForm.Item>
         <Divider />
           {/* <DynamicForm /> */}
-          <Form.Item label="输出数据配置" >
-
-          </Form.Item>
+        <ProForm.Item label="输出数据配置" 
+          name="outputParams"
+          trigger="onValuesChange"
+          >
+          <EditableProTable<ioDataType>
+          rowKey="id"
+          maxLength={20}
+          toolBarRender={false}
+          columns={ioColumns}
+          recordCreatorProps={{
+            newRecordType:'dataSource',
+            position:'bottom',
+            // record: {id: Date.now(),},
+            record: () => ({ id: Date.now(),}),
+          }}
+          editable={{
+            type:'multiple',
+            editableKeys:outputKeys,
+            onChange:setOutput,
+            actionRender:(row,_,dom)=>{
+              return [dom.delete];
+            },
+          }}
+          />
+        </ProForm.Item>
         <Divider />
       </StepsForm.StepForm>
 			<StepsForm.StepForm
@@ -332,10 +351,7 @@ export default (): React.ReactNode =>{
 
       </StepsForm.StepForm>
 		</StepsForm>
-  
   </ProCard>
-  
-
   </PageContainer>
   )
 };

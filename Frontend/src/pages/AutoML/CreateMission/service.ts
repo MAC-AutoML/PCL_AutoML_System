@@ -2,7 +2,7 @@ import { method } from 'lodash';
 import { request } from 'umi';
 import {Former} from './data.d';
 
-const API:string = '/api/algoManage';
+const API:string = '/api/automl';
 const ResfreshAPI:string='/api/refresh/';
 const ResfreshDataset:string=ResfreshAPI+'dataset'
 export async function postForm(params:Former){

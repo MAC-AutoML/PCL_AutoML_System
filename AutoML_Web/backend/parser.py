@@ -3,7 +3,7 @@ import sys
 
 #这个文件拿来定义一些请求包的通用结构
 
-def Parser(data:dict,errcode:str="1001",errmessage:str="error message"):
+def Parser(data,errcode:str="1001",errmessage:str="error message"):
     MESSAGE={
         "success": "true",
         "data": data,
