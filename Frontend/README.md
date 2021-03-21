@@ -111,6 +111,7 @@ src/		# # 源代码文件夹，页面等放置于此
    ├── 404.tsx
    ├── Admin.tsx
    ├── AIMarket/
+   ├── AutoML/
    ...
    ├── user/
    ├── Welcome.less
@@ -174,7 +175,7 @@ src/		# # 源代码文件夹，页面等放置于此
 
    由前述文档可知，项目的路由文件是"./config/routes.ts"。那么我们要在该文件里仿照其他页面的路由设置，来添加ListModel的设置：
 
-   ```json
+   ```typescript
      {
        path: '/ListModel', // url路径
        name: '模型列表', //在页面/菜单中显示的标题
@@ -196,4 +197,4 @@ src/		# # 源代码文件夹，页面等放置于此
 - 如何单独使用部件：[独立使用 Pro 组件 - Ant Design](https://v2-pro.ant.design/docs/use-components-alone-cn)
 - Ant Design 组件总览： [组件总览 - Ant Design](https://ant.design/components/overview-cn/)
 
-这里需要稍微解释下：因为antd-pro目前(2020.12)已经开发了五个版本，每个版本都或多或少的基于上个版本开发的组件库，因此在我们本项目的开发中，时常需要参考’V2组件库‘等资源。
+这里需要稍微解释下：因为antd-pro目前(2020.12)已经开发了五个版本，每个版本都或多或少的基于上个版本开发的组件库，因此在我们本项目的开发中，时常需要参考’组件总览‘等资源。
