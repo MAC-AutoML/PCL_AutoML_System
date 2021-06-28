@@ -42,32 +42,32 @@
   //   hideInMenu:'true',
   // },
   //level:01, id:03 
-  {
-    path: '/DataManage',
-    name: '数据集管理',
-    icon: 'smile',
-    component: './DataManage',
-    authority: ['admin', 'user'],
+  // {
+  //   path: '/DataManage',
+  //   name: '数据集管理',
+  //   icon: 'smile',
+  //   component: './DataManage',
+  //   authority: ['admin', 'user'],
 
-    // hideInMenu: 'true', 
-  },
+  //   // hideInMenu: 'true', 
+  // },
   //level:01, id:04 
-  {
-    path: '/DevEnv',
-    name: '开发环境',
-    icon: 'table',
-    authority: ['admin', 'user'],
-    // component: './DevEnv',
-    routes: [//子界面
-      {
-        path: '/DevEnv/JupyterNotebook',
-        name: 'JupyterNotebook',
-        icon: 'smile',
-        component: './DevEnv/JupyterNotebook',
-      },
-    ]
-    // hideInMenu: 'true', 
-  },
+  // {
+  //   path: '/DevEnv',
+  //   name: '开发环境',
+  //   icon: 'table',
+  //   authority: ['admin', 'user'],
+  //   // component: './DevEnv',
+  //   routes: [//子界面
+  //     {
+  //       path: '/DevEnv/JupyterNotebook',
+  //       name: 'JupyterNotebook',
+  //       icon: 'smile',
+  //       component: './DevEnv/JupyterNotebook',
+  //     },
+  //   ]
+  //   // hideInMenu: 'true', 
+  // },
   //level:01, id:05 
   {
     path: '/AlgoManage',
@@ -198,12 +198,12 @@
   //     },
   //   ],
   // },
-  {
-    name: 'list.table-list',
-    icon: 'table',
-    path: '/list',
-    component: './ListTableList',
-  },
+  // {
+  //   name: 'list.table-list',
+  //   icon: 'table',
+  //   path: '/list',
+  //   component: './ListTableList',
+  // },
   {
     path: '/',
     redirect: '/OverView',

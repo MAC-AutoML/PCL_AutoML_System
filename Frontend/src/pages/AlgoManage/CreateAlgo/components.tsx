@@ -49,10 +49,10 @@ const PathSelector:React.FC<ProviderProps>=({value,onChange})=>{
 		let promise=getPath(changedValue);
 		promise.then(
 			(resp)=>{
-				// console.log(resp.data);
 				setPathList(resp.data);
 				return resp;}
 		);
+		// console.log("CHANGEDVALUE is : ",changedValue);
 		setInputPath(changedValue);
 		onChange?.(changedValue);
 	};
@@ -60,8 +60,18 @@ const PathSelector:React.FC<ProviderProps>=({value,onChange})=>{
 		if(inputPath=="")
 			handleChange("");
 	}
-	const handleSelect = (selectValue:string)=>{
-		setInputPath(selectValue);
+	const handleSelect = (changedValue:string)=>{
+		let i = changedValue.lastIndexOf("..");
+		if(i>-1)
+			changedValue=changedValue.slice(0,i);
+		let j = changedValue.lastIndexOf("/");
+		if(i==j+1)
+		{
+			var k=changedValue.slice(0,j).lastIndexOf("/");
+			var temp=changedValue.slice(0,k+1);
+			changedValue=temp;
+		}
+		handleChange(changedValue);
 	}
 	return <AutoComplete 
 		style={{width:350}} 
@@ -73,12 +83,17 @@ const PathSelector:React.FC<ProviderProps>=({value,onChange})=>{
 		{
 			pathList.map(
 				(pathStr)=>{
+					// return <Option key={pathStr} value={pathStr} > {pathStr} </Option>;
 					// 这里假设返回的是文件的绝对路径(相对于分配给用户的根目录)
 					let v:number=pathStr.lastIndexOf("/");
-					if(v<0) return;
-					if(v+1>=pathStr.length) return;
-					let label:string=pathStr.slice(v+1);
-					//
+					let label=pathStr;
+					if (v+1<pathStr.length)
+						label=pathStr.slice(v+1);
+					else if (v+1==pathStr.length)
+					{
+						var k=pathStr.slice(0,v).lastIndexOf("/");
+						label=k>0? pathStr.slice(k+1): label;
+					}						
 					return <Option key={pathStr} value={pathStr} > {label} </Option>;
 				}
 			)

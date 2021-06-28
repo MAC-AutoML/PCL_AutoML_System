@@ -14,10 +14,12 @@ from rest_framework.parsers import JSONParser
 
 from rest_framework.authtoken.models import Token
 
+import os
 import sys
 import json
-from collections import Iterable
 import copy
+import re
+from collections import Iterable
 
 from _app import models
 
@@ -360,16 +362,56 @@ class RefreshData(APIView):
         # res=Parser(res) # 不一定打包
         return Response(data=res)
 class RefreshPath(APIView):
+    # 路径选择器对接的后端
+    # 使用 os 包
+    # 需要注意用户权限的问题
+    # responser={
+    #     "home":
+    #         {
+    #             "pcl":
+    #                 {
+    #                     "wyh_project":{},
+    #                     "Archive":{},
+    #                     "Software":{},
+    #                 },
+    #             "Zhara":{}
+    #         },
+    #     "temp":{},
+    #     "test":{},
+    # }
+    home="/home/pcl/wyh_project/PCL_AutoML_System/zdebug"
+    select_dir=True
+    
     def get(self,request):
-        # print("Get")
+        # limit user-visible directory
+        # root="/home/pcl/wyh_project/PCL_AutoML_System/debug"
         params=request.query_params.dict()
-        print("Params is:",params)
-        res=[]
-        res=[
-            "/home/pcl/wyh_project/PCL_AutoML_System",
-            "/home/pcl/Archive/pCL_AutoML/PCL_AutoML",
-            "/home/pcl/Software/node-v12.19.0-linux-x64/bin",
-        ]
+        # print("Params is:",params)
+        raw=params['0']
+        if raw.startswith("~"):
+            pass
+        now,prefix=os.path.split(raw)
+        if raw.endswith("..") or prefix=="..":
+            now,prefix=os.path.split(now)
+        print("Path is: ",os.path.join(self.home,now))
+        try:
+            file_list=os.listdir(os.path.join(self.home,now))
+            file_list=[os.path.join(now,v) for v in file_list if v.startswith(prefix)]
+            for i,item in enumerate(file_list):
+                if os.path.isdir(os.path.join(self.home,item)) and item[-1]!="/":
+                    file_list[i]+="/"
+        except FileNotFoundError:
+            file_list=[
+                "路径不存在，请返回上级路径或返回到home路径：",
+                "..",
+                "~"
+            ]
+            file_list=Parser(file_list)
+            return Response(data=file_list)
+        # if file_list
+        
+        res=[os.path.join(now,"..")]+file_list
+        print("Res is: ",res)
         res=Parser(res)
         return Response(data=res)
 class CreateMission(APIView):
@@ -407,7 +449,7 @@ class AlgoManage(APIView):
         pass
     def post(self,request):
         form_dict=request.data
-        print(form_dict)
+        print("Get algo create: ",form_dict)
         res=[]
         res=Parser(res)
         return Response(data=res)    
