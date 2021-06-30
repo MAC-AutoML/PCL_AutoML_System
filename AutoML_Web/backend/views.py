@@ -3,6 +3,7 @@ from django.contrib import auth
 from django.db import connection
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_exempt,csrf_protect
+from requests.models import ContentDecodingError
 
 from rest_framework import serializers
 from rest_framework import response
@@ -393,7 +394,7 @@ class RefreshPath(APIView):
         now,prefix=os.path.split(raw)
         if raw.endswith("..") or prefix=="..":
             now,prefix=os.path.split(now)
-        print("Path is: ",os.path.join(self.home,now))
+        # print("Path is: ",os.path.join(self.home,now))
         try:
             file_list=os.listdir(os.path.join(self.home,now))
             file_list=[os.path.join(now,v) for v in file_list if v.startswith(prefix)]
@@ -411,7 +412,7 @@ class RefreshPath(APIView):
         # if file_list
         
         res=[os.path.join(now,"..")]+file_list
-        print("Res is: ",res)
+        # print("Res is: ",res)
         res=Parser(res)
         return Response(data=res)
 class CreateMission(APIView):
@@ -440,7 +441,17 @@ class DevEnv(APIView):
         pass
     def post(self,request):
         pass 
-     
+
+def DictCheck(src:dict, keys:list):
+    ''' 判断src是否符合标准，即字典中必须存在keys里的键，且值对应的长度不为0，
+    '''
+    result=True
+    for k in keys:
+        if not src.__contains__(k) or not len(src[k]):
+            result=False
+            break
+    return result
+
 class AlgoManage(APIView):
     def get(self, request):
         """
@@ -448,8 +459,41 @@ class AlgoManage(APIView):
         """
         pass
     def post(self,request):
+        user = auth.get_user(request)
         form_dict=request.data
         print("Get algo create: ",form_dict)
+        name=form_dict['name']
+        version=form_dict['version']
+        aiEngine= "-".join(form_dict['AIEngine'])
+        codePath=form_dict['CodePath']
+        startPath=form_dict['StartFile']
+        hyperList=form_dict['hyperParams']
+        ioList=form_dict['inputParams']
+        
+        newAlgo=models.customize_algo.objects.create(
+            name=name,
+            ai_engine=aiEngine,
+            project_path=codePath,
+            start_path= startPath,
+            uid=user,
+        )
+        for item in hyperList:
+            newHyper=models.hpyer_set.objects.create(
+                name=item['name'],
+                data_type=item['dataType'],
+                initial_value=item['default'] if item.__contains__('default') else '',
+                is_necessary= True if item.__contains__('necessray') and item['necessray'] else False,
+                belong_algo=newAlgo,
+            )
+        for item in ioList:
+            print(type(item))
+            newIO=models.io_set.objects.create(
+                fname=item['label'],
+                name=item['name'],
+                default_path=item['default'] if item.__contains__('default') else '',
+                description=item['description'] if item.__contains__('description') else '',
+                belong_algo=newAlgo,
+            )
         res=[]
         res=Parser(res)
         return Response(data=res)    

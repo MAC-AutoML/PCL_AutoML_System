@@ -1,7 +1,6 @@
 zdebug/
 ## specific file
-.sqlite3
-db.sqlite3
+*.sqlite3
 ## Frontend ignore files
 # dependencies
 **/node_modules
