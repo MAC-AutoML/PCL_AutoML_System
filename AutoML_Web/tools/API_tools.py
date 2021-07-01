@@ -78,6 +78,58 @@ def get_jobinfo(jobid,tocken,username,password):
     response = requests.get(url=url, json={}, headers=headers)
     info = bytes2dict(response)
     return info
+def mission_submit(job_name, project_dir, param, resource, username, password):
+
+    url = f'http://192.168.204.24/rest-server/api/v1/jobs'
+
+    tocken = get_tocken(username, password)
+    command = f"cd {project_dir} && python {param['main_file']}"
+    for k, v in param.items():
+        if k != 'main_file' and k != 'image':
+            command += f' --{k} {v}'
+
+    data = \
+        f"""
+    {{
+    "jobName": "{job_name}",
+    "retryCount": 0,
+    "gpuType": "dgx",
+    "image": "{param['image'] if "image" in param.keys() else "dockerhub.pcl.ac.cn:5000/user-images/wudch:1.2"}",
+    "taskRoles": [
+        {{
+        "taskNumber": 1,
+        "minSucceededTaskCount": 1,
+        "minFailedTaskCount": 1,
+        "cpuNumber": {resource["cpuNumber"] if "cpuNumber" in resource.keys() else 2},
+        "gpuNumber": {resource["gpuNumber"] if "gpuNumber" in resource.keys() else 1},
+        "memoryMB": {resource["memoryMB"] if "memoryMB" in resource.keys() else 4096},
+        "shmMB": {resource["shmMB"] if "shmMB" in resource.keys() else 4096},
+        "command": "{command}",
+        "name": "main",
+        "needIBDevice": false,
+        "isMainRole": false
+        }}
+    ]
+    }}
+    """
+    headers = {
+        "Content-Type": 'application/json',
+        "Authorization": tocken
+    }
+    response = requests.post(url=url, json=json.loads(data), headers=headers)
+    info = bytes2dict(response)
+    if info["code"] != 'S000':
+        return "Unexpected error"
+    else:
+        jobId = info['payload']['jobId']
+        urljob = f'http://192.168.204.24/rest-server/api/v1/jobs/{jobId}'
+        jobResponse = requests.get(url=urljob, json={}, headers=headers)
+        jobInfo = bytes2dict(jobResponse)
+        if jobInfo["code"] != "S000":
+            return "Unexpected error"
+        else:
+            return jobInfo
+
 
 def creat_mission(job_name, command,tocken,username,password):
     url = f'http://192.168.204.24/rest-server/api/v1/jobs/{job_name}'
