@@ -27,6 +27,7 @@ from .settings import MEDIA_ROOT
 
 from backend import views
 
+# Debug用
 if(__name__=='__main__'):
     from ..backend import views
 

@@ -3,6 +3,7 @@ from django.contrib import auth
 from django.db import connection
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_exempt,csrf_protect
+from requests.models import ContentDecodingError
 
 from rest_framework import serializers
 from rest_framework import response
@@ -14,10 +15,12 @@ from rest_framework.parsers import JSONParser
 
 from rest_framework.authtoken.models import Token
 
+import os
 import sys
 import json
-from collections import Iterable
 import copy
+import re
+from collections import Iterable
 
 from _app import models
 
@@ -75,7 +78,7 @@ class Login(APIView):
     def post(self,request):
         username = request.data['username']
         password = request.data['password']
-        print(username,password)
+        # print(username,password)
         ### Dev mock user   
         message = '请检查填写的内容！'
         uinfo = API_tools.check_user(username, password)
@@ -144,9 +147,9 @@ class AutoML(APIView):
         rec = []
         updata_jobtable(user.tocken, user, user.first_name)
         queryset = models.User_Job.objects.all()
-        print(queryset)
+        # print(queryset)
         ret = JobsSerializers(queryset, many=True)
-        print("%ret%","%ret%",type(ret.data),type(ret.data[0]))
+        # print("%ret%","%ret%",type(ret.data),type(ret.data[0]))
         for onejob in ret.data:
             tALG = models.User_algorithm.objects.filter(id = onejob["algorithm_id"])[0]
 
@@ -168,6 +171,8 @@ class AutoML(APIView):
             return Response(data=response)            
         ## 将回传的get url参数解码成字典
         params=request.query_params.dict()
+        print(params)
+        
         ## 针对性解码
         params['current']=int(params['current'])
         params['pageSize']=int(params['pageSize'])
@@ -184,7 +189,7 @@ class AutoML(APIView):
         del(selector['sorter'])
         del(selector['filter'])
         # print(selector)
-        # 需要一个配置文件，记录不同表格每条数据 - 数据结构的键值对，对于选择形的参数，要列出其所有选项
+        # 需要一个配置文件，记录不同表格每条数据 - 数据结构的键值对，在这个配置文件中，对于需要用户选择的参数，要列出其所有选项
         
         # # 处理页面上方的筛选栏回传的参数
         temp=[]
@@ -250,71 +255,71 @@ class AutoML(APIView):
 
         form_dict=request.data
         # 创建任务
-        print(form_dict)
         #{'type': 'Image_Classification', 'name': 'dsad', 'modelsize': 12321, 'dataSelection': 3}
-        datasetname = None
-        algtype = form_dict["type"]
-        jobname = form_dict['name']
-        maxflops = int(form_dict['modelsize'])
-        datasetid = form_dict['dataSelection']
-        if form_dict['dataSelection'] != None:
-            datasetname = models.Dataset.objects.filter(id = int(datasetid))[0]
-            print(datasetname.name)
-        if algtype == 'Image_Classification':
-            algdict = ["efficientnet_b3a","mobilenetv2_120d","efficientnet_lite0","mobilenetv2_100","mobilenetv3_large_100"]
-            if maxflops > 900:
-                algname = 'efficientnet_b3a'
-            elif maxflops > 600:
-                algname = 'mobilenetv2_120d'
-            elif maxflops > 400:
-                algname = 'efficientnet_lite0'
-            elif maxflops > 300:
-                algname = 'mobilenetv2_100'
-            else:
-                algname = 'mobilenetv3_large_100'
-            #-------挂载CP算法操作----------
-            #alg_cp(r'./../../algorithm/classification/pytorch_automodel/image_classification',"")
+        FRONT_DEBUG=True
+        if(not FRONT_DEBUG):
+            datasetname = None
+            algtype = form_dict["type"]
+            jobname = form_dict['name']
+            maxflops = int(form_dict['modelsize'])
+            datasetid = form_dict['dataSelection']
+            if form_dict['dataSelection'] != None:
+                datasetname = models.Dataset.objects.filter(id = int(datasetid))[0]
+                # print(datasetname.name)
+            if algtype == 'Image_Classification':
+                algdict = ["efficientnet_b3a","mobilenetv2_120d","efficientnet_lite0","mobilenetv2_100","mobilenetv3_large_100"]
+                if maxflops > 900:
+                    algname = 'efficientnet_b3a'
+                elif maxflops > 600:
+                    algname = 'mobilenetv2_120d'
+                elif maxflops > 400:
+                    algname = 'efficientnet_lite0'
+                elif maxflops > 300:
+                    algname = 'mobilenetv2_100'
+                else:
+                    algname = 'mobilenetv3_large_100'
+                #-------挂载CP算法操作----------
+                #alg_cp(r'./../../algorithm/classification/pytorch_automodel/image_classification',"")
 
-            #-----------------------------
-            #command = "cd ../userhome/fakejobspace/algorithm/classification/pytorch_automodel/image_classification/;"
-            command = "cd ../userhome;mkdir jobspace;cd jobspace;rm -r algorithm;mkdir algorithm;cd algorithm;" \
-                      "git clone https://github.com/MAC-AutoML/PCL_AutoML_System.git;cd ..;" \
-                      "mkdir image_classification;cd ..;"
-            # 测试时使用fakejobspace中的算法运行
-            command = command+"cd jobspace/algorithm/PCL_AutoML_System/algorithm/classification/pytorch_automodel/image_classification;"
-            command = command + "PYTHONPATH=./ python Timm.py "
-            expdirname = str(jobname) + "_" + str(datasetname) + "_" + str(maxflops) + "_exp_" + str(time.time())
-            outputdir = "/userhome/jobspace/image_classification/"+expdirname
-            command = command + " --outputdir " + outputdir
-            command = command + " --dataset " + str(datasetname)
-            command = command + " --algname " + str(algname)
-            print(command)
+                #-----------------------------
+                #command = "cd ../userhome/fakejobspace/algorithm/classification/pytorch_automodel/image_classification/;"
+                command = "cd ../userhome;mkdir jobspace;cd jobspace;rm -r algorithm;mkdir algorithm;cd algorithm;" \
+                        "git clone https://github.com/MAC-AutoML/PCL_AutoML_System.git;cd ..;" \
+                        "mkdir image_classification;cd ..;"
+                # 测试时使用fakejobspace中的算法运行
+                command = command+"cd jobspace/algorithm/PCL_AutoML_System/algorithm/classification/pytorch_automodel/image_classification;"
+                command = command + "PYTHONPATH=./ python Timm.py "
+                expdirname = str(jobname) + "_" + str(datasetname) + "_" + str(maxflops) + "_exp_" + str(time.time())
+                outputdir = "/userhome/jobspace/image_classification/"+expdirname
+                command = command + " --outputdir " + outputdir
+                command = command + " --dataset " + str(datasetname)
+                command = command + " --algname " + str(algname)
+                print(command)
 
-            info = API_tools.creat_mission(str(jobname), command, user.tocken, user, user.first_name)
-            if not info["payload"]:
-                print("error~!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-                return Response(data=errParser(errcode=404))
-            timeArray = time.localtime()
-            otherStyleTime = time.strftime("%Y-%m-%d %H:%M:%S", timeArray)
-            jobid = get_keyword(str(info["payload"]["jobId"]))
-            name = get_keyword(str(jobname))
-            username = get_keyword(str(user.username))
-            user_id = str(user.id)
-            state = "WAITTING"
-            createdTime = get_keyword(str(otherStyleTime))
-            completedTime = str(0)
-            _path = get_keyword(str(outputdir))
-            Da = models.User_algorithm.objects.filter(user_id=user.id).filter(name=algname)[0]
-            algorithm_id = Da.id
-            dataset_id = form_dict['dataSelection']
-            with connection.cursor() as cursor:
-                sqltext = "INSERT INTO `automl_web`.`_app_user_job`(`jobid`, `name`, `username`, `user_id`, `state`, `createdTime`, `completedTime`,`_path`, `algorithm_id`, `dataset_id`) " \
-                          "VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}','{9}');".format(
-                    jobid, name, username, user_id, state, createdTime, completedTime, _path, algorithm_id, dataset_id
-                )
-                print("$$$$$$$$$$$", sqltext)
-                cursor.execute(sqltext)
-
+                info = API_tools.creat_mission(str(jobname), command, user.tocken, user, user.first_name)
+                if not info["payload"]:
+                    print("error~!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+                    return Response(data=errParser(errcode=404))
+                timeArray = time.localtime()
+                otherStyleTime = time.strftime("%Y-%m-%d %H:%M:%S", timeArray)
+                jobid = get_keyword(str(info["payload"]["jobId"]))
+                name = get_keyword(str(jobname))
+                username = get_keyword(str(user.username))
+                user_id = str(user.id)
+                state = "WAITTING"
+                createdTime = get_keyword(str(otherStyleTime))
+                completedTime = str(0)
+                _path = get_keyword(str(outputdir))
+                Da = models.User_algorithm.objects.filter(user_id=user.id).filter(name=algname)[0]
+                algorithm_id = Da.id
+                dataset_id = form_dict['dataSelection']
+                with connection.cursor() as cursor:
+                    sqltext = "INSERT INTO `automl_web`.`_app_user_job`(`jobid`, `name`, `username`, `user_id`, `state`, `createdTime`, `completedTime`,`_path`, `algorithm_id`, `dataset_id`) " \
+                            "VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}','{9}');".format(
+                        jobid, name, username, user_id, state, createdTime, completedTime, _path, algorithm_id, dataset_id
+                    )
+                    print("$$$$$$$$$$$", sqltext)
+                    cursor.execute(sqltext)
 
         # 创建完成
         # 【】前端 后端 需要添加判断任务是否创建成功
@@ -358,12 +363,57 @@ class RefreshData(APIView):
         # res=Parser(res) # 不一定打包
         return Response(data=res)
 class RefreshPath(APIView):
+    # 路径选择器对接的后端
+    # 使用 os 包
+    # 需要注意用户权限的问题
+    # responser={
+    #     "home":
+    #         {
+    #             "pcl":
+    #                 {
+    #                     "wyh_project":{},
+    #                     "Archive":{},
+    #                     "Software":{},
+    #                 },
+    #             "Zhara":{}
+    #         },
+    #     "temp":{},
+    #     "test":{},
+    # }
+    home="/home/pcl/wyh_project/PCL_AutoML_System/zdebug"
+    select_dir=True
+    
     def get(self,request):
-        # print("Get")
+        # limit user-visible directory
+        # root="/home/pcl/wyh_project/PCL_AutoML_System/debug"
         params=request.query_params.dict()
-        print("Params is:",params)
-        res=[]
+        # print("Params is:",params)
+        raw=params['0']
+        if raw.startswith("~"):
+            pass
+        now,prefix=os.path.split(raw)
+        if raw.endswith("..") or prefix=="..":
+            now,prefix=os.path.split(now)
+        # print("Path is: ",os.path.join(self.home,now))
+        try:
+            file_list=os.listdir(os.path.join(self.home,now))
+            file_list=[os.path.join(now,v) for v in file_list if v.startswith(prefix)]
+            for i,item in enumerate(file_list):
+                if os.path.isdir(os.path.join(self.home,item)) and item[-1]!="/":
+                    file_list[i]+="/"
+        except FileNotFoundError:
+            file_list=[
+                "路径不存在，请返回上级路径或返回到home路径：",
+                "..",
+                "~"
+            ]
+            file_list=Parser(file_list)
+            return Response(data=file_list)
+        # if file_list
         
+        res=[os.path.join(now,"..")]+file_list
+        # print("Res is: ",res)
+        res=Parser(res)
         return Response(data=res)
 class CreateMission(APIView):
     def get(self, request):
@@ -391,7 +441,17 @@ class DevEnv(APIView):
         pass
     def post(self,request):
         pass 
-     
+
+def DictCheck(src:dict, keys:list):
+    ''' 判断src是否符合标准，即字典中必须存在keys里的键，且值对应的长度不为0，
+    '''
+    result=True
+    for k in keys:
+        if not src.__contains__(k) or not len(src[k]):
+            result=False
+            break
+    return result
+
 class AlgoManage(APIView):
     def get(self, request):
         """
@@ -399,8 +459,44 @@ class AlgoManage(APIView):
         """
         pass
     def post(self,request):
-        pass 
-    
+        user = auth.get_user(request)
+        form_dict=request.data
+        print("Get algo create: ",form_dict)
+        name=form_dict['name']
+        version=form_dict['version']
+        aiEngine= "-".join(form_dict['AIEngine'])
+        codePath=form_dict['CodePath']
+        startPath=form_dict['StartFile']
+        hyperList=form_dict['hyperParams']
+        ioList=form_dict['inputParams']
+        
+        newAlgo=models.customize_algo.objects.create(
+            name=name,
+            ai_engine=aiEngine,
+            project_path=codePath,
+            start_path= startPath,
+            uid=user,
+        )
+        for item in hyperList:
+            newHyper=models.hpyer_set.objects.create(
+                name=item['name'],
+                data_type=item['dataType'],
+                initial_value=item['default'] if item.__contains__('default') else '',
+                is_necessary= True if item.__contains__('necessray') and item['necessray'] else False,
+                belong_algo=newAlgo,
+            )
+        for item in ioList:
+            print(type(item))
+            newIO=models.io_set.objects.create(
+                fname=item['label'],
+                name=item['name'],
+                default_path=item['default'] if item.__contains__('default') else '',
+                description=item['description'] if item.__contains__('description') else '',
+                belong_algo=newAlgo,
+            )
+        res=[]
+        res=Parser(res)
+        return Response(data=res)    
 class TrainJobManage(APIView):
     def get(self, request):
         """

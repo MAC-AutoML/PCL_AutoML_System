@@ -35,7 +35,9 @@ import { ProFormRadio } from '@ant-design/pro-form';
 import { message } from 'antd';
 import { history } from 'umi';
 
-import {PathProvider,InputConstraint} from './components';
+import {InputConstraint,PathSelector} from './components';
+import { postForm } from './service';
+import { values } from 'lodash';
 // import {postForm, getDataset} from './service';
 // 测试用的 Options 数据
 const EngingOptions=[
@@ -74,16 +76,19 @@ type ioDataType={
   id:React.Key;
   name?:string;
   label?:string;
-  path?:string;
-};
-type hpyerType={
-  name:string;
   description?:string;
-  dataType:string;
+  path?:string;
+  children?:ioDataType[];
+};
+type hyperType={
+  id:React.Key;
+  name?:string;
+  description?:string;
+  dataType?:string;
+  default?:number|string|boolean;
+  necessray?:boolean;
   range?:number[];
-  adjustable:boolean;
-  default:number;
-  necessray:boolean;
+  adjustable?:boolean;
 };
 
 // 定义表格columns
@@ -91,16 +96,61 @@ const ioColumns:ProColumns<ioDataType>[]=[
   {
     title:'映射名称',
     dataIndex:'label',
+    valueType:'text',
     width:'20%',
   },
   {
     title:'参数名',
     dataIndex:'name',
+    valueType:'text',
     width:'20%',
   },
   {
-    title:'映射路径',
-    dataIndex:'path',
+    title:'描述',
+    dataIndex:'label',
+    valueType:'text',
+    width:'50%',
+  },
+  // {
+  //   title:'映射路径',
+  //   dataIndex:'path',
+  //   renderFormItem:()=><PathSelector />,
+  //   // render
+  // },
+  {
+    title:'操作',
+    valueType:'option',
+  },
+]
+const hyperCloumns:ProColumns<hyperType>[]=[
+  {
+    title:'超参名',
+    dataIndex:'name',
+    valueType:'text',
+    width:'20%',
+  },
+  {
+    title:'类型',
+    dataIndex:'dataType',
+    valueType:'text',
+    // width:'20%',
+  },
+  {
+    title:'初始值',
+    dataIndex:'default',
+    valueType:'text',
+    // width:'20%',
+  },
+  {
+    title:'必需',
+    dataIndex:'necessray',
+    valueType:'text',
+    // width:'20%',
+  },
+  {
+    title:'描述',
+    dataIndex:'description',
+    valueType:'text',
   },
   {
     title:'操作',
@@ -130,12 +180,14 @@ export default (): React.ReactNode =>{
   const [newRecord,setNewRecord] = React.useState({
     id:(Math.random()*1000000)/1,});
 
-  const [outputKeys,setOutput]=React.useState<string[]>([]);
-  const [hyperList,setHyper] = React.useState<string[]>([]);
+  const [outputKeys,setOutput]=React.useState<React.Key[]>([]);
+  const [hyperKeys,setHyperKeys] = React.useState<React.Key[]>([]);
+  const [hyperList,setHyper] = React.useState<hyperType[]>([]);
+  const [testNum,setTestNum] = React.useState<number>(0);
 
-  const changeState= (num:number,setState)=>{
+  const changeState= (num:number,setState:any)=>{
     let now=(createType+1)%num;
-    console.log("Now is :", now);
+    console.log("Now is :", now);  
     setState(now);
   };
   
@@ -143,17 +195,17 @@ export default (): React.ReactNode =>{
   let createContent;
   if(createType==0)
   { 
-    //此处应为从后台获取AI引擎数据的级联选择器
+    //此处应为从后台获取AI引擎数据的级联选择器，现在是mock的假数据
     createContent=<>
-      <Form.Item name="AIEngine" label="AI引擎">
-        <Cascader options={EngingOptions} />
-      </Form.Item>
-      <Form.Item name="CodePath" label="代码目录">
-        <PathProvider label="待构造" disable={false}/>
-      </Form.Item>
-      <Form.Item name="StartFile" label="启动文件">
-        <PathProvider label="待构造" disable={false}/>
-      </Form.Item>
+      <ProForm.Item name="AIEngine" label="AI引擎">
+        <Cascader options={EngingOptions} size="middle" />
+      </ProForm.Item>
+      <ProForm.Item name="CodePath" label="代码目录">
+        <PathSelector />
+      </ProForm.Item>
+      <ProForm.Item name="StartFile" label="启动文件">
+        <PathSelector />
+      </ProForm.Item>
     </>;
   }
   else
@@ -189,151 +241,101 @@ export default (): React.ReactNode =>{
   return (
   <PageContainer content="" >
   <ProCard>
-  <StepsForm
-			onFinish={async (values)=>{
-				console.log(values);
-				await waitTime(200);
-				message.success("提交成功");
-			}}
-		formProps={{
-			validateMessages:{
-				required:'此项为必填项',
-			},
-		}}
-		>
-			<StepsForm.StepForm
-        name="train"
-        title="训练规范"
+    <ProForm
+      onFinish={async values=>{
+        let req=postForm(values);
+        let res=await req;
+        if(res && res["success"])
+        {
+          // console.log("RESPONSE is: ",res);
+          message.success('创建成功！');
+          afterSuccess();
+        }
+      }}
+    >
+      <ProFormText
+        name="name"
+        label="算法名称"
+        width="md"
+        tooltip="最长为24个字"
+        placeholder="请输入名称"
+        rules={[{required:true}]}
+      />
+      <ProFormText
+        name="version"
+        label="版本"
+        width="md"
+        rules={[{required:true}]}
+      />
+      <ProFormTextArea 
+        name="description"
+        label="算法描述"
+        width="lg"
+      />
+      <Divider />
+      <ProForm.Item > 
+        <Typography.Text strong> 创建方式 : </Typography.Text>
+        <Radio.Group defaultValue={0} buttonStyle="solid"
+          onChange={(e)=>setType(e.target.value)}
+        >
+          <Radio.Button value={0} > 自定义脚本 </Radio.Button>
+          <Radio.Button value={1} disabled> 自定义镜像 </Radio.Button>
+        </Radio.Group>
+      </ProForm.Item>
+      {createContent}
+      <Divider />
+      <ProForm.Item label="超参设置"
+        name="hyperParams"
+        trigger="onValuesChange"
       >
-        <ProFormText
-          name="name"
-          label="算法名称"
-          width="md"
-          tooltip="最长为24个字"
-          placeholder="请输入名称"
-          rules={[{required:true}]}
-        />
-        <ProFormText
-          name="version"
-          label="版本"
-          width="md"
-          rules={[{required:true}]}
-        />
-        <ProFormTextArea 
-          name="description"
-          label="算法描述"
-          width="lg"
-        />
-        <Form.Item label="路径选择器 待施工">
-          <PathProvider disable={true} label={"待施工"}/>
-        </Form.Item>
-        <Divider/>
-        <Form.Item > 
-          <Typography.Text strong> 创建方式 : </Typography.Text>
-          <Radio.Group defaultValue={0} buttonStyle="solid"
-            onChange={(e)=>setType(e.target.value)}
+        <EditableProTable<hyperType>
+          rowKey="id"
+          maxLength={20}   
+          toolBarRender={false}
+          columns={hyperCloumns}
+          recordCreatorProps={{
+            newRecordType:'dataSource',
+            position:'bottom',
+            record: () => ({ id: Date.now(),}),
+          }}
+          editable={{
+            type:'multiple',
+            editableKeys:hyperKeys,
+            onChange:setHyperKeys,
+            actionRender:(row,_,dom)=>{
+              return [dom.delete];
+            },
+          }}
           >
-            <Radio.Button value={0} > 自定义脚本 </Radio.Button>
-            <Radio.Button value={1} disabled> 自定义镜像 </Radio.Button>
-          </Radio.Group>
-        </Form.Item>
-        {createContent}
-        <Divider/>
-          {/* <DynamicForm /> */}
-          <Form.Item 
-            label="输入数据配置" 
-            trigger = "onValuesChange"
-            // initialValue={[]}
-            >
-            <EditableProTable<ioDataType>
-              // rowKey={(e:ioDataType)=>(e.id)}
-              value={inputData}
-              onChange={(data) => {
-                setInputKeys(data.map((item)=>item.id));
-                setInputData(data);
-              }}
-              rowKey={'id'}
-              maxLength={5}
-              toolBarRender={false}
-              columns={ioColumns}
-              recordCreatorProps={{
-                newRecordType:'ioDataType',
-                position:'bottom',
-                record: {newRecord},
-              }}
-              editable={{
-                type:'multiple',
-                editableKeys:inputKeys,
-                onChange:setInputKeys,
-                onSave:async ()=>setNewRecord({id:(Math.random()*1000000)/1})
-                // actionRender:(row,_,dom)=>{
-                //   return [dom.delete];
-                // }
-              }}
-              />
-          </Form.Item>
-        <Divider />
-          {/* <DynamicForm /> */}
-          <Form.Item label="输出数据配置" >
-
-          </Form.Item>
-        <Divider />
-      </StepsForm.StepForm>
-			<StepsForm.StepForm
-        name="hpyer"
-        title="超参规范"
-      >
-        <Typography>
-          <Typography.Title level={4}>定义超级参数</Typography.Title>
-          <Typography.Paragraph>
-            使用该算法创建训练作业时，以下超级参数支持用户查阅或修改，
-            最终会在启动命令中，以命令行参数的形式传入您的训练脚本或镜像中
-          </Typography.Paragraph>
-        </Typography>
-        <Button.Group size="middle">
-        <Button>删除</Button>
-        <Button>修改</Button>
-        <Button>清空</Button>
-        </Button.Group>
-        <Divider />
-        <Form.Item>
-          <Typography.Text strong> 从文件导入参数 : </Typography.Text>
-          {/* <Switch 
-            onChange= {(checked:boolean,event)=>{
-              console.log("checked",checked);
-              setImport(checked)
-            }}
-            defaultChecked={false}
-          /> */}
-          <Radio.Group defaultValue={0} buttonStyle="solid"
-            onChange={(e)=>setImport(e.target.value)}
-          >
-            <Radio.Button value={0} > 页面输入 </Radio.Button>
-            <Radio.Button value={1} > 远程文件导入 </Radio.Button>
-            <Radio.Button value={2} > 本地文件导入 </Radio.Button>
-          </Radio.Group>
-        </Form.Item>
-        {importParam}
-        <Divider />
-        {/* <DynamicForm /> */}
-      </StepsForm.StepForm>
-			<StepsForm.StepForm
-        name="constrain"
-        title="使用约束"
-      >
-        <InputConstraint />
-      </StepsForm.StepForm>
-			<StepsForm.StepForm
-        name="finish"
-        title="完成"
-      >
-
-      </StepsForm.StepForm>
-		</StepsForm>
-  
+        </EditableProTable>
+      </ProForm.Item>
+      <ProForm.Item label="输入输出数据配置" 
+        name="inputParams"
+        trigger="onValuesChange"
+        >
+        {/* {console.log("Editable ProTable")} */}
+        <EditableProTable<ioDataType>
+          rowKey="id"
+          maxLength={20}
+          toolBarRender={false}
+          columns={ioColumns}
+          recordCreatorProps={{
+            newRecordType:'dataSource',
+            position:'bottom',
+            record: () => ({ id: Date.now(),}),
+          }}
+          editable={{
+            type:'multiple',
+            editableKeys:inputKeys,
+            onChange:setInputKeys,
+            actionRender:(row,_,dom)=>{
+              return [dom.delete];
+            },
+          }}
+        />
+      </ProForm.Item>
+    </ProForm>
   </ProCard>
-  
-
   </PageContainer>
   )
 };

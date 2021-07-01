@@ -95,3 +95,54 @@ class User_Job(models.Model):
         ordering = ["-id"]
     def get_fields(self):
         return [(field.name, field.value_to_string(self)) for field in self._meta.fields]
+    
+class customize_algo(models.Model):
+    name=models.CharField(max_length=128, verbose_name="算法名称")
+    description=models.TextField(verbose_name="算法描述", blank=True)
+                                               
+    ai_engine=models.CharField(max_length=128)
+    project_path=models.CharField(max_length=256)
+    start_path=models.CharField(max_length=256)
+    code_path=models.CharField(max_length=256)
+    uid = models.ForeignKey(User, on_delete=models.CASCADE)
+    
+    def __str__(self) -> str:
+        return self.name
+    class Meta:
+        ordering= ["-id"]
+    def get_fields(self):
+        return [(field.name, field.value_to_string(self)) for field in self._meta.fields]
+
+class hpyer_set(models.Model):
+    name=models.CharField(max_length=128)
+    data_type=models.CharField(max_length=64) # options
+    # https://docs.djangoproject.com/en/3.2/ref/models/fields/
+    initial_value=models.CharField(max_length=256, blank=True)
+    limitations=models.TextField(verbose_name="Json字符串形式保存的超参限制条件",
+                                 blank=True) # 将参数的限制范围以json字符串的形式存储，
+    is_necessary=models.BooleanField(default=False)
+    description=models.TextField(verbose_name="描述", blank=True)
+    belong_algo=models.ForeignKey(customize_algo,on_delete=models.CASCADE)
+    
+    def __str__(self) -> str:
+        return self.name
+    class Meta:
+        ordering= ["-id"]
+    def get_fields(self):
+        return [(field.name, field.value_to_string(self)) for field in self._meta.fields]
+
+class io_set(models.Model):
+    fname=models.CharField(max_length=128)
+    name=models.CharField(max_length=128)
+    default_path=models.CharField(max_length=256, blank=True)
+    description=models.TextField(verbose_name="描述", blank=True)
+    belong_algo=models.ForeignKey(customize_algo,on_delete=models.CASCADE)
+
+    def __str__(self) -> str:
+        return self.name
+    class Meta:
+        ordering= ["-id"]
+    def get_fields(self):
+        return [(field.name, field.value_to_string(self)) for field in self._meta.fields]    
+    
+    

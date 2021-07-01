@@ -1,16 +1,26 @@
 import React, { Props, useState } from 'react';
+import {useRequest} from 'umi';
 import { Card, Typography, Alert, Button,Cascader, Row,Col, Divider,
-		Form,
+		Form, Table, Input, InputNumber, Popconfirm, AutoComplete
 	} from 'antd';
 import ProForm, {ProFormSelect} from '@ant-design/pro-form';
 import { ColumnsState, EditableProTable } from '@ant-design/pro-table';
 import type { ProColumns } from '@ant-design/pro-table';
 
 import {getPath} from './service';
-
+import Item from 'antd/lib/list/Item';
+const {Option} = AutoComplete;
+// interface ProviderProps {
+// 	value?:{ key:string;label:string;}[];
+// 	onChange?:(
+// 		value:{key:string;label:string;}[],
+// 	)=>void;
+// };
 interface ProviderProps {
-	label:string,
-	disable:boolean,
+	value?:string;
+	onChange?:(
+		value:string,
+	)=>void;
 };
 interface PathType {
 	value:string,
@@ -28,53 +38,69 @@ const test=[{
 	isLeaf:false,
 }];
 // interface 定义部件参数名和类型 React.FC<ParamList>
-//需要换一种方式, Cascader 方式不好
 //仿照 VScode 选择路径的方式来, 基于antd select 模组
-const PathProvider:React.FC<ProviderProps>=(props)=>{
-	// 解包参数
-	const {label,disable}=props;
-	const [pathes,setPathes]=React.useState(test);
-	const onChange=(value,selectedPath) =>{
-		console.log("Value: ",value);
-		console.log("Selected: ",selectedPath);
+/* ----------------------------------------------------------- */
+const PathSelector:React.FC<ProviderProps>=({value,onChange})=>{
+	let p:string[]=[];
+	const [pathList, setPathList] = useState(p);
+	const [inputPath,setInputPath]=useState<string>("");
+	const handleChange = (changedValue:string)=>{
+		// 从后台请求数据 ， 需要加防抖功能
+		let promise=getPath(changedValue);
+		promise.then(
+			(resp)=>{
+				setPathList(resp.data);
+				return resp;}
+		);
+		// console.log("CHANGEDVALUE is : ",changedValue);
+		setInputPath(changedValue);
+		onChange?.(changedValue);
 	};
-	const loadData= selectedPath => {
-		const targetOption = selectedPath.length ? selectedPath[selectedPath.length-1] : selectedPath ;
-		targetOption.loading=true;
-		// console.log("loading selected: ",selectedPath);
-		// console.log("loading target: ",targetOption);
-		let sender= selectedPath.map((item:PathType)=>{return item.value;});
-		// let root=sender.join("/");
-		// console.log("loading root: ", root);
-		// console.log("loading sender:",sender);
-		let nextLevel=getPath(sender);
-		// console.log(selectedPath,nextLevel);
-		targetOption.children=[
-			{
-				label:"a",
-				value:"a",
-				isLeaf:false,
-			},
-			{
-				label:"b",
-				value:"b",
-				isLeaf:false,
-			},
-		];
-		targetOption.loading=false;
-		// nextLevel.forEach(element => {
-		// 	targetOption.children
-		// });
-		// targetOption.children = nextLevel;
-		setPathes([...pathes]);
-	};
-	
-	return(
-		<Cascader options={pathes} loadData={loadData} 
-			onChange={onChange} changeOnSelect disabled={disable}/>
-	);
-};
-
+	const handleFocus = ()=>{
+		if(inputPath=="")
+			handleChange("");
+	}
+	const handleSelect = (changedValue:string)=>{
+		let i = changedValue.lastIndexOf("..");
+		if(i>-1)
+			changedValue=changedValue.slice(0,i);
+		let j = changedValue.lastIndexOf("/");
+		if(i==j+1)
+		{
+			var k=changedValue.slice(0,j).lastIndexOf("/");
+			var temp=changedValue.slice(0,k+1);
+			changedValue=temp;
+		}
+		handleChange(changedValue);
+	}
+	return <AutoComplete 
+		style={{width:350}} 
+		value={inputPath}
+		onChange={handleChange} 
+		onFocus={handleFocus}
+		onSelect={handleSelect}
+		> 
+		{
+			pathList.map(
+				(pathStr)=>{
+					// return <Option key={pathStr} value={pathStr} > {pathStr} </Option>;
+					// 这里假设返回的是文件的绝对路径(相对于分配给用户的根目录)
+					let v:number=pathStr.lastIndexOf("/");
+					let label=pathStr;
+					if (v+1<pathStr.length)
+						label=pathStr.slice(v+1);
+					else if (v+1==pathStr.length)
+					{
+						var k=pathStr.slice(0,v).lastIndexOf("/");
+						label=k>0? pathStr.slice(k+1): label;
+					}						
+					return <Option key={pathStr} value={pathStr} > {label} </Option>;
+				}
+			)
+		}
+	</AutoComplete>
+}
+/* ----------------------------------------------------------- */
 interface InputProps{
 
 };
@@ -112,10 +138,10 @@ const InputConstraint:React.FC<InputProps>=(props)=>{
 	if(selector.includes(sourceOptions[1].value))
 	{
 		others=<>
-			<Divider />
+			<Divider /> 
 			<Typography.Title level={4}>{Pname}</Typography.Title>
 			<Row><Col>{/* 没起到分栏分行作用，需要进一步研究 */}
-				<Typography.Text>按部件传入的参数列表循环列出</Typography.Text>	
+				<Typography.Text>按"训练规范-输入数据配置"部件传入的参数列表循环列出</Typography.Text>	
 			</Col></Row>
 			<Row><Col>
 				<ProFormSelect
@@ -163,7 +189,7 @@ const InputConstraint:React.FC<InputProps>=(props)=>{
 		{others}
 	</>;
 };
-export {PathProvider,InputConstraint,};
+export {InputConstraint,PathSelector};
 
 // for (let index = 0; index < inputlist.length; index++) {
 // 	let element = inputlist[index];

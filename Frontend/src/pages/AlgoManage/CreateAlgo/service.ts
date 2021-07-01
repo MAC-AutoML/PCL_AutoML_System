@@ -4,14 +4,14 @@ import { request } from 'umi';
 
 const API:string = '/api/algoManage';
 const ResfreshAPI:string='/api/refresh/';
-const ResfreshPath:string=ResfreshAPI+'path'
+const ResfreshPath:string='/api/refresh/path'
 export async function postForm(params){
     return request(API,{
         method: 'POST',
         data: params,
     });
 }
-export async function getPath(params:Array<string>){
+export async function getPath(params:string){
     // params 回传任务类型
     let result=await request(ResfreshPath,{
         method: 'GET',
