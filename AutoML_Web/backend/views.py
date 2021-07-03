@@ -231,7 +231,7 @@ class AutoML(APIView):
         response=Parser(result)
         ## response['total'] 未设置则antd-pro使用 data 的长度
         # 参考网址：https://procomponents.ant.design/components/table#request
-        
+
         return Response(data=response)
         pass
     def post(self,request):
@@ -454,10 +454,26 @@ def DictCheck(src:dict, keys:list):
 
 class AlgoManage(APIView):
     def get(self, request):
-        """
-        login get
-        """
-        pass
+        user=auth.get_user(request)
+        query=request.data
+        print(query)
+        # # 
+        algo_sets=models.customize_algo.objects.filter(uid=user)
+        # print(type(algo_sets[0]))
+        algo_list=[]
+        for rec in algo_sets:
+            algo_list.append({
+                "id": rec.id,
+                "name": rec.name,
+                # "version": rec.version,
+                "description": rec.description,
+                # "created_at": rec.created_at,
+            })
+        # # 
+        result=algo_list # 注意！ 返回值必须是数组形式的 否则前端会报错： RawData.some is not function
+        response=Parser(result)
+        return Response(data=response)
+
     def post(self,request):
         user = auth.get_user(request)
         form_dict=request.data
@@ -490,12 +506,37 @@ class AlgoManage(APIView):
             newIO=models.io_set.objects.create(
                 fname=item['label'],
                 name=item['name'],
+                # version=item['version'], 
                 default_path=item['default'] if item.__contains__('default') else '',
                 description=item['description'] if item.__contains__('description') else '',
                 belong_algo=newAlgo,
             )
         res=[]
         res=Parser(res)
+        return Response(data=res)    
+    def delete(self, request):
+        user = auth.get_user(request)
+        print(user)
+        form_dict=request.data
+        print("DELETE is: ",form_dict)
+        try:
+            algo=models.customize_algo.objects.get(id=form_dict['id'])
+            # algo=models.customize_algo.objects.get(id=10001)
+        except BaseException as e:
+            res=errParser(data={
+                "success": "false",
+                "reason":repr(e),
+            })
+        else:
+            if all([
+                algo.name == form_dict['name'],
+                # algo.created_at == form_dict['created_at'],
+                True,
+            ]):
+                print("DELETE SELETED ALGO")
+                algo.delete()
+            res=[]
+            res=Parser(res)
         return Response(data=res)    
 class TrainJobManage(APIView):
     def get(self, request):

@@ -11,6 +11,12 @@ export async function postForm(params){
         data: params,
     });
 }
+export async function getForm(params){
+    return request( API,{
+        method:'GET', 
+        data: params,
+    });
+}
 export async function getPath(params:string){
     // params 回传任务类型
     let result=await request(ResfreshPath,{

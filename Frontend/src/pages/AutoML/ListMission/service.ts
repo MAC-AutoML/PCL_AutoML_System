@@ -5,7 +5,8 @@ const API:string = '/api/automl';
 
 export async function queryMission(params:TableListParams){
     return request(API,{
-        params
+        method: 'GET',
+        params,
     });
 }
 // export async function 

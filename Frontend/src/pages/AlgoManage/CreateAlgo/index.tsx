@@ -132,7 +132,13 @@ const hyperCloumns:ProColumns<hyperType>[]=[
   {
     title:'类型',
     dataIndex:'dataType',
-    valueType:'text',
+    valueType:'select',
+    valueEnum:{
+      int:{text:"Int"},
+      float:{text:"Float"},
+      string:{text:"String"},
+      bool:{text:"Boolean"},
+    }
     // width:'20%',
   },
   {
@@ -144,7 +150,7 @@ const hyperCloumns:ProColumns<hyperType>[]=[
   {
     title:'必需',
     dataIndex:'necessray',
-    valueType:'text',
+    valueType:'switch',
     // width:'20%',
   },
   {
@@ -157,6 +163,16 @@ const hyperCloumns:ProColumns<hyperType>[]=[
     valueType:'option',
   },
 ]
+const defaultIO:ioDataType[]=[
+  {
+    id:100001,
+    label:"数据集路径",
+  },
+  {
+    id:100002,
+    label:"输出路径",
+  },
+  ]
 // 工具函数
 const waitTime = (time: number = 100) => {
   return new Promise((resolve) => {
@@ -176,7 +192,7 @@ export default (): React.ReactNode =>{
   const [ifImport,setImport] = React.useState<number>(0);
 
   const [inputKeys,setInputKeys] = React.useState<React.Key[]>([]);
-  const [inputData,setInputData] = React.useState<ioDataType[]>([]);
+  const [inputData,setInputData] = React.useState<ioDataType[]>(()=> defaultIO);
   const [newRecord,setNewRecord] = React.useState({
     id:(Math.random()*1000000)/1,});
 
@@ -313,10 +329,11 @@ export default (): React.ReactNode =>{
         name="inputParams"
         trigger="onValuesChange"
         >
-        {/* {console.log("Editable ProTable")} */}
         <EditableProTable<ioDataType>
           rowKey="id"
           maxLength={20}
+          value={inputData}
+          onChange={setInputData}
           toolBarRender={false}
           columns={ioColumns}
           recordCreatorProps={{

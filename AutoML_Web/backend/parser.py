@@ -11,10 +11,10 @@ def Parser(data,errcode:str="1001",errmessage:str="error message"):
         "errorMessage": errmessage,
         }
     return MESSAGE
-def errParser(errcode:int=1001,errmessage:str="error message"):
+def errParser(errcode:int=1001,errmessage:str="error message",data:list=[]):
     MESSAGE={
     "success": "false",
-    "data": {},
+    "data": data,
     "errorCode":str(errcode),
     "errorMessage": errmessage,
     }
