@@ -28,13 +28,12 @@ from . import mock
 from .parser import Parser,errParser
 from .serializers import *
 import time
-from tools.API_tools import get_keyword
 
 # import tools.API_tools as API_tools
 # from  tools.API_tools import get_keyword
 sys.path.append('..')
 from tools import API_tools
-from .back_untils import *
+from . import back_untils
 
 ## 方便debug用, VScode pylance 可以解析到这些包的位置
 ## 不影响正常运行
@@ -145,7 +144,7 @@ class AutoML(APIView):
         # 这里假设每条记录是字典形式，query结果是列表
         # [{},{},{}]
         rec = []
-        updata_jobtable(user.tocken, user, user.first_name)
+        back_untils.updata_jobtable(user.tocken, user, user.first_name)
         queryset = models.User_Job.objects.all()
         # print(queryset)
         ret = JobsSerializers(queryset, many=True)
@@ -279,7 +278,7 @@ class AutoML(APIView):
                 else:
                     algname = 'mobilenetv3_large_100'
                 #-------挂载CP算法操作----------
-                #alg_cp(r'./../../algorithm/classification/pytorch_automodel/image_classification',"")
+                #back_untils.alg_cp(r'./../../algorithm/classification/pytorch_automodel/image_classification',"")
 
                 #-----------------------------
                 #command = "cd ../userhome/fakejobspace/algorithm/classification/pytorch_automodel/image_classification/;"
@@ -302,14 +301,14 @@ class AutoML(APIView):
                     return Response(data=errParser(errcode=404))
                 timeArray = time.localtime()
                 otherStyleTime = time.strftime("%Y-%m-%d %H:%M:%S", timeArray)
-                jobid = get_keyword(str(info["payload"]["jobId"]))
-                name = get_keyword(str(jobname))
-                username = get_keyword(str(user.username))
+                jobid = API_tools.get_keyword(str(info["payload"]["jobId"]))
+                name = API_tools.get_keyword(str(jobname))
+                username = API_tools.get_keyword(str(user.username))
                 user_id = str(user.id)
                 state = "WAITTING"
-                createdTime = get_keyword(str(otherStyleTime))
+                createdTime = API_tools.get_keyword(str(otherStyleTime))
                 completedTime = str(0)
-                _path = get_keyword(str(outputdir))
+                _path = API_tools.get_keyword(str(outputdir))
                 Da = models.User_algorithm.objects.filter(user_id=user.id).filter(name=algname)[0]
                 algorithm_id = Da.id
                 dataset_id = form_dict['dataSelection']
@@ -415,32 +414,49 @@ class RefreshPath(APIView):
         # print("Res is: ",res)
         res=Parser(res)
         return Response(data=res)
-class CreateMission(APIView):
-    def get(self, request):
-        """
-        login get
-        """
-        pass
-    def post(self,request):
-        pass 
-    
-class DataManage(APIView):
-    def get(self, request):
-        """
-        login get
-        """
-        pass
-    def post(self,request):
-        pass 
-    
-class DevEnv(APIView):
-    def get(self, request):
-        """
-        login get
-        """
-        pass
-    def post(self,request):
-        pass 
+
+class RefreshAlgo(APIView):
+    def get(self,request):
+        user=auth.get_user(request)
+        # print(request.data)
+        params=request.query_params.dict()
+        if not params.__contains__('algo_id'):
+            return Response(data=[])
+        print("ALGO ID: ", params['algo_id'])
+        try:
+            algo=models.customize_algo.objects.get(id=params['algo_id'])
+        except:
+            return Response(data=[])
+        reps=[]
+        if params.__contains__('hyper'):
+            hypers=algo.hpyer_set_set.all()
+            for hyper in hypers:
+                # print("HYPER is: ",hyper.__dict__)
+                reps.append({
+                    "id":hyper.id,
+                    "name":hyper.name,
+                    "dataType":hyper.data_type,
+                    "default":hyper.initial_value,
+                    "necessray":hyper.is_necessary,
+                    # "predefined":True
+                })
+        elif params.__contains__('ioput'):
+            ios=algo.io_set_set.all()
+            for io in ios:
+                reps.append({
+                    "id":io.id,
+                    "label":io.fname,
+                    "name":io.name,
+                    # "predefined":True
+                })
+        # response=Parser(reps)
+        # response["data"]=reps
+        # response["success"]='true'
+        # print(response)
+        response=Parser(reps)
+        # response["total"]=len(reps)
+       
+        return Response(data=response)
 
 def DictCheck(src:dict, keys:list):
     ''' 判断src是否符合标准，即字典中必须存在keys里的键，且值对应的长度不为0，
@@ -465,9 +481,9 @@ class AlgoManage(APIView):
             algo_list.append({
                 "id": rec.id,
                 "name": rec.name,
-                # "version": rec.version,
+                "version": rec.version,
                 "description": rec.description,
-                # "created_at": rec.created_at,
+                "created_at": rec.created_at,
             })
         # # 
         result=algo_list # 注意！ 返回值必须是数组形式的 否则前端会报错： RawData.some is not function
@@ -485,9 +501,16 @@ class AlgoManage(APIView):
         startPath=form_dict['StartFile']
         hyperList=form_dict['hyperParams']
         ioList=form_dict['inputParams']
-        
+        algo_list=models.customize_algo.objects.filter(name=name)
+        if len(algo_list):
+            for algo in algo_list:
+                unique="-".join([algo.name,algo.version])
+                if unique == "-".join([name.strip(),version.strip()]):
+                    res=errParser(errmessage="\"算法名称-版本\"已存在，请修改名称或版本")
+                    return Response(data=res)                    
         newAlgo=models.customize_algo.objects.create(
             name=name,
+            version=version,
             ai_engine=aiEngine,
             project_path=codePath,
             start_path= startPath,
@@ -523,10 +546,7 @@ class AlgoManage(APIView):
             algo=models.customize_algo.objects.get(id=form_dict['id'])
             # algo=models.customize_algo.objects.get(id=10001)
         except BaseException as e:
-            res=errParser(data={
-                "success": "false",
-                "reason":repr(e),
-            })
+            res=errParser(errmessage=repr(e))
         else:
             if all([
                 algo.name == form_dict['name'],
@@ -538,14 +558,34 @@ class AlgoManage(APIView):
             res=[]
             res=Parser(res)
         return Response(data=res)    
+
 class TrainJobManage(APIView):
     def get(self, request):
-        """
-        login get
-        """
-        pass
+        print("GET Train Job Manage")
+        user = auth.get_user(request)
+        back_untils.refresh_jobtable(user.tocken, user.username, user.first_name,user)
+        
+        job_set=models.customize_job.objects.filter(uid=user)
+        job_list=[]
+        for rec in job_set:
+            job_list.append({
+                "id": rec.id,
+                "name":rec.name,
+                "status":rec.state.lower(),
+                "created_at":rec.created_at,
+                "completed_at":rec.completed_at,
+            })
+        result=job_list
+        response=Parser(result)
+        return Response(data=response)    
     def post(self,request):
-        pass 
+        # 创建任务
+        # 后送到云脑
+        # 成功后再录入数据库
+        user = auth.get_user(request)
+        res=[]
+        res=Parser(res)
+        return Response(data=res)    
     
 class AutoJobManage(APIView):
     def get(self, request):
@@ -556,14 +596,6 @@ class AutoJobManage(APIView):
     def post(self,request):
         pass 
     
-class ModelManage(APIView):
-    def get(self, request):
-        """
-        login get
-        """
-        pass
-    def post(self,request):
-        pass 
     
 class AIMarket(APIView):
     def get(self, request):
@@ -689,4 +721,38 @@ class PubDataset(APIView):
     def post(self,request):
         pass
 
-
+class CreateMission(APIView):
+    def get(self, request):
+        """
+        login get
+        """
+        pass
+    def post(self,request):
+        pass 
+    
+class DataManage(APIView):
+    def get(self, request):
+        """
+        login get
+        """
+        pass
+    def post(self,request):
+        pass 
+    
+class DevEnv(APIView):
+    def get(self, request):
+        """
+        login get
+        """
+        pass
+    def post(self,request):
+        pass 
+    
+class ModelManage(APIView):
+    def get(self, request):
+        """
+        login get
+        """
+        pass
+    def post(self,request):
+        pass 

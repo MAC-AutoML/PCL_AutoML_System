@@ -2,7 +2,7 @@ from django.db import models
 from django.contrib import auth
 from django.contrib.auth.models import AbstractUser
 # Create your models here.
-
+# 模型写在这里是历史遗留问题
 
 class User(AbstractUser):
     _path = models.CharField(max_length=256, default='')
@@ -95,12 +95,15 @@ class User_Job(models.Model):
         ordering = ["-id"]
     def get_fields(self):
         return [(field.name, field.value_to_string(self)) for field in self._meta.fields]
+    
 # # 算法创建部分
 class customize_algo(models.Model):
     name=models.CharField(max_length=128, verbose_name="算法名称")
+    version=models.CharField(max_length=128,blank=True, verbose_name="版本")
     description=models.TextField(verbose_name="算法描述", blank=True)
-    # created_at=models.DateTimeField(auto_now_add=True) 
-    # edited_at=models.DateTimeField(auto_now=True)                                          
+    created_at=models.DateTimeField(auto_now_add=True)
+    edited_at=models.DateTimeField(auto_now=True)
+    # 是 Python 的 DateTime 对象                                          
     ai_engine=models.CharField(max_length=128)
     project_path=models.CharField(max_length=256)
     start_path=models.CharField(max_length=256)
@@ -151,5 +154,20 @@ class io_set(models.Model):
         ordering= ["-id"]
     def get_fields(self):
         return [(field.name, field.value_to_string(self)) for field in self._meta.fields]    
+# # 创建训练作业部分
+class customize_job(models.Model):
+    job_id = models.CharField(max_length=128,unique=True)
+    name = models.CharField(max_length=128)
+    state = models.CharField(max_length=128)
+    created_at = models.DateTimeField()
+    completed_at=models.DateTimeField()
+    algo_id = models.ForeignKey(customize_algo,on_delete=models.SET_NULL,blank=True,null=True)
+    uid = models.ForeignKey(User, on_delete=models.CASCADE)
     
-    
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        ordering = ["-id"]
+    def get_fields(self):
+        return [(field.name, field.value_to_string(self)) for field in self._meta.fields]    

@@ -258,16 +258,26 @@ export default (): React.ReactNode =>{
   <PageContainer content="" >
   <ProCard>
     <ProForm
-      onFinish={async values=>{
-        let req=postForm(values);
-        let res=await req;
-        if(res && res["success"])
-        {
-          // console.log("RESPONSE is: ",res);
-          message.success('创建成功！');
-          afterSuccess();
+      onFinish={async values => {
+        let res=postForm(values);
+        let rep={};
+        //如果 是 async类型的函数 这里必须加 await 否则会异步执行后面的代码，导致 rep 没有赋值
+        await res.then( 
+          (resp)=>{
+            rep["success"]=resp.success;
+            rep["reason"]=resp.errorMessage;
+            return resp;
+          });
+        if(!rep["success"] || rep["success"]=="false"){
+          message.error("提交失败");
+          message.error(rep["reason"]);
         }
-      }}
+        else{
+          afterSuccess();
+          message.success('提交成功！');            
+        }
+        // history 回退到上一层
+    }}
     >
       <ProFormText
         name="name"

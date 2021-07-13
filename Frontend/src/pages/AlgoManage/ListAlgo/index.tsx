@@ -65,25 +65,25 @@ const my_algo:ProColumns<TableItem>[] = [
         key="0"
         title="是否删除该项？"
         trigger="click"
-        onConfirm={(_) =>{
+        onConfirm={async (_) =>{
           // action?.startEditable(row.key);
-          let promise=deleteMission(row);
+          let res=deleteMission(row);
           let rep={};
-          promise.then(
+          await res.then(
             (resp)=>{
-              console.log("RESPONSE is: ",resp.data);
-              rep=resp.data;
-              return resp;}
-          );
+              rep["success"]=resp.success;
+              rep["reason"]=resp.errorMessage;
+              return resp;
+            });
 					// let infos:string=rep["reason"]
-          if(!rep["success"] || rep["success"]==="false")
+          if(!rep["success"] || rep["success"]=="false")
 					{
 						message.error('删除失败',3);
-						message.error('该算法不存在，请刷新列表',3);
+						message.error(rep["reason"],3);
 					}
           else
 						message.success('删除成功',3);
-				action.reload();
+				  action.reload();
           // 删除失败怎么写
         }}
       >

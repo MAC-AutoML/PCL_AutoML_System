@@ -3,8 +3,8 @@
 import os,sys,stat
 import shutil
 import time
+import datetime
 from _app import models
-import time
 from tools import API_tools
 from  tools.API_tools import get_keyword
 
@@ -28,6 +28,7 @@ def updata_user_algorithm(user,id):
 
 
 def updata_jobtable(tocken,un,pa):
+    # 对于正在运行中的任务，更新他们的状态
     #同步云脑数据库job信息
     job = models.User_Job.objects.all().order_by("id")
     job = job.exclude(state="STOPPED").exclude(state="FAIL").exclude(state="SUCCEEDED")
@@ -43,7 +44,33 @@ def updata_jobtable(tocken,un,pa):
                 jd.completedTime = otherStyleTime2
             jd.save()
             print("$$$$$$$$ Update Dataset Success")
+def refresh_jobtable(tocken,un,pa,user):
+    # user 是 auth.user 对象
+    # 从云脑API处获取所有的任务，
+    job_list=API_tools.get_joblist(tocken,un,pa,size=20,offset=0)
 
+    totalSize=job_list["totalSize"]
+    job_list=job_list["jobs"]
+    
+    now_jobs=models.customize_job.objects.all()
+    ids=[j.job_id for j in now_jobs]
+    ids=set(ids)
+    for job in job_list:
+        if job['id'] in ids:
+            continue
+        # ! 这里没有指定时区，默认是使用当地时区，也就是北京时间
+        createdTime= datetime.datetime.fromtimestamp(job["createdTime"]/1000) 
+        compeletedTime=datetime.datetime.fromtimestamp(job["completedTime"]/1000)
+        
+        models.customize_job.objects.create(
+            job_id=job["id"],
+            name=job["name"],
+            state=job["state"],
+            created_at=createdTime,
+            completed_at=compeletedTime,
+            uid=user,
+        )
+    pass
 def alg_cp(source,target):
     #jobspace / algorithm /classification/pytorch_automodel/
     if os.path.exists(r'/home/pcl/wdc_mnt/jobspace') != True:

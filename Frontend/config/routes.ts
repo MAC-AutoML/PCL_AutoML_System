@@ -94,83 +94,133 @@
     ]
   },
   //level:01, id:06 
+  // {
+  //   path: '/JobManage',
+  //   name: '作业管理',
+  //   icon: 'table',
+  //   // component: './JobManage',
+  //   authority: ['admin', 'user'],
+  //   // hideInMenu: 'true', 
+  //   routes: [//子界面
+  //     {
+  //       path: '/JobManage/TrainJobManage',
+  //       name: '训练作业管理',
+  //       icon: 'smile',
+  //       // component: './JobManage/TrainJobManage',
+  //       routes: [//子界面
+  //         {
+  //           path: '/JobManage/TrainJobManage',
+  //           // name: '',
+  //           icon: 'smile',
+  //           component: './JobManage/TrainJobManage',
+  //           hideInMenu: true, 
+  //           exact:true,
+  //         },
+  //         {
+  //           path: '/JobManage/TrainJobManage/CreateJob',
+  //           name: '创建训练任务',
+  //           icon: 'smile',
+  //           component: './JobManage/TrainJobManage/CreateJob',
+  //           hideInMenu: true, 
+  //           // exact:true,
+  //         },
+  //       ],
+  //     },
+  //     {
+  //       path: '/JobManage/AutoJobManage',
+  //       name: '自动搜索作业管理',
+  //       icon: 'smile',
+  //       // component: './JobManage/AutoJobManage',
+  //       routes: [//子界面
+  //         {
+  //           path: '/JobManage/AutoJobManage',
+  //           // name: '',
+  //           icon: 'smile',
+  //           component: './JobManage/AutoJobManage',
+  //           hideInMenu: true, 
+  //           exact:true,
+  //         },
+  //         {
+  //           path: '/JobManage/AutoJobManage/CreateJob',
+  //           name: '创建训练任务',
+  //           icon: 'smile',
+  //           component: './JobManage/AutoJobManage/CreateJob',
+  //           hideInMenu: true, 
+  //           // exact:true,
+  //         },
+  //       ],
+  //     },
+  //   ]
+  // },
   {
-    path: '/JobManage',
-    name: '作业管理',
-    icon: 'table',
-    // component: './JobManage',
+    path: '/JobManage/TrainJobManage',
+    name: '训练作业管理',
+    icon: 'smile',
     authority: ['admin', 'user'],
-    // hideInMenu: 'true', 
+    // component: './JobManage/TrainJobManage',
     routes: [//子界面
       {
         path: '/JobManage/TrainJobManage',
-        name: '训练作业管理',
+        // name: '',
         icon: 'smile',
-        // component: './JobManage/TrainJobManage',
-        routes: [//子界面
-          {
-            path: '/JobManage/TrainJobManage',
-            // name: '',
-            icon: 'smile',
-            component: './JobManage/TrainJobManage',
-            hideInMenu: true, 
-            exact:true,
-          },
-          {
-            path: '/JobManage/TrainJobManage/CreateJob',
-            name: '创建训练任务',
-            icon: 'smile',
-            component: './JobManage/TrainJobManage/CreateJob',
-            hideInMenu: true, 
-            // exact:true,
-          },
-        ]
+        component: './JobManage/TrainJobManage/ListJob',
+        hideInMenu: true, 
+        exact:true,
       },
       {
-        path: '/JobManage/AutoJobManage',
-        name: '自动搜索作业管理',
+        path: '/JobManage/TrainJobManage/CreateJob',
+        name: '创建训练任务',
         icon: 'smile',
-        // component: './JobManage/AutoJobManage',
-        routes: [//子界面
-          {
-            path: '/JobManage/AutoJobManage',
-            // name: '',
-            icon: 'smile',
-            component: './JobManage/AutoJobManage',
-            hideInMenu: true, 
-            exact:true,
-          },
-          {
-            path: '/JobManage/AutoJobManage/CreateJob',
-            name: '创建训练任务',
-            icon: 'smile',
-            component: './JobManage/AutoJobManage/CreateJob',
-            hideInMenu: true, 
-            // exact:true,
-          },
-        ]
+        component: './JobManage/TrainJobManage/CreateJob',
+        hideInMenu: true, 
+        // exact:true,
       },
-    ]
+    ],
+  },
+  {
+    path: '/JobManage/AutoJobManage',
+    name: '自动搜索作业管理',
+    icon: 'smile',
+    authority: ['admin', 'user'],
+    // component: './JobManage/AutoJobManage',
+    routes: [//子界面
+      {
+        path: '/JobManage/AutoJobManage',
+        // name: '',
+        icon: 'smile',
+        component: './JobManage/AutoJobManage/ListJob',
+        hideInMenu: true, 
+        exact:true,
+      },
+      {
+        path: '/JobManage/AutoJobManage/CreateJob',
+        name: '创建训练任务',
+        icon: 'smile',
+        component: './JobManage/AutoJobManage/CreateJob',
+        hideInMenu: true, 
+        // exact:true,
+      },
+    ],
   },
   //level:01, id:07 
-  {
-    path: '/ModelManage',
-    name: '模型管理',
-    icon: 'smile',
-    authority: ['admin', 'user'],
-    component: './ModelManage',
-    // hideInMenu: 'true', 
-  },
-  //level:01, id:08
-  {
-    path: '/AIMarket',
-    name: 'AI市场',
-    icon: 'smile',
-    authority: ['admin', 'user'],
-    component: './AIMarket',
-    //【】如何让菜单在该页面中默认收起
-    // hideInMenu: 'true', 
-  },
+  // {
+  //   path: '/ModelManage',
+  //   name: '模型管理',
+  //   icon: 'smile',
+  //   authority: ['admin', 'user'],
+  //   component: './ModelManage',
+  //   // hideInMenu: 'true', 
+  // },
+  // //level:01, id:08
+  // {
+  //   path: '/AIMarket',
+  //   name: 'AI市场',
+  //   icon: 'smile',
+  //   authority: ['admin', 'user'],
+  //   component: './AIMarket',
+  //   //【】如何让菜单在该页面中默认收起
+  //   // hideInMenu: 'true', 
+  // },
   //设计页面结束
   {
     path: '/user',

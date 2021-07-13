@@ -22,7 +22,7 @@ def get_tocken(uname,password):
       "password": str(password),
     }
     data = str(data).replace('\'','"')
-    print(type(data),data)
+    # print(type(data),data)
     response = requests.post(url=url, json=json.loads(data))
 
     info = bytes2dict(response)

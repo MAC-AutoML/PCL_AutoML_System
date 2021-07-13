@@ -85,9 +85,24 @@ export default (props): React.ReactNode =>{
       //onFinish 【】 前端 需要添加 判断任务是否创建成功
       onFinish={async values => {
           let res=postForm(values);
-          message.success('提交成功！');
+          let rep={};
+          res.then(
+            (resp)=>{
+              console.log("RESPONSE is: ",resp.data);
+              rep=resp.data;
+              return resp;}
+          );
+          console.log(res);
+          if(!rep["success"] || rep["success"]==="false")
+          {
+            message.error("提交失败！");
+          }
+          else
+          {
+            afterSuccess();
+            message.success('提交成功！');            
+          }
           // history 回退到上一层
-          afterSuccess();
       }}
       layout="vertical"
       >
