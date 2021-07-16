@@ -21,29 +21,12 @@ import { history } from 'umi';
 
 import {InputConstraint,PathSelector} from './components';
 import { postForm, getAlgo, refreshAlgo, refreshResource} from './service';
-import {AlgoTableItem} from './data.d';
+import {AlgoTableItem, ioDataType, hyperType} from './data.d';
 import { values } from 'lodash';
 // import {postForm, getDataset} from './service';
 
 // 数据类型
-type ioDataType={
-  id:React.Key;
-  name?:string;
-  label?:string;
-  description?:string;
-  path?:string;
-  children?:ioDataType[];
-};
-type hyperType={
-  id:React.Key;
-  name?:string;
-  description?:string;
-  dataType?:string;
-  default?:number|string|boolean;
-  necessray?:boolean;
-  range?:number[];
-  adjustable?:boolean;
-};
+
 
 // 定义表格columns
 const ioColumns:ProColumns<ioDataType>[]=[
@@ -141,6 +124,7 @@ export default (): React.ReactNode =>{
     columns={hyperCloumns}
     onChange={setHyper}
     toolBarRender={false}
+    controlled={true}
     request={(params, sorter, filter) => {
       let pro=refreshAlgo({ ...params, sorter, filter, algo_id:ID, hyper:true });
       let data=[];
@@ -163,26 +147,7 @@ export default (): React.ReactNode =>{
     editable={{
       type:'multiple',
       editableKeys:hyperKeys,
-      onChange:(keys,lists)=>{
-        console.log("KEYS: ",keys);
-        console.log("lists:",lists);
-        setHyperKeys(keys);
-        let a=lists;
-        if (!Array.isArray(lists))
-          a=[lists];
-        setHyper(a);
-        },
-      onSave:(k,r,o,n)=>{
-        console.log("Key: ",k);
-        console.log("rec: ",r);
-        console.log("ori: ",o);
-        console.log("new: ",n);
-        return new Promise((a,b)=>{
-          console.log("ACCEPT: ",a);
-          console.log("REJECT: ",b);
-          a(0);
-        })
-      },
+      onChange:setHyperKeys,
       actionRender:(row,_,dom)=>{
         return [dom.delete];
       },
@@ -199,6 +164,7 @@ export default (): React.ReactNode =>{
       columns={ioColumns}
       onChange={setInputData}
       toolBarRender={false}
+      controlled={true}
       request={(params, sorter, filter) => {
         let pro=refreshAlgo({ ...params, sorter, filter, algo_id:ID, ioput:true });
         let data=[];
@@ -250,6 +216,7 @@ export default (): React.ReactNode =>{
                 setAlgoID(row.id);
               else if(row.id && algoID == row.id)
                 setAlgoID(0);
+              console.log("ALGO is: ",row);
             }}
           >
             选择
@@ -301,35 +268,21 @@ export default (): React.ReactNode =>{
       ],
     },
   ];
-  // const [newRecord,setNewRecord] = React.useState({
-  //   id:(Math.random()*1000000)/1,});  
-  // const getInitData= async (ID:number,setKey:any,setData:any)=>{
-  //   let pro=refreshAlgo({algo_id:ID,hyper:true});
-  //   var result:hyperType[]=[];
-  //   var ids:React.Key[]=[];
-  //   await pro.then((resp)=>{
-  //     for(let i in resp.data)
-  //     {
-  //       result.push(resp.data[i]);
-  //       ids.push(resp.data[i].id);
-  //     }
-  //     return resp;
-  //   })
-  //   // setKey(ids);
-  //   // setData(result);
-  //   console.log("GET INIT DATA: ",result);
-  //   return result;
-  // }
 
   return (
   <PageContainer content="" >
   <ProCard>
     <ProForm
       onFinish={async (values) => {
-        console.log("FORMS: ",values);
-        console.log("HYPER: ",hyperList);
-        console.log("IOPAR: ",inputData);
-        let res=postForm(values);
+        // console.log("FORMS: ",values);
+        // console.log("HYPER: ",hyperList);
+        // console.log("IOPAR: ",inputData);
+        // 这里定义了一部分的回传键值对
+        let res=postForm({
+            ...values,
+            algoID:algoID,
+            hyperDict:hyperList,
+            ioDict:inputData});
         let rep={};
         //如果 是 async类型的函数 这里必须加 await 否则会异步执行后面的代码，导致 rep 没有赋值
         await res.then( 

@@ -598,7 +598,8 @@ class TrainJobManage(APIView):
             job=models.customize_job.objects.get(id=form_dict['id'])
             rep=API_tools.delete_job(job.job_id,user.tocken,user.username,user.first_name)
             if rep['code']!="S000":
-                raise Exception(rep['msg'])
+                # raise Exception(rep['msg'])
+                raise Exception("只能让任务停止，无法删除任务")
             print("DELETE Result: ",rep)
             res=Parser([])
         except BaseException as e:
@@ -610,9 +611,66 @@ class TrainJobManage(APIView):
         # 创建任务
         # 后送到云脑
         # 成功后再录入数据库
+        RESOURCE={
+            "cpuNumber":[],
+            "gpuNumber":[],
+            "memoryMB":[],
+            "shmMB":[],
+        }
+        RESOURCE_TYPE={
+            [2,8,65536,32768],
+            [1,4,32768,16384],
+            [0,4,16384,8192],
+        }
         user = auth.get_user(request)
         form_dict=request.data
         print(form_dict)
+        name=form_dict["name"]
+        try:
+            algo=models.customize_algo.get(id=form_dict["algoID"])
+        except:
+            res=errParser()
+            return Response(data=res)
+        project_path=algo.project_path
+        main_file=algo.start_path         
+        # path=
+        param={} # k,v 参数名 参数值
+        if form_dict.__contains__("hyperDict"):
+            for item in form_dict["hyperDict"]:
+                n=item['name']
+                v=item['default']
+                # 之后的类型检查
+                if   item['dataType'] == 'int':
+                    pass
+                elif item['dataType'] == 'float':
+                    pass
+                elif item['dataType'] == 'string':
+                    pass
+                elif item['dataType'] == 'bool':
+                    pass
+                param[n]=v
+        if form_dict.__contains__("ioDict"):
+            for item in form_dict["ioDict"]:
+                n=item['name']
+                v=item['path']
+                if param.__contains__(n):
+                    res=errParser(errmessage="有重名的参数:{}".format(item['name']))
+                    return Response(data=res)
+                param[n]=v   
+        resource=form_dict['resource']
+        info=API_tools.mission_submit(
+            job_name=name,
+            project_dir=project_path,
+            main_file=main_file,
+            param=param,
+            resource=resource,
+            username=user.username, 
+            password=user.first_name,
+        )     
+        if type(info) != dict:
+            res=errParser(errmessage="")
+            Response(data=res)
+        # API_tools.mission_submit()
         res=[]
         res=Parser(res)
         return Response(data=res)    

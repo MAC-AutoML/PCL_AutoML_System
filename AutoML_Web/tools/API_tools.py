@@ -79,12 +79,12 @@ def get_jobinfo(jobid,tocken,username,password):
     response = requests.get(url=url, json={}, headers=headers)
     info = bytes2dict(response)
     return info
-def mission_submit(job_name, project_dir, param, resource, username, password):
+def mission_submit(job_name, project_dir,main_file, param, resource, username, password):
 
     url = f'http://192.168.204.24/rest-server/api/v1/jobs'
 
     tocken = get_tocken(username, password)
-    command = f"cd {project_dir} && python {param['main_file']}"
+    command = f"cd {project_dir} && python {main_file}"
     for k, v in param.items():
         if k != 'main_file' and k != 'image':
             command += f' --{k} {v}'

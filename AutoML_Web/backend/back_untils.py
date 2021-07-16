@@ -71,6 +71,8 @@ def refresh_jobtable(tocken,un,pa,user):
             uid=user,
         )
     pass
+def info_decoder(job_info):
+    pass
 def alg_cp(source,target):
     #jobspace / algorithm /classification/pytorch_automodel/
     if os.path.exists(r'/home/pcl/wdc_mnt/jobspace') != True:
