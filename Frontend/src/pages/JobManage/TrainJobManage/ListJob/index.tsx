@@ -1,13 +1,13 @@
 import React, { useRef }  from 'react';
 import { PageContainer } from '@ant-design/pro-layout';
-import { Card, Alert, Typography } from 'antd';
+import { message } from 'antd';
 import ProCard from '@ant-design/pro-card';
 import { PlusOutlined, SearchOutlined, EllipsisOutlined } from '@ant-design/icons';
-import { Button, Tag, Space, Menu, Dropdown } from 'antd';
+import { Button, Tag, Space, Menu, Dropdown, Popconfirm } from 'antd';
 import ProTable, { TableDropdown } from '@ant-design/pro-table';
 import request from 'umi-request';
 import NoFoundPage from '@/pages/404';
-import { queryMission} from './service';
+import { queryMission, deleteMission} from './service';
 
 const color_map={
   stopped: "default",
@@ -64,17 +64,10 @@ const columns = [
       }},
       render: (dom, row,index,action) =>
         {
-          // console.log(dom.props.valueEnum[row.status]);
-          // console.log("ROW Contains:",row);
-          // console.log("DOM Contains:",dom);
-          // console.log("INDEX :",index);
-          // console.log("ACTION :",action);
           return(
-          // <Space>
             <Tag color={color_map[row.status]}>
             {dom.props.valueEnum[row.status].text}
             </Tag>
-          // </Space>
           )},
   },
   {
@@ -96,10 +89,38 @@ const columns = [
   {
     title: '操作',
     valueType: 'option',
-    render: (text, row, _, action) => [
-      <Button danger key={1}> 删除 </Button>,
-      <Button key={2}       > 查看 </Button>, 
+    render: (text, row, index, action) => [
+      <Popconfirm
+        key="0"
+        title="是否删除该项？"
+        trigger="click"
+        onConfirm={async (_) =>{
+          // action?.startEditable(row.key);
+          let res=deleteMission(row);
+          let rep={};
+          await res.then(
+            (resp)=>{
+              rep["success"]=resp.success;
+              rep["reason"]=resp.errorMessage;
+              return resp;
+            });
+					// let infos:string=rep["reason"]
+          if(!rep["success"] || rep["success"]=="false")
+					{
+						message.error('删除失败',3);
+						message.error(rep["reason"],3);
+					}
+          else
+						message.success('删除成功',3);
+				  action.reload();
+          // 删除失败怎么写
+        }}
+      >
+        <Button danger key="1"> 删除 </Button>        
+      </Popconfirm>,
+      <Button key="2"> 查看 </Button> 
     ],
+
   },
 ];
 

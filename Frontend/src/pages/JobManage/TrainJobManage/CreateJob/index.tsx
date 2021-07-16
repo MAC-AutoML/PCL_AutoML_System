@@ -10,17 +10,17 @@ import ProForm, {
     ProFormText,
     ProFormSelect,
     ProFormTextArea,
-    ProFormDependency,
+    ProFormRadio,
   } from '@ant-design/pro-form';
 import ProCard from '@ant-design/pro-card';
-import ProTable, { ProColumns, ActionType } from '@ant-design/pro-table';
-import { EditableProTable } from '@ant-design/pro-table';
+import ProTable, { ProColumns, ActionType, EditableProTable } 
+  from '@ant-design/pro-table';
 
 import { message } from 'antd';
 import { history } from 'umi';
 
 import {InputConstraint,PathSelector} from './components';
-import { postForm, getAlgo, refreshAlgo} from './service';
+import { postForm, getAlgo, refreshAlgo, refreshResource} from './service';
 import {AlgoTableItem} from './data.d';
 import { values } from 'lodash';
 // import {postForm, getDataset} from './service';
@@ -59,15 +59,16 @@ const ioColumns:ProColumns<ioDataType>[]=[
     valueType:'text',
     width:'20%',
   },
-  {
-    title:'描述',
-    dataIndex:'label',
-    valueType:'text',
-    width:'50%',
-  },
+  // {
+  //   title:'描述',
+  //   dataIndex:'label',
+  //   valueType:'text',
+  //   width:'10%',
+  // },
   {
     title:'映射路径',
     dataIndex:'path',
+    width:'50%',
     renderFormItem:()=><PathSelector />,
     // render
   },
@@ -96,57 +97,138 @@ const hyperCloumns:ProColumns<hyperType>[]=[
     // width:'20%',
   },
   {
-    title:'初始值',
+    title:'值',
     dataIndex:'default',
     valueType:'text',
+    // editable:true,
     // width:'20%',
   },
-  {
-    title:'必需',
-    dataIndex:'necessray',
-    valueType:'switch',
-    // width:'20%',
-  },
+  // {
+  //   title:'必需',
+  //   dataIndex:'necessray',
+  //   valueType:'switch',
+  //   // width:'20%',
+  // },
   {
     title:'操作',
     valueType:'option',
   },
 ]
-const defaultIO:ioDataType[]=[
-  {
-    id:100001,
-    label:"数据集路径",
-  },
-  {
-    id:100002,
-    label:"输出路径",
-  },
-  ]
 // 工具函数
-const waitTime = (time: number = 100) => {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve(true);
-    }, time);
-  });
-};
-const afterSuccess = () =>
-  {
-    history.goBack();
-  }
+const afterSuccess = () => history.goBack();
 
 export default (): React.ReactNode =>{
   // console.log(props.match.params)
   const [inputKeys,setInputKeys] = React.useState<React.Key[]>([]);
-  const [inputData,setInputData] = React.useState<ioDataType[]>(()=> defaultIO);
+  const [inputData,setInputData] = React.useState<ioDataType[]>([]);
   const [hyperKeys,setHyperKeys] = React.useState<React.Key[]>([]);
   const [hyperList,setHyper] = React.useState<hyperType[]>([]);
   const [algoID,setAlgoID] = React.useState<number>(0);
+  // const [table,setTable] React.useState<React.ReactNode>(<></>);
+
 
   const algoActionRef = useRef<ActionType>();
   const hyperRef = useRef<ActionType>();
   const ioRef = useRef<ActionType>();
-  
+
+  const HyperTable= (ID:number)=>
+    <EditableProTable<hyperType>
+    key={ID}
+    rowKey="id"
+    maxLength={20}   
+    value={hyperList}
+    actionRef={hyperRef}
+    columns={hyperCloumns}
+    onChange={setHyper}
+    toolBarRender={false}
+    request={(params, sorter, filter) => {
+      let pro=refreshAlgo({ ...params, sorter, filter, algo_id:ID, hyper:true });
+      let data=[];
+      let ids:number[]=[];
+      pro.then(
+        (resp)=>{
+          data=resp.data;
+          for(let k in data)
+            ids.push(data[k].id);
+          setHyperKeys([...hyperKeys,...ids])
+          return resp;
+        });
+      return pro;
+    }}
+      recordCreatorProps={{
+      newRecordType:'dataSource',
+      position:'bottom',
+      record: () => ({ id: Date.now(),}),
+    }}
+    editable={{
+      type:'multiple',
+      editableKeys:hyperKeys,
+      onChange:(keys,lists)=>{
+        console.log("KEYS: ",keys);
+        console.log("lists:",lists);
+        setHyperKeys(keys);
+        let a=lists;
+        if (!Array.isArray(lists))
+          a=[lists];
+        setHyper(a);
+        },
+      onSave:(k,r,o,n)=>{
+        console.log("Key: ",k);
+        console.log("rec: ",r);
+        console.log("ori: ",o);
+        console.log("new: ",n);
+        return new Promise((a,b)=>{
+          console.log("ACCEPT: ",a);
+          console.log("REJECT: ",b);
+          a(0);
+        })
+      },
+      actionRender:(row,_,dom)=>{
+        return [dom.delete];
+      },
+    }}
+    />
+  var HPYER_TABLE=HyperTable(algoID);
+  const IOTable=(ID:number)=>
+    <EditableProTable<ioDataType>
+      key={ID}
+      rowKey="id"
+      maxLength={20}
+      value={inputData}
+      actionRef={ioRef}
+      columns={ioColumns}
+      onChange={setInputData}
+      toolBarRender={false}
+      request={(params, sorter, filter) => {
+        let pro=refreshAlgo({ ...params, sorter, filter, algo_id:ID, ioput:true });
+        let data=[];
+        let ids:number[]=[];
+        pro.then(
+          (resp)=>{
+            data=resp.data;
+            for(let k in data)
+              ids.push(data[k].id);
+            setInputKeys([...inputKeys,...ids])
+            return resp;
+          });
+        return pro;
+      }
+      }  
+      recordCreatorProps={{
+        newRecordType:'dataSource',
+        position:'bottom',
+        record: () => ({ id: Date.now(),}),
+      }}
+      editable={{
+        type:'multiple',
+        editableKeys:inputKeys,
+        onChange:setInputKeys,
+        actionRender:(row,_,dom)=>{
+          return [dom.delete];
+        },
+      }}
+    />
+  var IO_TABLE=IOTable(algoID);
   const my_algo:ProColumns<AlgoTableItem>[] = [
     {
       title:'选择',
@@ -160,19 +242,14 @@ export default (): React.ReactNode =>{
           <Button
             type={color}
             onClick={(e)=>{
-              // console.log(row);
+              setHyper([]);
+              setHyperKeys([]);
+              setInputKeys([]);
+              setInputData([]);
               if(row.id && algoID!= row.id)
-              {
                 setAlgoID(row.id);
-                hyperRef.current?.reload();
-                ioRef.current?.reload();
-              }
               else if(row.id && algoID == row.id)
-              {
                 setAlgoID(0);
-                hyperRef.current?.reload();
-                ioRef.current?.reload();
-              }
             }}
           >
             选择
@@ -226,11 +303,32 @@ export default (): React.ReactNode =>{
   ];
   // const [newRecord,setNewRecord] = React.useState({
   //   id:(Math.random()*1000000)/1,});  
+  // const getInitData= async (ID:number,setKey:any,setData:any)=>{
+  //   let pro=refreshAlgo({algo_id:ID,hyper:true});
+  //   var result:hyperType[]=[];
+  //   var ids:React.Key[]=[];
+  //   await pro.then((resp)=>{
+  //     for(let i in resp.data)
+  //     {
+  //       result.push(resp.data[i]);
+  //       ids.push(resp.data[i].id);
+  //     }
+  //     return resp;
+  //   })
+  //   // setKey(ids);
+  //   // setData(result);
+  //   console.log("GET INIT DATA: ",result);
+  //   return result;
+  // }
+
   return (
   <PageContainer content="" >
   <ProCard>
     <ProForm
-      onFinish={async values => {
+      onFinish={async (values) => {
+        console.log("FORMS: ",values);
+        console.log("HYPER: ",hyperList);
+        console.log("IOPAR: ",inputData);
         let res=postForm(values);
         let rep={};
         //如果 是 async类型的函数 这里必须加 await 否则会异步执行后面的代码，导致 rep 没有赋值
@@ -249,7 +347,7 @@ export default (): React.ReactNode =>{
           message.success('提交成功！');            
         }
         // history 回退到上一层
-    }}
+      }}
     >
       <ProFormText
         name="name"
@@ -268,9 +366,8 @@ export default (): React.ReactNode =>{
       <ProTable
         columns={my_algo}
         actionRef={algoActionRef}
-        request={(params, sorter, filter) => 
-          getAlgo({ ...params, sorter, filter })
-        }
+        request={(params, sorter, filter) =>
+          getAlgo({ ...params, sorter, filter })}
         rowKey="id"
         // search={{
         //   labelWidth: 'auto',
@@ -283,76 +380,32 @@ export default (): React.ReactNode =>{
         // headerTitle="高级表格"
         />
       <Divider />
-      {/* <ProFormDependency name={["hello"]}>
-        {({name}) =>{
-          return (
-            <EditableProTable>
-
-            </EditableProTable>
-          )
-        }}
-      </ProFormDependency> */}
-      <ProForm.Item label="超参设置"
-        name="hyperParams"
+      <ProForm.Item 
+        // name="hyperTable"
+        // trigger="onValuesChange"
+        >
+      <Typography.Text strong> 超参数设置 : </Typography.Text>
+        {HPYER_TABLE}
+      </ProForm.Item>
+      <ProForm.Item 
+        // name="ioTable"
         trigger="onValuesChange"
       >
-        
-        <EditableProTable<hyperType>
-          rowKey="id"
-          maxLength={20}   
-          value={hyperList}
-          actionRef={hyperRef}
-          toolBarRender={false}
-          columns={hyperCloumns}
-          onChange={setHyper}
-          request={(params, sorter, filter) => 
-            refreshAlgo({ ...params, sorter, filter, algo_id:algoID, hyper:true })
-          }
-          recordCreatorProps={{
-            newRecordType:'dataSource',
-            position:'bottom',
-            record: () => ({ id: Date.now(),}),
-          }}
-          editable={{
-            type:'multiple',
-            editableKeys:hyperKeys,
-            onChange:setHyperKeys,
-            actionRender:(row,_,dom)=>{
-              return [dom.delete];
-            },
-          }}
-          />
+      <Typography.Text strong> 输入输出路径 : </Typography.Text>
+        {IO_TABLE}
       </ProForm.Item>
-      <ProForm.Item label="输入输出数据配置" 
-        name="inputParams"
-        trigger="onValuesChange"
-        >
-        <EditableProTable<ioDataType>
-          rowKey="id"
-          maxLength={20}
-          value={inputData}
-          actionRef={ioRef}
-          onChange={setInputData}
-          toolBarRender={false}
-          columns={ioColumns}
-          request={(params, sorter, filter) => 
-            refreshAlgo({ ...params, sorter, filter, algo_id:algoID, ioput:true })
-          }  
-          recordCreatorProps={{
-            newRecordType:'dataSource',
-            position:'bottom',
-            record: () => ({ id: Date.now(),}),
-          }}
-          editable={{
-            type:'multiple',
-            editableKeys:inputKeys,
-            onChange:setInputKeys,
-            actionRender:(row,_,dom)=>{
-              return [dom.delete];
-            },
-          }}
+      <Divider />
+      {/* 资源选择 */}
+      <Typography.Text strong> 资源选择 : </Typography.Text>
+      {/* 遍历返回值， 制造一组 radio groups */}
+      <ProForm.Item>
+        <ProFormSelect
+          name = "resource"
+          request={(_)=>refreshResource(_)}
+          rules={[{ required: true, message: 'Please select Resource!' }]}
         />
       </ProForm.Item>
+
     </ProForm>
   </ProCard>
   </PageContainer>

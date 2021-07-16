@@ -46,5 +46,6 @@ urlpatterns = [
     url(r'api/refresh/dataset',views.RefreshData.as_view(),name='refresh_dataset'),
     url(r'api/refresh/path',views.RefreshPath.as_view(),name='refresh_path'),
     url(r'api/refresh/algo',views.RefreshAlgo.as_view(),name='refresh_algo'),
+    url(r'api/refresh/resource',views.RefreshResource.as_view(),name='refresh_algo'),
 
 ]

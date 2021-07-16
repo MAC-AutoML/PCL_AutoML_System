@@ -441,6 +441,7 @@ class RefreshAlgo(APIView):
                     # "predefined":True
                 })
         elif params.__contains__('ioput'):
+            # print("GET IO infos")
             ios=algo.io_set_set.all()
             for io in ios:
                 reps.append({
@@ -449,15 +450,24 @@ class RefreshAlgo(APIView):
                     "name":io.name,
                     # "predefined":True
                 })
-        # response=Parser(reps)
-        # response["data"]=reps
-        # response["success"]='true'
-        # print(response)
         response=Parser(reps)
+        return Response(data=response)
+    
+class RefreshResource(APIView):
+    def get(self,request):
+        user=auth.get_user(request)
+        # print(request.data)
+        params=request.query_params.dict()
+        # print("PARAMS: ",params)
+        reps=[]
+        # 得到云脑平台的资源类型，返回给前端
+        reps.append({
+            "label": 1,"value": 1,
+        })
         # response["total"]=len(reps)
        
-        return Response(data=response)
-
+        return Response(data=reps)
+    
 def DictCheck(src:dict, keys:list):
     ''' 判断src是否符合标准，即字典中必须存在keys里的键，且值对应的长度不为0，
     '''
@@ -564,7 +574,7 @@ class TrainJobManage(APIView):
         print("GET Train Job Manage")
         user = auth.get_user(request)
         back_untils.refresh_jobtable(user.tocken, user.username, user.first_name,user)
-        
+        back_untils.updata_jobtable(user.tocken,user.username,user.first_name)
         job_set=models.customize_job.objects.filter(uid=user)
         job_list=[]
         for rec in job_set:
@@ -577,12 +587,32 @@ class TrainJobManage(APIView):
             })
         result=job_list
         response=Parser(result)
-        return Response(data=response)    
+        return Response(data=response)  
+    
+    def delete(self, request):
+        user = auth.get_user(request)
+        # print(user)
+        form_dict=request.data
+        print(form_dict)
+        try:
+            job=models.customize_job.objects.get(id=form_dict['id'])
+            rep=API_tools.delete_job(job.job_id,user.tocken,user.username,user.first_name)
+            if rep['code']!="S000":
+                raise Exception(rep['msg'])
+            print("DELETE Result: ",rep)
+            res=Parser([])
+        except BaseException as e:
+            res=errParser(errmessage=repr(e))
+        finally:
+            return Response(data=res)   
+     
     def post(self,request):
         # 创建任务
         # 后送到云脑
         # 成功后再录入数据库
         user = auth.get_user(request)
+        form_dict=request.data
+        print(form_dict)
         res=[]
         res=Parser(res)
         return Response(data=res)    

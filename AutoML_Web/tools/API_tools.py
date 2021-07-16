@@ -4,7 +4,7 @@ import re
 
 def bytes2dict(response):
     info = json.loads(response.content)
-    print("INFO:",info)
+    # print("INFO:",info)
     return info
 
 def get_keyword(s):
@@ -64,6 +64,7 @@ def get_joblist(tocken,username,password,size=20,offset=0):
         "Content-Type": 'application/json',
         "Authorization": tocken
     }
+    # 这里的偏移量是指具体的任务数而不是页数
     url = "http://192.168.204.24/rest-server/api/v1/jobs?size="+str(size)+"&offset="+str(offset)
     response = requests.get(url=url, json={}, headers=headers)
     info = bytes2dict(response)
@@ -168,6 +169,7 @@ def creat_mission(job_name, command,tocken,username,password):
     return info
 
 def delete_job(jobid,tocken,username,password):
+    # 不是删除任务，是停止任务
     headers = {
         "Content-Type": 'application/json',
         "Authorization": get_tocken(username,password)

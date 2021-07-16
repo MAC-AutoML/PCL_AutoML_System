@@ -3,10 +3,10 @@ import { request } from 'umi';
 // import {Former} from './data.d';
 
 const API:string = '/api/trainJobManage';
-const ResfreshAPI:string='/api/refresh/';
 const ResfreshPath:string='/api/refresh/path'
 const AlgoAPI:string='/api/algoManage';
 const ResfreshAlgo:string='/api/refresh/algo'
+const ResfreshRes:string='/api/refresh/resource'
 export async function postForm(params){
     return request(API,{
         method: 'POST',
@@ -43,5 +43,10 @@ export async function refreshAlgo(params){
     // console.log("RETURN is: ",a);
     return a;
 }
-
+export async function refreshResource(params){
+    return request(ResfreshRes,{
+        method:'GET',
+        params,
+    });
+}
 // export async function 
