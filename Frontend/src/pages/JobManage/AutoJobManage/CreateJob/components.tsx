@@ -7,7 +7,7 @@ import ProForm, {ProFormSelect} from '@ant-design/pro-form';
 import { ColumnsState, EditableProTable } from '@ant-design/pro-table';
 import type { ProColumns } from '@ant-design/pro-table';
 
-import {getPath} from './service';
+import {refreshPath} from './service';
 import Item from 'antd/lib/list/Item';
 const {Option} = AutoComplete;
 // interface ProviderProps {
@@ -46,7 +46,7 @@ const PathSelector:React.FC<ProviderProps>=({value,onChange})=>{
 	const [inputPath,setInputPath]=useState<string>("");
 	const handleChange = (changedValue:string)=>{
 		// 从后台请求数据 ， 需要加防抖功能
-		let promise=getPath(changedValue);
+		let promise=refreshPath(changedValue);
 		promise.then(
 			(resp)=>{
 				setPathList(resp.data);

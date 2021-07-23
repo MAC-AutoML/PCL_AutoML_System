@@ -117,7 +117,7 @@ class customize_algo(models.Model):
     def get_fields(self):
         return [(field.name, field.value_to_string(self)) for field in self._meta.fields]
 
-class hpyer_set(models.Model):
+class algo_hpyer(models.Model):
     name=models.CharField(max_length=128)
     # created_at=models.DateTimeField(auto_now_add=True) 
     # edited_at=models.DateTimeField(auto_now=True)                                          
@@ -138,7 +138,7 @@ class hpyer_set(models.Model):
     def get_fields(self):
         return [(field.name, field.value_to_string(self)) for field in self._meta.fields]
 
-class io_set(models.Model):
+class algo_io(models.Model):
     fname=models.CharField(max_length=128)
     name=models.CharField(max_length=128)
     # created_at=models.DateTimeField(auto_now_add=True) 
@@ -154,20 +154,78 @@ class io_set(models.Model):
         ordering= ["-id"]
     def get_fields(self):
         return [(field.name, field.value_to_string(self)) for field in self._meta.fields]    
-# # 创建训练作业部分
-class customize_job(models.Model):
+class base_job(models.Model):
     job_id = models.CharField(max_length=128,unique=True)
     name = models.CharField(max_length=128)
     state = models.CharField(max_length=128)
     created_at = models.DateTimeField()
-    completed_at=models.DateTimeField()
+    completed_at=models.DateTimeField(blank=True,null=True)
+    class Meta:
+        abstract = True    
+# # 创建训练作业部分
+class customize_job(base_job):
     algo_id = models.ForeignKey(customize_algo,on_delete=models.SET_NULL,blank=True,null=True)
     uid = models.ForeignKey(User, on_delete=models.CASCADE)
     
     def __str__(self):
         return self.name
-
     class Meta:
         ordering = ["-id"]
     def get_fields(self):
-        return [(field.name, field.value_to_string(self)) for field in self._meta.fields]    
+        return [(field.name, field.value_to_string(self)) for field in self._meta.fields] 
+    
+class customize_auto_search(models.Model):
+    # 通用字段
+    name = models.CharField(max_length=128)
+    created_at=models.DateTimeField(auto_now_add=True)
+    completed_at=models.DateTimeField(blank=True,null=True)
+    state = models.CharField(max_length=128)
+
+    # 外键 - 用户 算法
+    algo_id = models.ForeignKey(customize_algo,on_delete=models.SET_NULL,blank=True,null=True)
+    uid = models.ForeignKey(User, on_delete=models.CASCADE)
+    # 搜索字段
+    method=models.CharField(max_length=64)
+    suggest=models.IntegerField() # 一次给出建议的数量
+    epoch=models.IntegerField()
+    result=models.CharField(max_length=512,default="./result.txt")
+    # 进程控制
+    pid=models.IntegerField()
+    def __str__(self):
+        return self.name
+    class Meta:
+        ordering = ["-id"]
+    def get_fields(self):
+        return [(field.name, field.value_to_string(self)) for field in self._meta.fields] 
+
+class search_para(models.Model):
+    # 通用字段
+    # space - range 指定一个连续/离散的集合
+    # values 指定一个离散的集合, 以空格分隔可能值的字符串
+    # 这两个互斥 哪个不为空 这个参数就以哪个的形式来
+    name = models.CharField(max_length=128)
+    data_type=models.CharField(max_length=64) # options
+    space=models.CharField(max_length=64,blank=True,null=True)
+    values=models.TextField(max_length=2048,blank=True,null=True)
+    ranges_max=models.CharField(max_length=64,blank=True,null=True)
+    ranges_min=models.CharField(max_length=64,blank=True,null=True)
+    
+    search_id = models.ForeignKey(customize_auto_search, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return self.name
+    class Meta:
+        ordering = ["-id"]
+    def get_fields(self):
+        return [(field.name, field.value_to_string(self)) for field in self._meta.fields] 
+    
+class search_job(base_job):
+    search_id = models.ForeignKey(customize_auto_search, on_delete=models.CASCADE)
+    
+    def __str__(self):
+        return self.name
+    class Meta:
+        ordering = ["-id"]
+    def get_fields(self):
+        return [(field.name, field.value_to_string(self)) for field in self._meta.fields] 
+    

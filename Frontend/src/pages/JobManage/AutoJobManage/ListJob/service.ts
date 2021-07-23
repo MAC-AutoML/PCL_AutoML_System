@@ -1,7 +1,7 @@
 import { request } from 'umi';
 import {TableItem,TableListParams} from './data.d';
 
-const API:string = '/api/autoJobManage';
+const API:string = 'api/autoJobManage';
 
 export async function queryMission(params:TableListParams){
     return request(API,{

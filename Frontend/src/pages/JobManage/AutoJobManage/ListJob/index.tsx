@@ -1,243 +1,161 @@
 import React, { useRef }  from 'react';
 import { PageContainer } from '@ant-design/pro-layout';
-import { Card, Alert, Typography } from 'antd';
+import { message } from 'antd';
 import ProCard from '@ant-design/pro-card';
 import { PlusOutlined, SearchOutlined, EllipsisOutlined } from '@ant-design/icons';
-import { Button, Tag, Space, Menu, Dropdown } from 'antd';
+import { Button, Tag, Space, Menu, Dropdown, Popconfirm } from 'antd';
 import ProTable, { TableDropdown } from '@ant-design/pro-table';
 import request from 'umi-request';
+import NoFoundPage from '@/pages/404';
+import { queryMission, deleteMission} from './service';
 
-const t_manage = [
+const color_map={
+  stopped: "default",
+  failed:"error",
+  running:"processing",
+  succeeded:"success",
+  waiting:"warning",
+}
+const columns = [
   {
-    title: '名称',
-    dataIndex: 'title',
-    copyable: true,
+    title: '任务名',
+    dataIndex: 'name', //回传数据的键
+    // copyable: true,
     ellipsis: true,
     tip: '标题过长会自动收缩',
-    formItemProps: {
-      rules: [
-        {
-          required: true,
-          message: '此项为必填项',
-        },
-      ],
-    },
-    width: '30%',
+    // width: '30%',
     search: false,
-    sorter: (a, b) => a > b, //使用何种排序
-    render: (_) => <a>{_}</a>,
+    defaultSortOrder: 'descend',
+    // sorter: (a, b) => a > b, //使用何种排序
+    // render: (dom, entity) => {
+    //   return <a onClick={() => setRow(entity)}>{dom}</a>;
+    // },  
+  },
+  {
+    title:'使用算法',
+    dataIndex:'algo',
+    valueType:'text',
   },
   {
     title: '状态',
-    dataIndex: 'labels',
-    // dataIndex: 'state',
-    initialValue: '全部',
+    dataIndex: 'status',
     filters: true,
     valueType:'select',
     valueEnum: {
-      all: {
-        text: '全部',
-        status: 'Default',
+      stopped: {
+        text: '停止',
+        color: 'default',
+        status: 'stopped',
       },
-      image_classification: {
+      failed: {
         text: '失败',
         color: 'error',
-        status: 'IC',
+        status: 'failed',
       },
-      object_detection: {
+      running: {
         text: '运行中',
-        color: 'default',
-        status: 'OD',
+        color: 'processing',
+        status: 'running',
       },
-      predict_analysis: {
+      succeeded: {
         text: '成功',
         color: 'success',
-        status: 'PA',
+        status: 'succeeded',
       },
-    },
-    //渲染函数需要修改，例如：
-    // render:(_,row) =>(
-    //   <Space>
-    //       <Tag color={row.labels.color} key={row.labels.text}>
-    //         {row.labels.text}
-    //       </Tag>
-    //   </Space>      
-    // )
-    render: (_, row) => (
-      <Space>
-        {row.labels.map(({ name, color }) => (
-          <Tag color={color} key={name}>
-            {name}
-          </Tag>
-        ))}
-      </Space>
-    ),
-  },
-  {
-    title: '版本数量',//列表列名
-    key: 'status',//未知
-    dataIndex: 'version',//回传的数据键名
-    valueType: 'text',//未知 数据类型？
-    sorter: (a, b) => a > b, //使用何种排序
-  },
-  {
-    title: '大小',//列表列名
-    key: 'status',//未知
-    dataIndex: 'model_size',//回传的数据键名
-    valueType: 'text',//未知 数据类型？
-  },
-  {
-    title: '描述',//列表列名
-    key: 'status',//未知
-    dataIndex: 'description',//回传的数据键名
-    valueType: 'text',//未知 数据类型？
-  },
-  {
-    title: '创作者',//列表列名
-    key: 'status',//未知
-    dataIndex: 'creator',//回传的数据键名
-    valueType: 'text',//未知 数据类型？
-  },
-  {
-    title: '运行时长',
-    key: 'length',
-    dataIndex: 'run_time',
-    valueType: 'time',
-    sorter: (a, b) => a > b, //使用何种排序
+      waiting: {
+        text: '等待中',
+        color: 'warning',
+        status: 'waiting',
+      }},
+      render: (dom, row,index,action) =>
+        {
+          return(
+            <Tag color={color_map[row.status]}>
+            {dom.props.valueEnum[row.status].text}
+            </Tag>
+          )},
   },
   {
     title: '创建时间',
-    key: 'since',
+    // key: 'since',
     dataIndex: 'created_at',
     valueType: 'date',
-    sorter: (a, b) => a > b, //使用何种排序
+    defaultSortOrder: 'descend',
+    // sorter: (a, b) => a > b,
+  },
+  {
+    title: '结束时间',
+    // key: 'since',
+    dataIndex: 'completed_at',
+    valueType: 'date',
+    defaultSortOrder: 'descend',
+    // sorter: (a, b) => a > b,
   },
   {
     title: '操作',
     valueType: 'option',
-    render: (text, row, _, action) => [
-      //待添加功能：任务只有在运行状态下该按钮才可以点， button组件有属性可以设置为 disable
-      <a href={row.url} target="_blank" rel="noopener noreferrer" key="link" >
-        停止
-      </a>,
-      <a href={row.url} target="_blank" rel="noopener noreferrer" key="view">
-        删除
-      </a>,
+    render: (text, row, index, action) => [
+      <Popconfirm
+        key="0"
+        title="是否删除该项？"
+        trigger="click"
+        onConfirm={async (_) =>{
+          // action?.startEditable(row.key);
+          let res=deleteMission(row);
+          let rep={};
+          await res.then(
+            (resp)=>{
+              rep["success"]=resp.success;
+              rep["reason"]=resp.errorMessage;
+              return resp;
+            });
+					// let infos:string=rep["reason"]
+          if(!rep["success"] || rep["success"]=="false")
+					{
+						message.error('删除失败',3);
+						message.error(rep["reason"],3);
+					}
+          else
+						message.success('删除成功',3);
+				  action.reload();
+          // 删除失败怎么写
+        }}
+      >
+        <Button danger key="1"> 删除 </Button>        
+      </Popconfirm>,
+      <Button key="2"> 查看 </Button> 
     ],
-  },
-];
-const p_manage = [
-  {
-    title: '名称',
-    dataIndex: 'title',
-    copyable: true,
-    ellipsis: true,
-    tip: '标题过长会自动收缩',
-    formItemProps: {
-      rules: [
-        {
-          required: true,
-          message: '此项为必填项',
-        },
-      ],
-    },
-    width: '30%',
-    search: false,
-    sorter: (a, b) => a > b, //使用何种排序
-    render: (_) => <a>{_}</a>,
-  },
-  {
-    title: '引擎类型',//列表列名
-    key: 'status',//未知
-    dataIndex: 'label',//回传的数据键名
-    valueType: 'text',//未知 数据类型？
-  },
-  {
-    title: '订阅时间',
-    key: 'since',
-    dataIndex: 'created_at',
-    valueType: 'date',
-    sorter: (a, b) => a > b, //使用何种排序
-  },
-  {
-    title: '描述',//列表列名
-    key: 'status',//未知
-    dataIndex: 'description',//回传的数据键名
-    valueType: 'text',//未知 数据类型？
-  },
-  {
-    title: '操作',
-    valueType: 'option',
-    render: (text, row, _, action) => [
-      <a href={row.url} target="_blank" rel="noopener noreferrer" key="view">
-        查看
-      </a>,
-      <a href={row.url} target="_blank" rel="noopener noreferrer" key="view">
-        删除
-      </a>,
-    ],
+
   },
 ];
 
-export default (): React.ReactNode =>{
+export default (props): React.ReactNode =>{
   const actionRef = useRef();
   return (
     <PageContainer>
-      <ProCard
-        tabs={{
-          type: 'card',
-        }}
-      >
-        <ProCard.TabPane key="my_algo" tab="创建自动化搜索作业">
-          <ProTable
-            columns={t_manage}
-            actionRef={actionRef}
-            request={async (params = {}) =>
-              request('https://proapi.azurewebsites.net/github/issues', {
-                params,
-              })
-            }
-            rowKey="id"
-            search={{
-              labelWidth: 'auto',
-            }}
-            pagination={{
-              pageSize: 5,
-            }}
-            dateFormatter="string"
-            // headerTitle="高级表格"
-            toolBarRender={() => [
-              <Button key="button" icon={<PlusOutlined />} type="primary">
-                新建
-              </Button>,
-            ]}
-          />
-        </ProCard.TabPane>
-        <ProCard.TabPane key="assign_algo" tab="作业参数管理">
-          <ProTable
-            columns={p_manage}
-            actionRef={actionRef}
-            request={async (params = {}) =>
-              request('https://proapi.azurewebsites.net/github/issues', {
-                params,
-              })
-            }
-            rowKey="id"
-            search={{
-              labelWidth: 'auto',
-            }}
-            pagination={{
-              pageSize: 5,
-            }}
-            dateFormatter="string"
-            // headerTitle="高级表格"
-            toolBarRender={() => [
-              <Button key="button" icon={<SearchOutlined />} type="primary">
-                查找算法
-              </Button>,
-            ]}
-          />
-        </ProCard.TabPane>
+      <ProCard >
+        <ProTable
+          columns={columns}
+          actionRef={actionRef}
+          request={(params, sorter, filter) => 
+            queryMission({ ...params, sorter, filter })}
+          rowKey="id"
+          search={{
+            labelWidth: 'auto',
+          }}
+          pagination={{
+            pageSize: 5,
+          }}
+          dateFormatter="string"
+          // headerTitle="高级表格"
+          toolBarRender={() => [
+            <Button key="button" icon={<PlusOutlined />} type="primary"
+              onClick={()=>{props.history.push("/JobManage/AutoJobManage/CreateJob");}}
+            >
+              新建
+            </Button>,
+          ]}
+        />
       </ProCard>
     </PageContainer>
   );

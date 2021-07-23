@@ -1,18 +1,20 @@
-export interface TableItem{
-  id?:number;
-  name?: string;
-  version?: string;
-  description?: string;
-  created_at?: string;
-  edited_at?: Date;
+export interface TableItem {
+  id:number;
+  title:string;
+  type:string;
+  train_status:string;
+  deploy_status:string;
+  data_source:string;
+  created_at:Date;
+  description?:string;
 }
 export interface TableListParams {
-    name?: string;
-    version?: string;
-    desc?: string;
-    key?: number;
-    pageSize?: number;
-    currentPage?: number;
-    filter?: { [key: string]: any[] };
-    sorter?: { [key: string]: any };
-  }
+  status?: string;
+  name?: string;
+  desc?: string;
+  key?: number;
+  pageSize?: number;
+  currentPage?: number;
+  filter?: { [key: string]: any[] };
+  sorter?: { [key: string]: any };
+}

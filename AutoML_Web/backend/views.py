@@ -19,6 +19,8 @@ import os
 import sys
 import json
 import copy
+import time
+import datetime
 import re
 from collections import Iterable
 
@@ -53,6 +55,14 @@ if(__name__=="__main__"):
     #             'data': 'a'
     #         }
     #         return Response(res)
+RES_TYPE=[
+    ["gpuNumber","cpuNumber","memoryMB","shmMB"],
+    [0, 4,  16384,  8192],
+    [1, 4,  32768,  16384],
+    [1, 8,  65536,  32768],
+]
+METHODS=['BBO','BORE','HyperBand']
+PLIST=[]
 ## 每个页面对应一个类?
 class OverView(APIView):
     def get(self, request):
@@ -361,24 +371,11 @@ class RefreshData(APIView):
         # [{'label': ,'value': ,},{}]
         # res=Parser(res) # 不一定打包
         return Response(data=res)
+    
 class RefreshPath(APIView):
     # 路径选择器对接的后端
     # 使用 os 包
     # 需要注意用户权限的问题
-    # responser={
-    #     "home":
-    #         {
-    #             "pcl":
-    #                 {
-    #                     "wyh_project":{},
-    #                     "Archive":{},
-    #                     "Software":{},
-    #                 },
-    #             "Zhara":{}
-    #         },
-    #     "temp":{},
-    #     "test":{},
-    # }
     home="/home/pcl/wyh_project/PCL_AutoML_System/zdebug"
     select_dir=True
     
@@ -429,7 +426,7 @@ class RefreshAlgo(APIView):
             return Response(data=[])
         reps=[]
         if params.__contains__('hyper'):
-            hypers=algo.hpyer_set_set.all()
+            hypers=algo.algo_hpyer_set.all()
             for hyper in hypers:
                 # print("HYPER is: ",hyper.__dict__)
                 reps.append({
@@ -442,7 +439,7 @@ class RefreshAlgo(APIView):
                 })
         elif params.__contains__('ioput'):
             # print("GET IO infos")
-            ios=algo.io_set_set.all()
+            ios=algo.algo_io_set.all()
             for io in ios:
                 reps.append({
                     "id":io.id,
@@ -461,11 +458,28 @@ class RefreshResource(APIView):
         # print("PARAMS: ",params)
         reps=[]
         # 得到云脑平台的资源类型，返回给前端
-        reps.append({
-            "label": 1,"value": 1,
-        })
+        for i,x in enumerate(RES_TYPE):
+            if not i : continue
+            tag=["GPU: ","CPU:","Memory:","Shared Memory:"]
+            # num=[j if j <1024]
+            num=x
+            label=", ".join([ l+str(n) for l,n in zip(tag,num)])
+            reps.append({
+                "label": label,"value": i,
+            })
         # response["total"]=len(reps)
        
+        return Response(data=reps)
+
+class RefreshMethod(APIView):
+    def get(self,request):
+        user=auth.get_user(request)
+        # print(request.data)
+        params=request.query_params.dict()
+        # print("PARAMS: ",params)
+        reps=[]
+        for n in METHODS:
+            reps.append({'label':n,'value':n})
         return Response(data=reps)
     
 def DictCheck(src:dict, keys:list):
@@ -527,7 +541,7 @@ class AlgoManage(APIView):
             uid=user,
         )
         for item in hyperList:
-            newHyper=models.hpyer_set.objects.create(
+            newHyper=models.algo_hpyer.objects.create(
                 name=item['name'],
                 data_type=item['dataType'],
                 initial_value=item['default'] if item.__contains__('default') else '',
@@ -536,7 +550,7 @@ class AlgoManage(APIView):
             )
         for item in ioList:
             print(type(item))
-            newIO=models.io_set.objects.create(
+            newIO=models.algo_io.objects.create(
                 fname=item['label'],
                 name=item['name'],
                 # version=item['version'], 
@@ -569,21 +583,53 @@ class AlgoManage(APIView):
             res=Parser(res)
         return Response(data=res)    
 
+def parse_param(form_dict):
+    res=None
+    param={}
+    if form_dict.__contains__("hyperDict"):
+        for item in form_dict["hyperDict"]:
+            n=item['name']
+            v=item['default']
+            if param.__contains__(n):
+                res=errParser(errmessage="有重名的参数:{}".format(item['name']))
+            # 之后的类型检查
+            if   item['dataType'] == 'int':
+                pass
+            elif item['dataType'] == 'float':
+                pass
+            elif item['dataType'] == 'string':
+                pass
+            elif item['dataType'] == 'bool':
+                pass
+            param[n]=v
+    if form_dict.__contains__("ioDict"):
+        for item in form_dict["ioDict"]:
+            n=item['name']
+            v=item['path']
+            if param.__contains__(n):
+                res=errParser(errmessage="有重名的参数:{}".format(item['name']))
+            param[n]=v       
+    return param, res
 class TrainJobManage(APIView):
+
     def get(self, request):
         print("GET Train Job Manage")
         user = auth.get_user(request)
-        back_untils.refresh_jobtable(user.tocken, user.username, user.first_name,user)
-        back_untils.updata_jobtable(user.tocken,user.username,user.first_name)
+        back_untils.refresh_train_job(user)
+        # back_untils.update_train_job(user.tocken,user.username,user.first_name)
         job_set=models.customize_job.objects.filter(uid=user)
         job_list=[]
         for rec in job_set:
+            algo=rec.algo_id
+            algo_name= " : ".join([algo.name,algo.version]) if algo else ""
+            # print("ALGO is: ", rec.algo_id)
             job_list.append({
                 "id": rec.id,
                 "name":rec.name,
                 "status":rec.state.lower(),
                 "created_at":rec.created_at,
                 "completed_at":rec.completed_at,
+                "algo":algo_name,
             })
         result=job_list
         response=Parser(result)
@@ -611,236 +657,368 @@ class TrainJobManage(APIView):
         # 创建任务
         # 后送到云脑
         # 成功后再录入数据库
-        RESOURCE={
-            "cpuNumber":[],
-            "gpuNumber":[],
-            "memoryMB":[],
-            "shmMB":[],
-        }
-        RESOURCE_TYPE={
-            [2,8,65536,32768],
-            [1,4,32768,16384],
-            [0,4,16384,8192],
-        }
         user = auth.get_user(request)
         form_dict=request.data
-        print(form_dict)
+        print("MISSION DICT: ",form_dict)
         name=form_dict["name"]
         try:
-            algo=models.customize_algo.get(id=form_dict["algoID"])
-        except:
+            algo=models.customize_algo.objects.get(id=form_dict["algoID"])
+        except BaseException as e:
+            print("DATABASE ERROR:",repr(e))
             res=errParser()
             return Response(data=res)
         project_path=algo.project_path
         main_file=algo.start_path         
-        # path=
-        param={} # k,v 参数名 参数值
-        if form_dict.__contains__("hyperDict"):
-            for item in form_dict["hyperDict"]:
-                n=item['name']
-                v=item['default']
-                # 之后的类型检查
-                if   item['dataType'] == 'int':
-                    pass
-                elif item['dataType'] == 'float':
-                    pass
-                elif item['dataType'] == 'string':
-                    pass
-                elif item['dataType'] == 'bool':
-                    pass
-                param[n]=v
-        if form_dict.__contains__("ioDict"):
-            for item in form_dict["ioDict"]:
-                n=item['name']
-                v=item['path']
-                if param.__contains__(n):
-                    res=errParser(errmessage="有重名的参数:{}".format(item['name']))
-                    return Response(data=res)
-                param[n]=v   
-        resource=form_dict['resource']
+        param,res=parse_param(form_dict)
+        if res:
+            return Response(data=res)    
+        index=form_dict['resource']
+        resource={ k:v for k,v in zip(RES_TYPE[0],RES_TYPE[index])}
+    
         info=API_tools.mission_submit(
-            job_name=name,
+            job_name=name.lower(),
             project_dir=project_path,
             main_file=main_file,
             param=param,
             resource=resource,
             username=user.username, 
             password=user.first_name,
-        )     
-        if type(info) != dict:
+        ) 
+        print("TYPE is: ", type(info))
+        print("RETURN INFO IS: ", info)
+        '''RETURN INFO IS: {
+            'code': 'S000', 
+            'msg': 'update job kktestnet2 successfully', 
+            'payload': {
+                'jobId': 'fbb98fc00e9d0011eb0891304939b5259323'}}'''
+        if type(info) != dict or info.__contains__("code") and info["code"]!="S000":
             res=errParser(errmessage="")
-            Response(data=res)
-        # API_tools.mission_submit()
-        res=[]
-        res=Parser(res)
+        else: 
+            job=info['payload']
+            # print("JOB INFO: ",job)
+            res=back_untils.insert_train_job(user,job["jobId"],algo)
+            res=errParser(errmessage=res[0]) if len(res) else Parser(res)
         return Response(data=res)    
-    
+def format_range(type,ranger):
+    res=ranger
+    return res
+
+# def search_mission(method:str,hyper:dict,package:dict,api_config:dict):
+#     print("========MISSION REPORT========")
+#     print("METHOD is: ",method)
+#     print("-"*24)
+#     print("Hypers: ")
+#     a=[print(k,v) for k,v in hyper.items()]
+#     print("-"*24)
+#     print("Job config is: ")
+#     a=[print(k,v) for k,v in package.items()]
+#     print("-"*24)
+#     print("BBO config is: ")
+#     a=[print(k,v) for k,v in api_config.items()]
+#     print("="*24)
+#     return False
+
 class AutoJobManage(APIView):
     def get(self, request):
-        """
-        login get
-        """
-        pass
-    def post(self,request):
-        pass 
-    
-    
-class AIMarket(APIView):
-    def get(self, request):
-        """
-        login get
-        """
-        #公开算法数据库内容[{}{}{}]
-        
-        params=request.query_params.dict()
-        print(params)
-        
-        rec = []
-        queryset = models.Algorithm.objects.all()
-        
-        # if(not len(queryset)):# 返回伪造数据
-        if(True):# 返回伪造数据
-            result=mock.genAlgoList()
-            # result=mock.ALGORITHM_LIST
+        user = auth.get_user(request)
+        job_list=[]
+        try:
+            job_set=models.customize_auto_search.objects.filter(uid=user)
+        except BaseException as e:
+            print("Auto Search Dataset Exception: ",repr(e))
+            response=errParser(errmessage=repr(e))
         else:
-        # Algo={
-            #     'id' ,
-            #     'name' ,
-            #     'task' ,
-            #     'path',
-            #     'created_at',
-            #     'uid',}
-            ret = AlgorithmSerializers(queryset, many=True) # 
-            print("%ret%", "%ret%", type(ret.data), type(ret.data[0]))
-            for onejob in ret.data:
-
-                rec.append(
-                    {
-                        'id':onejob["id"],
-                        'name':onejob["name"],
-                        'task':onejob["task"],
-                        "path":onejob["_path"],
-                    }
-                )
-            result = rec
-        
-        # 对get回传的筛选/搜索参数进行处理
-        
-        # 开始搜索
-        
-        # 开始筛选
-        for item in result:
-            ids=item['uid']
-            del item['uid']
-            # 这里应该从数据库里query 创建者的名字
-            item['createUser']=mock.USER_LIST[ids]
-        # result=result
-        result=Parser(result)
-        return Response(data=result)
-
+            for rec in job_set:
+                algo=rec.algo_id
+                algo_name= " : ".join([algo.name,algo.version]) if algo else ""                
+                job_list.append({
+                    "id": rec.id,
+                    "name":rec.name,
+                    "status":rec.state.lower(),
+                    "created_at":rec.created_at,
+                    "completed_at":rec.completed_at,
+                    "algo":algo_name,
+                })
+            result=job_list
+            response=Parser(result)
+        return Response(data=response)
     def post(self,request):
+        '''
+            type : {'real', 'int', 'cat', 'bool'}
+            space : {'linear', 'log', 'logit', 'bilog'}
+            range : (lower, upper) 
+            values : []
+            
+            # either range or values 
+            # real/int: range-space / values
+            # cat: must be values
+            # bool: does not take anything extra ( space , range , or values )
+        '''
+        '''
+        form_dict={
+            'name':, # normal
+            'method':, # BBO method used for search           
+            'suggest':, # hyper: number of suggestion
+            'epoch':, # hyper: search epoch
+            'result':, # Search result: result.txt path
+            'algo':{
+                'id':,
+                'hyperDict':[], # same as TrainJobManage
+                'ioDict':[], # same as TrainJobManage
+                },
+            'search_para':[
+                {   
+                    'id':,
+                    'name':, 
+                    'dataType':, 
+                    'space':, 
+                    'searchType':'values'|'range', 
+                    'content':'x x x x x',
+                },
+                ...
+            ],
+            'resource':, # same as TrainJobManage
+        }
+        '''
+        user = auth.get_user(request)
         form_dict=request.data
-        print(form_dict)
-        # 回传的筛选条件 - 字典形式
-        # name type dataRange createUser
+        print("DICT is: ",form_dict)
+        # return Response(data=Parser([]))
+
+        pid=0
+        start=False
+        hyper={}
+        hyper['suggest']=form_dict['suggest']
+        hyper['epoch']  =form_dict['epoch']
+        hyper['result'] =form_dict['result']
+        # Parse the parameters of create a mission
+        algoDict=form_dict['algo']
+        algo=models.customize_algo.objects.get(id=algoDict['id'])
+        name=form_dict['name']
+        index=form_dict['resource']
+        resource={ k:v for k,v in zip(RES_TYPE[0],RES_TYPE[index])}
+        param,res=parse_param(algoDict)
+        if res: return Response(data=res)
+        package={
+            'job_name':name, # 搜索算法系列任务的 prefix 名
+            'project_dir':algo.project_path,
+            'main_file':algo.start_path,
+            'param':param, # 未被作为搜索对象的参数
+            'resource':resource,
+            'username':user.username,
+            'password':user.first_name,
+            } 
+        # Set the API_config of search 指定要搜索的参数及其范围
+        search_config={} # Follow the structure of "API of BBO"
+        # for item in form_dict['search_para']:
+            # d={'type':item['dataType']}
+            # t=copy.deepcopy(item)
+            # del t['id'], t['default'], t['name'], t['dataType'], t['necessary']
+            # t['range']=format_range(d['type'],t['range'])
+            # search_config[item['name']]={**d,**t} # 合并展开成为搜索用的字典
+            # print("SEARCH Config: ",item['name'],
+            #       search_config[item['name']],d)
+        def num(inp:str,typer):
+            # 1. 整形数 123 -10
+            # 2. 浮点数 1.23 -2.21
+            # 3. 科学计数 1e-4 1e20
+            return inp
+        def parse_values(content,typer):
+            res=content.split(' ')
+            return [num(x,typer) for x in res ]
+
+        for item in form_dict['search_para']:
+            search_config[item['name']]={
+                'type': 'real'if item['dataType'] == 'float' else item['dataType'],
+            }
+            content=parse_values(item['content'],item['dataType'])
+            if item['searchType']=='values':
+                search_config[item['name']]['values']=content
+                pass # 所有的数作为选择范围
+            elif item['searchType']=='range':
+                search_config[item['name']]['range']=content[:2]
+                search_config[item['name']]['space']=item["space"]
+                pass # 前两个数作为范围
+            # if item.__contains__('space'):
+            #     search_config[item['name']]['space']=item["space"]
+            # if item.__contains__('range'):
+            #     search_config[item['name']]['range']=item["range"]
+            # if item.__contains__('space'):
+            #     search_config[item['name']]['space']=item["space"]
+                
+                
+        # Start Search
+        # # Start a process
+        start=back_untils.search_mission(PLIST,form_dict['method'],hyper,package,search_config)
+        start=False
+        # os.fork
+        # If Success
+        # Append to database
+        # # ["waiting","running","succeeded","failed","stopped"]
+        if start:
+            models.customize_auto_search.objects.create(
+                name=form_dict['name'],
+                state="running",
+                algo_id=algo,
+                uid=user,
+                suggest=form_dict['suggest'],
+                epoch=form_dict['epoch'],
+                pid=pid,
+            )
+            res=Parser([])
+        else:
+            res=errParser(errmessage="Failed to start")
+        return Response(data=res)
+        pass 
+    
+    
+# class AIMarket(APIView):
+#     def get(self, request):
+#         """
+#         login get
+#         """
+#         #公开算法数据库内容[{}{}{}]
         
-        result=mock.genAlgoList()
-        # result=mock.ALGORITHM_LIST
+#         params=request.query_params.dict()
+#         print(params)
+        
+#         rec = []
+#         queryset = models.Algorithm.objects.all()
+        
+#         # if(not len(queryset)):# 返回伪造数据
+#         if(True):# 返回伪造数据
+#             result=mock.genAlgoList()
+#             # result=mock.ALGORITHM_LIST
+#         else:
+#         # Algo={
+#             #     'id' ,
+#             #     'name' ,
+#             #     'task' ,
+#             #     'path',
+#             #     'created_at',
+#             #     'uid',}
+#             ret = AlgorithmSerializers(queryset, many=True) # 
+#             print("%ret%", "%ret%", type(ret.data), type(ret.data[0]))
+#             for onejob in ret.data:
 
-        if(not len(form_dict)): # 此时说明重置，返回所有已查询
-            pass
-        else: # 进行条件过滤
-            pass
-        for item in result:
-            ids=item['uid']
-            del item['uid']
-            # 这里应该从数据库里query 创建者的名字
-            item['createUser']=mock.USER_LIST[ids]        
-        result=Parser(result)
-        return Response(data=result)
+#                 rec.append(
+#                     {
+#                         'id':onejob["id"],
+#                         'name':onejob["name"],
+#                         'task':onejob["task"],
+#                         "path":onejob["_path"],
+#                     }
+#                 )
+#             result = rec
+        
+#         # 对get回传的筛选/搜索参数进行处理
+        
+#         # 开始搜索
+        
+#         # 开始筛选
+#         for item in result:
+#             ids=item['uid']
+#             del item['uid']
+#             # 这里应该从数据库里query 创建者的名字
+#             item['createUser']=mock.USER_LIST[ids]
+#         # result=result
+#         result=Parser(result)
+#         return Response(data=result)
+
+#     def post(self,request):
+#         form_dict=request.data
+#         print(form_dict)
+#         # 回传的筛选条件 - 字典形式
+#         # name type dataRange createUser
+        
+#         result=mock.genAlgoList()
+#         # result=mock.ALGORITHM_LIST
+
+#         if(not len(form_dict)): # 此时说明重置，返回所有已查询
+#             pass
+#         else: # 进行条件过滤
+#             pass
+#         for item in result:
+#             ids=item['uid']
+#             del item['uid']
+#             # 这里应该从数据库里query 创建者的名字
+#             item['createUser']=mock.USER_LIST[ids]        
+#         result=Parser(result)
+#         return Response(data=result)
  
-class UserAlgorithm(APIView):
-    def get(self, request):
-        """
-        login get
-        """
-        #公开算法数据库内容[{}{}{}]
-        rec = []
-        queryset = models.User_algorithm.objects.all()
-        ret = UAlgorithmSerializers(queryset, many=True)
-        print("%ret%", "%ret%", type(ret.data), type(ret.data[0]))
-        for onejob in ret.data:
+# class UserAlgorithm(APIView):
+#     def get(self, request):
+#         """
+#         login get
+#         """
+#         #公开算法数据库内容[{}{}{}]
+#         rec = []
+#         queryset = models.User_algorithm.objects.all()
+#         ret = UAlgorithmSerializers(queryset, many=True)
+#         print("%ret%", "%ret%", type(ret.data), type(ret.data[0]))
+#         for onejob in ret.data:
 
-            rec.append(
-                {
-                    'id':onejob["id"],
-                    'name':onejob["name"],
-                    'task':onejob["task"],
-                    "_path":onejob["_path"],
-                }
-            )
-        result = rec
-        pass
-    def post(self,request):
-        pass
+#             rec.append(
+#                 {
+#                     'id':onejob["id"],
+#                     'name':onejob["name"],
+#                     'task':onejob["task"],
+#                     "_path":onejob["_path"],
+#                 }
+#             )
+#         result = rec
+#         pass
+#     def post(self,request):
+#         pass
 
-class PubDataset(APIView):
-    def get(self, request):
-        """
-        login get
-        """
-        #公开算法数据库内容[{}{}{}]
-        rec = []
-        queryset = models.Dataset.objects.all()
-        ret = DatasetSerializers(queryset, many=True)
-        print("%ret%", "%ret%", type(ret.data), type(ret.data[0]))
-        for onejob in ret.data:
+# class PubDataset(APIView):
+#     def get(self, request):
+#         """
+#         login get
+#         """
+#         #公开算法数据库内容[{}{}{}]
+#         rec = []
+#         queryset = models.Dataset.objects.all()
+#         ret = DatasetSerializers(queryset, many=True)
+#         print("%ret%", "%ret%", type(ret.data), type(ret.data[0]))
+#         for onejob in ret.data:
 
-            rec.append(
-                {
-                    'id':onejob["id"],
-                    'name':onejob["name"],
-                    'task':onejob["task"],
-                    "_path":onejob["_path"],
-                }
-            )
-        result = rec
-        pass
-    def post(self,request):
-        pass
-
-class CreateMission(APIView):
-    def get(self, request):
-        """
-        login get
-        """
-        pass
-    def post(self,request):
-        pass 
+#             rec.append(
+#                 {
+#                     'id':onejob["id"],
+#                     'name':onejob["name"],
+#                     'task':onejob["task"],
+#                     "_path":onejob["_path"],
+#                 }
+#             )
+#         result = rec
+#         pass
+#     def post(self,request):
+#         pass
     
-class DataManage(APIView):
-    def get(self, request):
-        """
-        login get
-        """
-        pass
-    def post(self,request):
-        pass 
+# class DataManage(APIView):
+#     def get(self, request):
+#         """
+#         login get
+#         """
+#         pass
+#     def post(self,request):
+#         pass 
     
-class DevEnv(APIView):
-    def get(self, request):
-        """
-        login get
-        """
-        pass
-    def post(self,request):
-        pass 
+# class DevEnv(APIView):
+#     def get(self, request):
+#         """
+#         login get
+#         """
+#         pass
+#     def post(self,request):
+#         pass 
     
-class ModelManage(APIView):
-    def get(self, request):
-        """
-        login get
-        """
-        pass
-    def post(self,request):
-        pass 
+# class ModelManage(APIView):
+#     def get(self, request):
+#         """
+#         login get
+#         """
+#         pass
+#     def post(self,request):
+#         pass 

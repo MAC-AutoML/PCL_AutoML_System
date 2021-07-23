@@ -71,6 +71,10 @@ def get_joblist(tocken,username,password,size=20,offset=0):
     return info["payload"]
 
 def get_jobinfo(jobid,tocken,username,password):
+    '''
+    Success: {'code': 'S000', 'msg': 'success', 'payload':{...}}
+    Failed:  {'code': 'S400', 'msg': 'job not found'}
+    '''
     headers = {
         "Content-Type": 'application/json',
         "Authorization": get_tocken(username,password)
@@ -88,14 +92,15 @@ def mission_submit(job_name, project_dir,main_file, param, resource, username, p
     for k, v in param.items():
         if k != 'main_file' and k != 'image':
             command += f' --{k} {v}'
-
+    # "image": "{param['image'] if "image" in param.keys() else "dockerhub.pcl.ac.cn:5000/user-images/wudch:1.2"}",
+    print("INFOS are: ",job_name,project_dir,main_file,param, command, resource,username,password)
     data = \
         f"""
     {{
     "jobName": "{job_name}",
     "retryCount": 0,
     "gpuType": "dgx",
-    "image": "{param['image'] if "image" in param.keys() else "dockerhub.pcl.ac.cn:5000/user-images/wudch:1.2"}",
+    "image": "{param['image'] if "image" in param.keys() else "dockerhub.pcl.ac.cn:5000/user-images/wuyh:base"}",
     "taskRoles": [
         {{
         "taskNumber": 1,
@@ -119,17 +124,24 @@ def mission_submit(job_name, project_dir,main_file, param, resource, username, p
     }
     response = requests.post(url=url, json=json.loads(data), headers=headers)
     info = bytes2dict(response)
-    if info["code"] != 'S000':
+    print("RETURN INFOS ARE: ", info)
+    print("API RETURN TYPE: ",type(info))
+    if info['code'] != 'S000' :
         return "Unexpected error"
     else:
-        jobId = info['payload']['jobId']
-        urljob = f'http://192.168.204.24/rest-server/api/v1/jobs/{jobId}'
-        jobResponse = requests.get(url=urljob, json={}, headers=headers)
-        jobInfo = bytes2dict(jobResponse)
-        if jobInfo["code"] != "S000":
-            return "Unexpected error"
-        else:
-            return jobInfo
+        return info
+
+        # jobId = info['payload']['jobId']
+        # print("JOBID is: ",info)
+        # urljob = f'http://192.168.204.24/rest-server/api/v1/jobs/{jobId}'
+        # jobResponse = requests.get(url=urljob, json={}, headers=headers)
+        # jobInfo = bytes2dict(jobResponse)
+        # # JOB RETURN IS:  <class 'dict'> {'code': 'S500', 'msg': "Cannot read property 'length' of undefined"}
+        # print("JOB RETURN IS: ",type(jobInfo),jobInfo)
+        # if jobInfo["code"] != "S000":
+        #     return "Unexpected error"
+        # else:
+        #     return jobInfo
 
 
 def creat_mission(job_name, command,tocken,username,password):

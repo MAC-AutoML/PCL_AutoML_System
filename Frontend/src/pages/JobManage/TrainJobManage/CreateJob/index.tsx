@@ -102,8 +102,8 @@ const afterSuccess = () => history.goBack();
 
 export default (): React.ReactNode =>{
   // console.log(props.match.params)
-  const [inputKeys,setInputKeys] = React.useState<React.Key[]>([]);
-  const [inputData,setInputData] = React.useState<ioDataType[]>([]);
+  const [ioKeys,setIoKeys] = React.useState<React.Key[]>([]);
+  const [ioData,setIoData] = React.useState<ioDataType[]>([]);
   const [hyperKeys,setHyperKeys] = React.useState<React.Key[]>([]);
   const [hyperList,setHyper] = React.useState<hyperType[]>([]);
   const [algoID,setAlgoID] = React.useState<number>(0);
@@ -159,10 +159,10 @@ export default (): React.ReactNode =>{
       key={ID}
       rowKey="id"
       maxLength={20}
-      value={inputData}
+      value={ioData}
       actionRef={ioRef}
       columns={ioColumns}
-      onChange={setInputData}
+      onChange={setIoData}
       toolBarRender={false}
       controlled={true}
       request={(params, sorter, filter) => {
@@ -174,7 +174,7 @@ export default (): React.ReactNode =>{
             data=resp.data;
             for(let k in data)
               ids.push(data[k].id);
-            setInputKeys([...inputKeys,...ids])
+            setIoKeys([...ioKeys,...ids])
             return resp;
           });
         return pro;
@@ -187,8 +187,8 @@ export default (): React.ReactNode =>{
       }}
       editable={{
         type:'multiple',
-        editableKeys:inputKeys,
-        onChange:setInputKeys,
+        editableKeys:ioKeys,
+        onChange:setIoKeys,
         actionRender:(row,_,dom)=>{
           return [dom.delete];
         },
@@ -210,8 +210,8 @@ export default (): React.ReactNode =>{
             onClick={(e)=>{
               setHyper([]);
               setHyperKeys([]);
-              setInputKeys([]);
-              setInputData([]);
+              setIoKeys([]);
+              setIoData([]);
               if(row.id && algoID!= row.id)
                 setAlgoID(row.id);
               else if(row.id && algoID == row.id)
@@ -276,13 +276,13 @@ export default (): React.ReactNode =>{
       onFinish={async (values) => {
         // console.log("FORMS: ",values);
         // console.log("HYPER: ",hyperList);
-        // console.log("IOPAR: ",inputData);
+        // console.log("IOPAR: ",ioData);
         // 这里定义了一部分的回传键值对
         let res=postForm({
             ...values,
             algoID:algoID,
             hyperDict:hyperList,
-            ioDict:inputData});
+            ioDict:ioData});
         let rep={};
         //如果 是 async类型的函数 这里必须加 await 否则会异步执行后面的代码，导致 rep 没有赋值
         await res.then( 

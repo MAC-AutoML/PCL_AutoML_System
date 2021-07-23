@@ -191,8 +191,8 @@ export default (): React.ReactNode =>{
   const [createType,setType] = React.useState<number>(0);
   const [ifImport,setImport] = React.useState<number>(0);
 
-  const [inputKeys,setInputKeys] = React.useState<React.Key[]>([]);
-  const [inputData,setInputData] = React.useState<ioDataType[]>(()=> defaultIO);
+  const [ioKeys,setIoKeys] = React.useState<React.Key[]>([]);
+  const [ioData,setIoData] = React.useState<ioDataType[]>(()=> defaultIO);
   const [newRecord,setNewRecord] = React.useState({
     id:(Math.random()*1000000)/1,});
 
@@ -342,8 +342,8 @@ export default (): React.ReactNode =>{
         <EditableProTable<ioDataType>
           rowKey="id"
           maxLength={20}
-          value={inputData}
-          onChange={setInputData}
+          value={ioData}
+          onChange={setIoData}
           toolBarRender={false}
           columns={ioColumns}
           recordCreatorProps={{
@@ -353,8 +353,8 @@ export default (): React.ReactNode =>{
           }}
           editable={{
             type:'multiple',
-            editableKeys:inputKeys,
-            onChange:setInputKeys,
+            editableKeys:ioKeys,
+            onChange:setIoKeys,
             actionRender:(row,_,dom)=>{
               return [dom.delete];
             },

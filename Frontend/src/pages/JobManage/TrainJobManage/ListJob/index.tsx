@@ -62,6 +62,7 @@ const columns = [
         color: 'warning',
         status: 'waiting',
       }},
+      // fitler:()=>{},
       render: (dom, row,index,action) =>
         {
           return(
@@ -71,12 +72,19 @@ const columns = [
           )},
   },
   {
+    title:'使用算法',
+    dataIndex:'algo',
+    valueType:'text',
+  },
+  {
     title: '创建时间',
     // key: 'since',
     dataIndex: 'created_at',
     valueType: 'date',
     defaultSortOrder: 'descend',
-    // sorter: (a, b) => a > b,
+    // sorter: true,
+    sorter: (a, b) => {
+       return(a.created_at > b.created_at)},
   },
   {
     title: '结束时间',
@@ -84,8 +92,9 @@ const columns = [
     dataIndex: 'completed_at',
     valueType: 'date',
     defaultSortOrder: 'descend',
-    // sorter: (a, b) => a > b,
-  },
+    sorter: (a, b) => {
+      return(a.completed_at > b.completed_at)},
+ },
   {
     title: '操作',
     valueType: 'option',

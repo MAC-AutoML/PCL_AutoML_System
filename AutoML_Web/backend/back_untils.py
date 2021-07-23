@@ -1,13 +1,43 @@
 # coding=utf-8
 
 import os,sys,stat
+from multiprocessing import Process
 import shutil
 import time
 import datetime
+from django.db import models as dmodel
 from _app import models
+
 from tools import API_tools
 from  tools.API_tools import get_keyword
-
+class SearchProcess(Process):
+    def __init__(self,method:str,hyper:dict,package:dict,api_config:dict ) -> None:
+        super().__init__()
+        self.method=method
+        self.hyper=hyper
+        self.package=package
+        self.api_config=api_config
+        self.state=True
+    def run(self):
+        print("子进程（%s） 开始执行，父进程为（%s）" % (os.getpid(), os.getppid()))
+        time.sleep(20)
+        print("========MISSION REPORT========")
+        print("pid: %s METHOD is: "%(os.getpid()),self.method)
+        time.sleep(20)
+        print("-"*24)
+        time.sleep(20)
+        print("pid: %s Hypers: "%(os.getpid()))
+        a=[print(k,v) for k,v in enumerate(self.hyper.items())]
+        print("-"*24)
+        time.sleep(20)
+        print("pid: %s Job config is: "%(os.getpid()))
+        a=[print(k,v) for k,v in self.package.items()]
+        print("-"*24)
+        time.sleep(20)
+        print("pid: %s BBO config is: "%(os.getpid()))
+        a=[print(k,v) for k,v in self.api_config.items()]
+        print("="*24)  
+              
 def updata_user_algorithm(user,id):
     u_alg = models.User_algorithm.objects.exclude(algorithm_id=None).filter(user_id=id)
     p_alg = models.Algorithm.objects.all()
@@ -26,15 +56,18 @@ def updata_user_algorithm(user,id):
             ujb = models.User_algorithm.objects.create(algorithm_id = it,user_id=uid,name=palobj.name,task=palobj.task,_path=palobj._path)
             ujb.save()
 
-
-def updata_jobtable(tocken,un,pa):
+def updata_jobtable(tocken,un,pa,typer="automl"):
     # 对于正在运行中的任务，更新他们的状态
     #同步云脑数据库job信息
-    job = models.User_Job.objects.all().order_by("id")
+    if typer == "automl":
+        job = models.User_Job.objects.all().order_by("id")
+    else:
+        job = models.customize_job.objects.all().order_by("id")
     job = job.exclude(state="STOPPED").exclude(state="FAIL").exclude(state="SUCCEEDED")
     for jd in job:
         print(jd)
-        jd_detail = API_tools.get_jobinfo(jd.jobid,tocken,un,pa)
+        jobid=jd.jobid if typer=="automl" else jd.job_id
+        jd_detail = API_tools.get_jobinfo(jobid,tocken,un,pa)
         if jd_detail["code"] == "S000":
             jd.state = jd_detail["payload"]["jobStatus"]["state"]
             timeStamp2 = int(jd_detail['payload']['jobStatus']["completedTime"])
@@ -44,33 +77,53 @@ def updata_jobtable(tocken,un,pa):
                 jd.completedTime = otherStyleTime2
             jd.save()
             print("$$$$$$$$ Update Dataset Success")
-def refresh_jobtable(tocken,un,pa,user):
-    # user 是 auth.user 对象
-    # 从云脑API处获取所有的任务，
-    job_list=API_tools.get_joblist(tocken,un,pa,size=20,offset=0)
 
-    totalSize=job_list["totalSize"]
-    job_list=job_list["jobs"]
+def refresh_train_job(user):
+    '''
+    Args:
+        user: 用户实例
+    '''
+    # 以本地数据库的信息为主
+    un=user.username
+    pa=user.first_name
+    token=API_tools.get_tocken(un,pa)
+    job_list=models.customize_job.objects.all()
+    for rec in job_list:
+        # print("JOB: ", rec.jobid)
+        info=API_tools.get_jobinfo(rec.job_id,token,un,pa)
+        if info['code'] == 'S000': # 存在该任务
+            job=info['payload']
+            rec.state = job["jobStatus"]["state"]
+            timeStamp2 = int(job['jobStatus']["completedTime"])
+            if timeStamp2 == 0: continue
+            rec.completed_at = datetime.datetime.fromtimestamp(
+                timeStamp2/1000 )
+            rec.save()            
+        else:
+            rec=models.customize_job.objects.get(id=rec.id)
+            rec.delete()
+            
+def insert_train_job(user,job_id,algo=None):
+    res_info=API_tools.get_jobinfo(job_id,"",user.username,user.first_name)
+    job=res_info["payload"]
+    print("RESPONSE JOB INFO: ",res_info)
+    jid=job['id']
+    if jid != job_id:
+        return ["Job id Error"]
+    createdTime = datetime.datetime.fromtimestamp(job['jobStatus']["completedTime"]/1000) 
+    # compeletedTime = createdTime
     
-    now_jobs=models.customize_job.objects.all()
-    ids=[j.job_id for j in now_jobs]
-    ids=set(ids)
-    for job in job_list:
-        if job['id'] in ids:
-            continue
-        # ! 这里没有指定时区，默认是使用当地时区，也就是北京时间
-        createdTime= datetime.datetime.fromtimestamp(job["createdTime"]/1000) 
-        compeletedTime=datetime.datetime.fromtimestamp(job["completedTime"]/1000)
-        
-        models.customize_job.objects.create(
-            job_id=job["id"],
-            name=job["name"],
-            state=job["state"],
-            created_at=createdTime,
-            completed_at=compeletedTime,
-            uid=user,
-        )
-    pass
+    models.customize_job.objects.create(
+        job_id=jid,
+        name=job['name'],
+        state=job['jobStatus']['state'],
+        created_at=createdTime,
+        # completed_at=compeletedTime,
+        uid=user,
+        algo_id=algo,
+    )    
+    return []    
+
 def info_decoder(job_info):
     pass
 def alg_cp(source,target):
@@ -112,3 +165,15 @@ def alg_cp(source,target):
     shutil.copytree(source_path, target_path)
 
     print('$$$$$$$$$$$$$$$$$Copy files finished!')
+
+def search_mission(plist:list,method:str,hyper:dict,package:dict,api_config:dict):
+    p=SearchProcess(method,hyper,package,api_config)
+    p.start()
+    if p.is_alive():
+        print("SubProcess Success")
+        plist.append(p)
+        return True
+    else:
+        print("SubProcess Failed")
+        return False
+    
