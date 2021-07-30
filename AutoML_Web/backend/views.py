@@ -64,6 +64,7 @@ RES_TYPE=[
 ]
 METHODS=['BBO','BORE','HyperBand']
 PLIST=[]
+POOL=back_untils.SearchPool(3)
 # POOL=multiprocessing.Pool(8)
 ## 每个页面对应一个类?
 class OverView(APIView):
@@ -705,21 +706,6 @@ def format_range(type,ranger):
     res=ranger
     return res
 
-# def search_mission(method:str,hyper:dict,package:dict,api_config:dict):
-#     print("========MISSION REPORT========")
-#     print("METHOD is: ",method)
-#     print("-"*24)
-#     print("Hypers: ")
-#     a=[print(k,v) for k,v in hyper.items()]
-#     print("-"*24)
-#     print("Job config is: ")
-#     a=[print(k,v) for k,v in package.items()]
-#     print("-"*24)
-#     print("BBO config is: ")
-#     a=[print(k,v) for k,v in api_config.items()]
-#     print("="*24)
-#     return False
-
 class AutoJobManage(APIView):
     def get(self, request):
         user = auth.get_user(request)
@@ -840,18 +826,17 @@ class AutoJobManage(APIView):
             elif item['searchType']=='range':
                 search_config[item['name']]['range']=content[:2]
                 search_config[item['name']]['space']=item["space"]
-                pass # 前两个数作为范围
-            # if item.__contains__('space'):
-            #     search_config[item['name']]['space']=item["space"]
-            # if item.__contains__('range'):
-            #     search_config[item['name']]['range']=item["range"]
-            # if item.__contains__('space'):
-            #     search_config[item['name']]['space']=item["space"]
-                
+                pass # 前两个数作为范围             
                 
         # Start Search
         # # Start a process
-        start=back_untils.search_mission(PLIST,form_dict['method'],hyper,package,search_config)
+        # start=back_untils.search_mission(PLIST,form_dict['method'],hyper,package,search_config)
+        res=POOL.add_mission(form_dict['method'],hyper,package,search_config)
+        print("AUTO-SEARCH RESULT is: ",res)
+        try:
+            print(res.get(0))
+        except BaseException as e:
+            print("RAISE: ",repr(e))
         start=False
         # os.fork
         # If Success

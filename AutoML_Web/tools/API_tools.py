@@ -84,7 +84,7 @@ def get_jobinfo(jobid,tocken,username,password):
     info = bytes2dict(response)
     return info
 def mission_submit(job_name, project_dir,main_file, param, resource, username, password):
-
+    default="dockerhub.pcl.ac.cn:5000/user-images/wuyh:base"
     url = f'http://192.168.204.24/rest-server/api/v1/jobs'
 
     tocken = get_tocken(username, password)
@@ -100,7 +100,7 @@ def mission_submit(job_name, project_dir,main_file, param, resource, username, p
     "jobName": "{job_name}",
     "retryCount": 0,
     "gpuType": "dgx",
-    "image": "{param['image'] if "image" in param.keys() else "dockerhub.pcl.ac.cn:5000/user-images/wuyh:base"}",
+    "image": "{param['image'] if "image" in param.keys() else default}",
     "taskRoles": [
         {{
         "taskNumber": 1,

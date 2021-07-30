@@ -1,52 +1,121 @@
 # coding=utf-8
 
-import os,sys,stat
+import os,sys,stat,subprocess,shutil
 from multiprocessing import Process,pool
-import shutil
-import time
-import datetime
+import time,datetime,csv
 from django.db import models as dmodel
 from _app import models
-
 from tools import API_tools
-from  tools.API_tools import get_keyword
 
-def AutoSearch(method:str,hyper:dict,package:dict,api_config:dict):
+def get_result(username:str,path:str)->list:
+    # 获取用户给出路径的 result.txt 并解析出运行结果
+    # 相对 /userhome 的路径
+    # 文件以 csv 格式存储 第一列是 pid / 唯一标识符, 之后列均为目标值
+    res=[]
+    local="/mnt/{}".format(username)
+    if not os.path.exists(local):
+        a=subprocess.run("sudo mkdir {}".format(local))
+    if os.path.ismount(local):
+        a=subprocess.run("sudo umount -lf {}".format(local),shell=True)
+    a=subprocess.run("sudo mount -t nfs -o ro 192.168.202.159:/mnt/neuronfs/ghome/{} {}".format(username,local),shell=True)
+    filepath=os.path.join(local,path)
+    with open(filepath,"r") as fr:
+        f=csv.reader(fr)
+        res=[row for row in f]
+        # 【如何确定结果？唯一标识符 唯一标识符怎么确定？一开始就默认设置一个参数传入唯一标识符】
+    b=subprocess.run("sudo umount -lf {}".format(local),shell=True)
+    if not os.listdir(local):
+        subprocess.run("sudo rm -rf {}".format(local))
+    return res
+def get_param(param:dict,point):
+    return param
+def AutoSearch(method:str,hyper:dict,package:dict,api_config:dict,interval:int=60):
     print("子进程（%s） 开始执行，父进程为（%s）" % (os.getpid(), os.getppid()))
-    time.sleep(20)
+    time.sleep(5)
     print("========MISSION REPORT========")
     print("pid: %s METHOD is: "%(os.getpid()),method)
-    time.sleep(20)
+    time.sleep(5)
     print("-"*24)
-    time.sleep(20)
+    time.sleep(5)
     print("pid: %s Hypers: "%(os.getpid()))
     a=[print(k,v) for k,v in enumerate(hyper.items())]
     print("-"*24)
-    time.sleep(20)
+    time.sleep(5)
     print("pid: %s Job config is: "%(os.getpid()))
     a=[print(k,v) for k,v in package.items()]
     print("-"*24)
-    time.sleep(20)
-    print("pid: %s BBO config is: "%(os.getpid()))
+    time.sleep(5)
+    print("pid: %s Search config is: "%(os.getpid()))
     a=[print(k,v) for k,v in api_config.items()]
     print("="*24)
-    
+    return 
+    optimizer=None # 【需要字典形式列出的黑盒方法集合】
+    for ii in range(hyper['epoch']):
+        points=optimizer.suggest(hyper['suggest'])
+        success=[]
+        jobid=[]
+        for jj,point in enumerate(points):
+            # 创建每个建议参数的任务
+            print(point)
+            param=get_param(package['param'],point) # 【需要知道point的形式】
+            info=API_tools.mission_submit(
+                job_name="as_"+package['job_name'],
+                project_dir=package['project_dir'],
+                main_file = package['main_file'],
+                param=param,
+                resource=package['resource'],
+                username=package['username'], 
+                password=package['password'],)
+            if type(info) != dict or info.__contains__("code") and info["code"]!="S000":
+                print("ERROR: mission creation failed.\n* Epoch:{}, P:{}, {}".format(ii,jj,point))
+                success.append(False)
+            else:
+                jobid.append(info['payload']['jobId'])
+                success.append(True)
+        if not all(success):
+            print("Some mission failed, exit this search procedure.")
+            break
+        finish=[False]*hyper['suggest']
+        retry=[10]*hyper['suggest']
+        stop=False
+        while(all(finish) or stop):
+            for i,jid in enumerate(jobid):
+                info=API_tools.get_jobinfo(jid,username=package['username'],password=package['password'])
+                if info['code'] == 'S000':
+                    status=info['payload']['jobStatus']['state'].lower()
+                    if status == 'succeeded':
+                        finish[i] = True
+                    if status == 'waiting':
+                        pass
+                    if status == 'running':
+                        pass
+                    if status == 'failed':
+                        stop=True
+                    if status == 'stopped':
+                        stop=True
+                else:
+                    retry[i]-=1
+                if stop : break
+            stop=any([x<0 for x in retry])
+            time.sleep(interval)
+        if all(finish) and not stop:
+            ylist=get_result(package['username'],hyper['result'])
+            optimizer.observe(points,ylist)       
+              
 class SearchPool(pool.Pool):
-    def __init__(self, processes:int, method:str,hyper:dict,package:dict,api_config:dict) -> None:
+    def __init__(self, processes:int) -> None:
         super().__init__(processes=processes)
-        self.method=method
-        self.hyper=hyper
-        self.package=package
-        self.api_config=api_config
         self.result=[]
     def __del__(self):
         print("EXIT POOLS")
-        self.close()
-        self.terminate()
+        if self:
+            self.close()
+            self.terminate()
         super().__del__()
-    def add_mission(self):
-        res=self.apply_async(AutoSearch,args=(self.method,self.hyper,self.package,self.api_config))
+    def add_mission(self, method:str,hyper:dict,package:dict,api_config:dict):
+        res=self.apply_async(AutoSearch,args=(method,hyper,package,api_config))
         self.result.append(res)
+        return res
     def show_result(self):
         a=[print(x) for x in self.result]
 class SearchProcess(Process):
