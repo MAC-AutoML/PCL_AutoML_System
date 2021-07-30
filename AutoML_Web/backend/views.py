@@ -22,6 +22,7 @@ import copy
 import time
 import datetime
 import re
+import multiprocessing
 from collections import Iterable
 
 from _app import models
@@ -63,6 +64,7 @@ RES_TYPE=[
 ]
 METHODS=['BBO','BORE','HyperBand']
 PLIST=[]
+# POOL=multiprocessing.Pool(8)
 ## 每个页面对应一个类?
 class OverView(APIView):
     def get(self, request):

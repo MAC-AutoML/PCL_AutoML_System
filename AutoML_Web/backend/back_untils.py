@@ -1,7 +1,7 @@
 # coding=utf-8
 
 import os,sys,stat
-from multiprocessing import Process
+from multiprocessing import Process,pool
 import shutil
 import time
 import datetime
@@ -10,6 +10,45 @@ from _app import models
 
 from tools import API_tools
 from  tools.API_tools import get_keyword
+
+def AutoSearch(method:str,hyper:dict,package:dict,api_config:dict):
+    print("子进程（%s） 开始执行，父进程为（%s）" % (os.getpid(), os.getppid()))
+    time.sleep(20)
+    print("========MISSION REPORT========")
+    print("pid: %s METHOD is: "%(os.getpid()),method)
+    time.sleep(20)
+    print("-"*24)
+    time.sleep(20)
+    print("pid: %s Hypers: "%(os.getpid()))
+    a=[print(k,v) for k,v in enumerate(hyper.items())]
+    print("-"*24)
+    time.sleep(20)
+    print("pid: %s Job config is: "%(os.getpid()))
+    a=[print(k,v) for k,v in package.items()]
+    print("-"*24)
+    time.sleep(20)
+    print("pid: %s BBO config is: "%(os.getpid()))
+    a=[print(k,v) for k,v in api_config.items()]
+    print("="*24)
+    
+class SearchPool(pool.Pool):
+    def __init__(self, processes:int, method:str,hyper:dict,package:dict,api_config:dict) -> None:
+        super().__init__(processes=processes)
+        self.method=method
+        self.hyper=hyper
+        self.package=package
+        self.api_config=api_config
+        self.result=[]
+    def __del__(self):
+        print("EXIT POOLS")
+        self.close()
+        self.terminate()
+        super().__del__()
+    def add_mission(self):
+        res=self.apply_async(AutoSearch,args=(self.method,self.hyper,self.package,self.api_config))
+        self.result.append(res)
+    def show_result(self):
+        a=[print(x) for x in self.result]
 class SearchProcess(Process):
     def __init__(self,method:str,hyper:dict,package:dict,api_config:dict ) -> None:
         super().__init__()
@@ -19,24 +58,7 @@ class SearchProcess(Process):
         self.api_config=api_config
         self.state=True
     def run(self):
-        print("子进程（%s） 开始执行，父进程为（%s）" % (os.getpid(), os.getppid()))
-        time.sleep(20)
-        print("========MISSION REPORT========")
-        print("pid: %s METHOD is: "%(os.getpid()),self.method)
-        time.sleep(20)
-        print("-"*24)
-        time.sleep(20)
-        print("pid: %s Hypers: "%(os.getpid()))
-        a=[print(k,v) for k,v in enumerate(self.hyper.items())]
-        print("-"*24)
-        time.sleep(20)
-        print("pid: %s Job config is: "%(os.getpid()))
-        a=[print(k,v) for k,v in self.package.items()]
-        print("-"*24)
-        time.sleep(20)
-        print("pid: %s BBO config is: "%(os.getpid()))
-        a=[print(k,v) for k,v in self.api_config.items()]
-        print("="*24)  
+        AutoSearch(self.method,self.hyper,self.package,self.api_config)
               
 def updata_user_algorithm(user,id):
     u_alg = models.User_algorithm.objects.exclude(algorithm_id=None).filter(user_id=id)
@@ -176,4 +198,5 @@ def search_mission(plist:list,method:str,hyper:dict,package:dict,api_config:dict
     else:
         print("SubProcess Failed")
         return False
-    
+def search_mission_pool(method:str,hyper:dict,package:dict,api_config:dict):
+    pass    
